@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Kiểm Tra Vô Tuyến Số - (Thử Lại Nếu Sai)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+        #test-container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #dddfe2;
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+        #results {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0 30px 0;
+            padding: 10px;
+            background-color: #e7f3ff;
+            color: #0056b3;
+            border-radius: 8px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+        .question-block {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .options-container div {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 6px;
+        }
+        label {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        input[type="radio"] {
+            cursor: pointer;
+        }
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        fieldset:disabled {
+            opacity: 0.7;
+        }
+        fieldset:disabled label {
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .correct-answer {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #155724;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+            display: none; /* Initially hidden */
+        }
+        .correct-answer.incorrect-user {
+            color: #721c24;
+        }
+        .correct-answer.visible {
+            display: block; /* Becomes visible after answering correctly */
+        }
+        .cite {
+            font-size: 0.8em;
+            color: #555;
+            margin-left: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="test-container">
+        <h1>Bài Kiểm Tra Vô Tuyến Số 📡 (Thử Lại Nếu Sai)</h1>
+        <div id="results">Điểm số: 0 / 186</div>
+        
+        <form id="quiz-form">
+            </form>
+    </div>
+
+    <script>
+    // --- DATA SECTION (Full 186 Questions) ---
+    const quizData = [
+        // ----- Q1-186 -----
+        { id: 1, type: 'mc', question: "Truyền dẫn vô tuyến số là hình thức truyền dẫn vô tuyến số sử dụng môi trường truyền dẫn là …., phương tiện truyền dẫn là sóng điện từ.", options: { A: "Cáp đồng", B: "Cáp quang", C: "Cáp đồng trục", D: "Không gian" }, answer: "D" },
+        { id: 2, type: 'mc', question: "Độ nhạy máy thu là:", options: { A: "Tỷ số tín hiệu tạp âm tối thiểu", B: "Công suất tạp âm tối thiểu", C: "Công suất tín hiệu tối thiểu", D: "Tỷ số tạp âm tín hiệu tối thiểu" }, answer: "C" },
+        { id: 3, type: 'mc', question: "Tìm phát biểu sai về nhược điểm của truyền dẫn vô tuyến so với truyền dẫn hữu tuyến khác là:", options: { A: "Môi trường kín", B: "Suy hao lớn", C: "Chất lượng không ổn định", D: "Dễ bị nhiễu" }, answer: "A" },
+        { id: 4, type: 'mc', question: "Các tín hiệu đầu ra có thành phần tần số là bội tần số đầu vào hệ thống phi tuyến được gọi là:", options: { A: "Thành phần cơ bản", B: "Thành phần bậc cao hơn", C: "Các hài", D: "Tín hiệu bội" }, answer: "C" },
+        { id: 5, type: 'mc', question: "Điểm IP3 ở đầu vào hệ thống điều chế được xác định là mức tín hiệu đầu vào ở đầu ra hệ thống các mức tín hiệu tương đối với thành phần tần số cơ bản và các thành phần:", options: { A: "Bậc 1", B: "Bậc 2", C: "Bậc 3", D: "Bậc 4" }, answer: "C" },
+        { id: 6, type: 'mc', question: "Ngẫu nhiên hóa trong truyền dẫn vô tuyến số được thực hiện bằng cách:", options: { A: "Thực hiện phép toán XOR giữa luồng bit CẦN TRUYỀN ĐI với một chuỗi bit giả ngẫu nhiên", B: "Thực hiện phép toán XOR giữa luồng bit THU ĐƯỢC với một chuỗi bit giả ngẫu nhiên", C: "Thực hiện phép toán AND giữa luồng bit truyền đi với một chuỗi bit ngẫu nhiên", D: "Thực hiện phép toán OR giữa luồng bit truyền đi với một chuỗi bit giả ngẫu nhiên" }, answer: "A", note: "Câu hỏi này đã được điều chỉnh cho chính xác. Ngẫu nhiên hóa (scrambling) xảy ra ở phía phát." },
+        { id: 7, type: 'mc', question: "Suy hao trong không gian tự do của sóng điện từ cho khoảng cách là 10km, tần số là 10GHz là bao nhiêu?", options: { A: "100,4 dB", B: "107,4 dB", C: "132,4 dB", D: "Các đáp án trên đều sai" }, answer: "C" },
+        { id: 8, type: 'mc', question: "Thiết bị thu là tập hợp các phương tiện kỹ thuật dùng để:", options: { A: "Mã hóa kênh", B: "Điều chế", C: "Khôi phục lại nguồn tin ban đầu", D: "Mã hóa nguồn" }, answer: "C" },
+        { id: 9, type: 'mc', question: "Hiện tượng ống dẫn (ducting) xuất hiện khi nào?", options: { A: "Khi sóng điện từ đi vào vùng không khí đặc hơn nằm giữa hai vùng không khí loãng hơn", B: "Khi sóng điện từ đi vào vùng không khí loãng hơn nằm giữa hai vùng không khí đặc hơn", C: "Khi sóng điện từ truyền qua tầng điện ly", D: "Khi sóng điện từ truyền trong mưa rất to" }, answer: "A" },
+        { id: 10, type: 'mc', question: "Chuỗi giả bit ngẫu nhiên được tạo ra tại khối ngẫu nhiên hóa đầu phát và giải ngẫu nhiên hóa đầu thu có quan hệ như thế nào với nhau?", options: { A: "Ngược pha nhau", B: "Không liên quan", C: "Giống nhau hoàn toàn", D: "Là chuỗi bù 1 của nhau" }, answer: "C" },
+        { id: 11, type: 'mc', question: "Giải pháp tránh ảnh hưởng của tín hiệu đầu ra của bộ khuếch đại công suất với bộ dao động nội là:", options: { A: "Tần số tín hiệu ra đủ lớn hay đủ nhỏ so với tần số bộ dao động nội", B: "Tần số đầu ra bằng tần số dao động nội", C: "Công suất đầu ra bằng công suất dao động nội", D: "Sử dụng chung một nguồn cấp cho cả hai" }, answer: "A" },
+        { id: 12, type: 'mc', question: "Hiện tượng tán xạ sóng điện từ xảy ra khi nào?", options: { A: "Khi sóng điện từ tác động đến đối tượng có kích thước lớn hơn nhiều bước sóng", B: "Khi môi trường có nhiều đối tượng với kích thước nhỏ hơn bước sóng của tín hiệu", C: "Khi đường truyền bị che khuất bởi một vật cản lớn như ngọn núi", D: "Khi sóng đi qua hai lớp khí quyển có chiết suất khác nhau" }, answer: "B" },
+        { id: 13, type: 'mc', question: "Nguyên nhân gây ra nhiễu ký sinh (parasitic noise) bên trong máy thu đến từ:", options: { A: "Nhiễu từ các hệ thống vô tuyến khác", B: "Nhiễu do mặt trời", C: "Nhiễu từ các đường dây điện cao thế", D: "Bội tần của các xung đồng hồ số" }, answer: "D" },
+        { id: 14, type: 'mc', question: "Hệ số tạp âm (Noise Figure) của một bộ khuếch đại phụ thuộc vào:", options: { A: "Công suất tín hiệu đầu ra", B: "Tỷ số tín hiệu trên tạp âm (SNR) ở đầu vào", C: "Nhiệt độ môi trường", D: "Băng thông của tín hiệu" }, answer: "B" },
+        { id: 15, type: 'mc', question: "Cho chuỗi bit cần truyền là “0000 1111”, giả sử chuỗi bit ngẫu nhiên là “1011 0110”. Chuỗi bit đã được ngẫu nhiên hóa là?", options: { A: "1011 1001", B: "0011 1001", C: "0110 1001", D: "1011 0110" }, answer: "A", note: "Thực hiện phép toán XOR." },
+        { id: 16, type: 'mc', question: "Sóng điện từ chịu ảnh hưởng của các yếu tố nào của khí quyển?", options: { A: "Sự hấp thụ, sự khúc xạ, hiệu ứng ống dẫn, suy hao trong không gian tự do", B: "Sự hấp thụ, hiệu ứng ống dẫn, suy hao trong không gian tự do", C: "Sự hấp thụ, sự khúc xạ, hiệu ứng ống dẫn", D: "Sự khúc xạ, hiệu ứng ống dẫn, suy hao trong không gian tự do" }, answer: "C", note: "Suy hao không gian tự do không phải là yếu tố của khí quyển." },
+        { id: 17, type: 'mc', question: "Trong cùng một loại điều chế số, khi số mức điều chế tăng lên, khả năng chống nhiễu của tín hiệu sẽ như thế nào?", options: { A: "Tăng lên", B: "Giảm xuống", C: "Không đổi", D: "Tăng đến một ngưỡng rồi giảm" }, answer: "B" },
+        { id: 18, type: 'mc', question: "Trong điều chế số, các tham số nào của sóng mang có thể mang tin?", options: { A: "Biên độ", B: "Tần số", C: "Pha", D: "Tất cả các tham số trên" }, answer: "D" },
+        { id: 19, type: 'mc', question: "Giải ngẫu nhiên hóa trong truyền dẫn vô tuyến số được thực hiện bằng cách:", options: { A: "Thực hiện phép toán XOR giữa luồng bit thu được với một chuỗi bit giả ngẫu nhiên tương tự chuỗi bit dùng để ngẫu nhiên hóa", B: "Thực hiện phép toán XOR giữa luồng bit cần truyền đi với một chuỗi bit giả ngẫu nhiên", C: "Thực hiện phép toán AND giữa luồng bit thu được với một chuỗi bit ngẫu nhiên", D: "Thực hiện phép toán OR giữa luồng bit thu được với một chuỗi bit ngẫu nhiên" }, answer: "A" },
+        { id: 20, type: 'mc', question: "Máy thu không chỉ chịu tín hiệu hữu ích mà còn thu cả nhiễu gây ra bởi:", options: { A: "Chỉ các hệ thống vô tuyến khác", B: "Chỉ các linh kiện bên trong máy thu", C: "Cả các hệ thống khác và chính hệ thống đó", D: "Chỉ do mặt trời và các thiên thể" }, answer: "C" },
+        { id: 21, type: 'mc', question: "Bộ lọc dải rộng đầu tiên ở máy thu thường dùng để:", options: { A: "Lọc băng tần", B: "Lựa chọn kênh", C: "Lọc nhiễu trắng", D: "Chặn băng tần" }, answer: "A" },
+        { id: 22, type: 'mc', question: "Cho tuyến truyền dẫn vô tuyến tầm nhìn thẳng dài 60km, f=4GHz. Bán kính miền Fresnel thứ nhất tại điểm cách anten thứ nhất 10km là?", options: { A: "25 m", B: "25 km", C: "29,1 m", D: "625 m" }, answer: "A" },
+        { id: 23, type: 'mc', question: "Tạp âm trắng Gaussian (AWGN) được đặc trưng bởi quá trình ngẫu nhiên có trị trung bình là:", options: { A: "1", B: "-1", C: "0", D: "Phụ thuộc vào công suất" }, answer: "C" },
+        { id: 24, type: 'mc', question: "Truyền dẫn vô tuyến có nhược điểm gì hơn so với loại hình truyền dẫn quang?", options: { A: "Độ trễ cao hơn", B: "Chi phí lắp đặt cao hơn", C: "Tính di động kém hơn", D: "Tốc độ và băng thông thấp hơn" }, answer: "D" },
+        { id: 25, type: 'mc', question: "Các phổ tần số hữu ích của hệ thống vô tuyến số trải dài từ 10KHz đến hàng trăm GHz là:", options: { A: "LF, MF, HF, VHF", B: "VLF, LF, MF, HF, VHF, UHF, SHF, EHF", C: "Chỉ có VHF, UHF, SHF", D: "Chỉ có MF và HF" }, answer: "B" },
+        { id: 26, type: 'mc', question: "Phổ tần số nào dùng cho truyền hình thương mại (kênh 14 đến 83) và trong dịch vụ thông tin di động mặt đất?", options: { A: "UHF", B: "SHF", C: "EHF", D: "VHF" }, answer: "A" },
+        { id: 27, type: 'mc', question: "Phổ tần số nào ít được dùng trong các hệ thống vô tuyến số thông thường do băng thông cực hẹp?", options: { A: "ELF", B: "VHF", C: "UHF", D: "SHF" }, answer: "A" },
+        { id: 28, type: 'mc', question: "Công dụng của dải tần số VHF là gì?", options: { A: "Chỉ dùng trong radar", B: "Chỉ dùng cho vệ tinh", C: "Thông tin di động, hàng hải, hàng không, phát thanh FM và truyền hình", D: "Chỉ dùng cho mạng Wifi" }, answer: "C" },
+        { id: 29, type: 'mc', question: "Tần số của băng tần MF (Medium Frequency) nằm trong khoảng nào?", options: { A: "30 - 300 Hz", B: "3 - 30 KHz", C: "300 - 3000 KHz", D: "30 - 300 MHz" }, answer: "C" },
+        { id: 30, type: 'mc', question: "Phổ tần số nào chủ yếu dùng trong hệ thống Vi ba (Microwave) và thông tin vệ tinh?", options: { A: "SHF", B: "UHF", C: "VHF", D: "HF" }, answer: "A" },
+        { id: 31, type: 'mc', question: "Hiện tượng fading gây ra bởi:", options: { A: "Chỉ do nhiễu xạ", B: "Chỉ do phản xạ", C: "Nhiều hiện tượng như khúc xạ, nhiễu xạ, phản xạ,...", D: "Chỉ do thời tiết xấu" }, answer: "C" },
+        { id: 32, type: 'mc', question: "Trải Doppler (Doppler spread) gây ra hai loại fading là:", options: { A: "Fading phẳng và Fading lựa chọn tần số", B: "Fading nhanh và Fading chậm", C: "Fading đa đường và Fading che khuất", D: "Fading do mưa và Fading do khí quyển" }, answer: "B" },
+        { id: 33, type: 'mc', question: "Trải trễ đa đường (Multipath delay spread) gây ra hai loại fading là:", options: { A: "Fading phẳng và Fading lựa chọn tần số", B: "Fading nhanh và Fading chậm", C: "Fading do Doppler và Fading do che khuất", D: "Fading phân tập và Fading không phân tập" }, answer: "A" },
+        { id: 34, type: 'mc', question: "Ảnh hưởng của hiện tượng Fading đa đường là:", options: { A: "Chỉ làm tăng công suất tín hiệu tại anten thu", B: "Chỉ làm giảm công suất tín hiệu tại anten thu", C: "Làm biến thiên năng lượng và thăng giáng tín hiệu tại điểm thu", D: "Làm thay đổi tần số của tín hiệu" }, answer: "C" },
+        { id: 35, type: 'mc', question: "Mục đích sử dụng của bộ điều chế là:", options: { A: "Chuyển tín hiệu số vào vùng tần số thấp để truyền đi", B: "Chuyển tín hiệu số vào vùng tần số cao (sóng mang) để truyền đi", C: "Lọc nhiễu cho tín hiệu số", D: "Mã hóa tín hiệu số" }, answer: "B" },
+        { id: 36, type: 'mc', question: "Mục đích sử dụng của bộ giải điều chế là:", options: { A: "Mã hóa kênh", B: "Khuếch đại tín hiệu", C: "Nâng tần số tín hiệu", D: "Khôi phục lại tín hiệu băng gốc ban đầu từ sóng mang" }, answer: "D" },
+        { id: 37, type: 'mc', question: "Chức năng của bộ nâng tần số (Up-converter) trong máy phát là:", options: { A: "Chuyển tín hiệu trung tần (IF) lên tần số vô tuyến (RF) để phát đi", B: "Chuyển tín hiệu RF xuống tín hiệu IF", C: "Chuyển tín hiệu băng gốc lên tín hiệu IF", D: "Khuếch đại tín hiệu RF" }, answer: "A" },
+        { id: 38, type: 'mc', question: "Chức năng của bộ hạ tần số (Down-converter) trong máy thu là:", options: { A: "Biến đổi tín hiệu thu được (RF) xuống tín hiệu trung tần (IF)", B: "Biến đổi tín hiệu IF lên tín hiệu RF", C: "Biến đổi tín hiệu băng gốc thành tín hiệu IF", D: "Lọc nhiễu cho tín hiệu RF" }, answer: "A" },
+        { id: 39, type: 'mc', question: "Một tuyến thu superheterodyne bao gồm các chức năng cơ bản nào?", options: { A: "Chỉ khuếch đại tín hiệu", B: "Chỉ lọc dải rộng", C: "Chỉ biến đổi tần số", D: "Khuếch đại, lọc và biến đổi tần số" }, answer: "D" },
+        { id: 40, type: 'mc', question: "Trong tuyến thu, khối nào thực hiện việc chọn kênh mong muốn và loại bỏ các kênh lân cận?", options: { A: "Bộ khuếch đại công suất (PA)", B: "Bộ lọc dải hẹp ở khối IF", C: "Bộ khuếch đại tạp âm thấp (LNA)", D: "Anten" }, answer: "B" },
+        { id: 41, type: 'mc', question: "Trong các kỹ thuật thông tin vô tuyến, có bao nhiêu loại phân tập?", options: { A: "1", B: "2", C: "3", D: "Nhiều hơn 3 (không gian, tần số, thời gian, phân cực,...)" }, answer: "D" },
+        { id: 42, type: 'mc', question: "Sóng điện từ gồm mấy thành phần và dải tần số vô tuyến hữu ích nằm trong khoảng nào?", options: { A: "Hai thành phần (điện trường, từ trường) và nằm trong khoảng 3KHz - 300GHz", B: "Ba thành phần và nằm trong khoảng 300KHz - 3000GHz", C: "Hai thành phần và nằm trong khoảng 3MHz - 30MHz", D: "Một thành phần và nằm trong khoảng 3GHz - 300GHz" }, answer: "A" },
+        { id: 43, type: 'mc', question: "Công thức tính suy hao trong không gian tự do của sóng điện từ là: (với f tính bằng GHz, d tính bằng km)", options: { A: "L(dB) = 92.4 + 10log(f) + 10log(d)", B: "L(dB) = 134.55 + 20log(f) + 20log(d)", C: "L(dB) = 92.4 + 20log(f) + 20log(d)", D: "L(dB) = 92.4 - 20log(f) - 20log(d)" }, answer: "C" },
+        { id: 44, type: 'mc', question: "Suy hao trong không gian tự do của sóng điện từ sẽ thay đổi như thế nào khi ta tăng tần số?", options: { A: "Tăng", B: "Giảm", C: "Không đổi", D: "Giảm về 0" }, answer: "A" },
+        { id: 45, type: 'mc', question: "Sóng điện từ chịu ảnh hưởng của các yếu tố nào trong khí quyển?", options: { A: "Chỉ hấp thụ", B: "Chỉ khúc xạ", C: "Chỉ hiệu ứng ống dẫn", D: "Cả ba yếu tố hấp thụ, khúc xạ, hiệu ứng ống dẫn" }, answer: "D" },
+        { id: 46, type: 'mc', question: "Thành phần nào trong khí quyển gây ra sự hấp thụ sóng điện từ đáng kể nhất ở một số dải tần?", options: { A: "Hơi nước và Oxi", B: "Nito và CO2", C: "Argon và Heli", D: "Tất cả các thành phần trên" }, answer: "A" },
+        { id: 47, type: 'mc', question: "Nhìn chung, sự hấp thụ do hơi nước của sóng điện từ sẽ như thế nào nếu tăng tần số (vào các dải GHz)?", options: { A: "Tăng", B: "Giảm", C: "Không bị hấp thụ", D: "Không đổi" }, answer: "A" },
+        { id: 48, type: 'mc', question: "Nguyên nhân dẫn đến hiện tượng khúc xạ sóng điện từ trong không khí là do:", options: { A: "Chiết suất không khí không đổi theo độ cao", B: "Chiết suất không khí thay đổi (thường là giảm) khi lên cao", C: "Từ trường của Trái Đất", D: "Sự quay của Trái Đất" }, answer: "B" },
+        { id: 49, type: 'mc', question: "Hiện tượng nào đóng vai trò chính trong hiệu ứng ống dẫn (ducting)?", options: { A: "Nhiễu xạ", B: "Tán xạ", C: "Phản xạ toàn phần", D: "Hấp thụ" }, answer: "C" },
+        { id: 50, type: 'mc', question: "Ảnh hưởng của hiệu ứng ống dẫn đối với hệ thống thông tin vô tuyến là gì?", options: { A: "Luôn làm tín hiệu mạnh hơn", B: "Luôn làm tín hiệu yếu đi", C: "Gây thăng giáng tín hiệu hoặc làm sóng không đến được anten thu", D: "Không có ảnh hưởng gì" }, answer: "C" },
+        { id: 51, type: 'mc', question: "Hiện tượng phản xạ sóng điện từ xảy ra khi nào?", options: { A: "Khi sóng đi qua đối tượng có kích thước nhỏ hơn bước sóng", B: "Khi sóng tác động đến đối tượng có kích thước lớn hơn nhiều so với bước sóng", C: "Khi đường truyền bị che khuất bởi một cạnh sắc", D: "Khi sóng đi vào vùng có chiết suất giảm dần" }, answer: "B" },
+        { id: 52, type: 'mc', question: "Hiện tượng nhiễu xạ sóng điện từ xảy ra khi nào?", options: { A: "Khi đường truyền bị che khuất bởi một vật cản có cạnh sắc", B: "Khi sóng đi qua môi trường có nhiều vật thể nhỏ hơn bước sóng", C: "Khi sóng đập vào một bề mặt phẳng lớn", D: "Khi sóng bị bẻ cong do thay đổi chiết suất" }, answer: "A" },
+        { id: 53, type: 'mc', question: "Ảnh hưởng quan trọng nhất của hiện tượng phản xạ sóng điện từ trong hệ thống thông tin vô tuyến là:", options: { A: "Gây ra fading đa đường", B: "Gây ra hiệu ứng Doppler", C: "Gây ra suy hao do mưa", D: "Làm tăng băng thông tín hiệu" }, answer: "A" },
+        { id: 54, type: 'mc', question: "Miền Fresnel là gì?", options: { A: "Một khu vực hình elip xung quanh đường tầm nhìn thẳng cần được giữ thông thoáng", B: "Một khu vực hình tròn chỉ có ở anten phát", C: "Một khu vực hình nón chỉ có ở anten thu", D: "Khoảng cách tối đa mà tín hiệu có thể truyền đi" }, answer: "A" },
+        { id: 55, type: 'mc', question: "Câu hỏi 'Có mấy hệ thống trong miền Fresnel?' có thể là một lỗi. Một câu hỏi hợp lý hơn có thể là 'Miền Fresnel nào là quan trọng nhất?'", options: { A: "Miền thứ nhất", B: "Miền thứ hai", C: "Miền thứ ba", D: "Tất cả đều quan trọng như nhau" }, answer: "A", note: "Câu hỏi gốc không rõ nghĩa, đã được diễn giải lại." },
+        { id: 56, type: 'mc', question: "Fading phẳng (flat fading) xảy ra khi nào?", options: { A: "Chỉ ảnh hưởng một phần tần số trong kênh", B: "Ảnh hưởng đến tất cả các thành phần tần số trong kênh một cách đồng đều", C: "Chỉ xảy ra ở tần số cao", D: "Chỉ xảy ra khi máy thu di chuyển" }, answer: "B" },
+        { id: 57, type: 'mc', question: "Phương pháp hiệu quả nhất để khắc phục hiện tượng fading là:", options: { A: "Sử dụng kỹ thuật phân tập", B: "Tăng công suất phát", C: "Giảm tần số phát", D: "Sử dụng anten đẳng hướng" }, answer: "A" },
+        { id: 58, type: 'mc', question: "Trong máy thu, tín hiệu RF yếu từ anten được khuếch đại bởi bộ khuếch đại nào để giảm thiểu ảnh hưởng của nhiễu?", options: { A: "Bộ khuếch đại tạp âm thấp (LNA)", B: "Bộ khuếch đại công suất (PA)", C: "Bộ khuếch đại trung tần (IF Amplifier)", D: "Bộ khuếch đại vi sai" }, answer: "A" },
+        { id: 59, type: 'mc', question: "Các chức năng chính của một máy thu vô tuyến số bao gồm:", options: { A: "Chỉ thu tín hiệu RF", B: "Chỉ trộn hạ tần", C: "Chỉ giải điều chế", D: "Thu tín hiệu RF, trộn hạ tần, và giải điều chế" }, answer: "D" },
+        { id: 60, type: 'mc', question: "Trong một máy thu đổi tần hai lần (dual-IF), tín hiệu được khuếch đại ở khối trung tần mấy lần?", options: { A: "1", B: "3", C: "2", D: "Không lần nào" }, answer: "C" },
+        { id: 61, type: 'mc', question: 'Ảnh hưởng cần quan tâm của hiện tượng phản xạ lên hệ thống thông tin vô tuyến là?', options: { A: 'Hiện tượng đa đường', B: 'Suy hao không gian tự do', C: 'Hiệu ứng Doppler', D: 'Tăng cường tín hiệu' }, answer: 'A' },
+        { id: 62, type: 'mc', question: 'Bộ lọc thông dải đầu tiên ở máy thu thường dùng để:', options: { A: 'Lọc băng tần', B: 'Lọc kênh lân cận', C: 'Khuếch đại tín hiệu', D: 'Giải điều chế' }, answer: 'A' },
+        { id: 63, type: 'mc', question: 'Bộ mã sửa sai gồm:', options: { A: 'Mã hóa và giải mã', B: 'Mã đồng bộ và dị bộ', C: 'Mã phát hiện sai và mã sửa sai', D: 'Mã khối và mã FEC' }, answer: 'C' },
+        { id: 64, type: 'mc', question: 'Các hệ thống vô tuyến số được sử dụng trong các đường truyền dẫn số giữa các phần tử khác nhau của ________.', options: { A: 'mạng viễn thông', B: 'mạng máy tính', C: 'hệ thống điện', D: 'mạng truyền hình' }, answer: 'A' },
+        { id: 65, type: 'mc', question: 'Cho một băng thông 10KHz, tốc độ bit cực đại của tín hiệu 2FSK có thể truyền qua, giả thiết khoảng cách tần số là 2KHz, là bao nhiêu?', options: { A: '10000 bps', B: '8000 bps', C: '12000 bps', D: '2000 bps' }, answer: 'B' },
+        { id: 66, type: 'mc', question: 'Chức năng của bộ trộn hạ tần là:', options: { A: 'Trộn tín hiệu RF với tín hiệu IF để ra tín hiệu RF cao hơn', B: 'Trộn tín hiệu RF với sóng mang tại chỗ để cho ra tín hiệu trung tần thu IF', C: 'Trộn tín hiệu băng gốc với sóng mang để điều chế', D: 'Tách tín hiệu và nhiễu ra khỏi nhau' }, answer: 'B' },
+        { id: 67, type: 'mc', question: 'Chuỗi giả ngẫu nhiên được tạo ra tại khối ngẫu nhiên hóa đầu phát và giải ngẫu nhiên hóa đầu thu có quan hệ như thế nào với nhau?', options: { A: 'Giống nhau hoàn toàn', B: 'Ngược nhau hoàn toàn', C: 'Không liên quan', D: 'Tương tự nhau 90%' }, answer: 'A' },
+        { id: 68, type: 'mc', question: 'Ba thông số của sóng mang có thể dùng để mang tin là:', options: { A: 'Công suất, băng thông, pha', B: 'Tốc độ, biên độ, tần số', C: 'Biên độ, tần số, pha', D: 'Bước sóng, chu kỳ, biên độ' }, answer: 'C' },
+        { id: 69, type: 'mc', question: 'Loại phân tập nào có thể áp dụng để khắc phục phading đa đường?', options: { A: 'Phân tập không gian và phân tập tần số', B: 'Phân tập điều chế và phân tập mã hóa', C: 'Phân tập công suất và phân tập băng thông', D: 'Phân tập anten và phân tập bộ lọc' }, answer: 'A' },
+        { id: 70, type: 'mc', question: 'Công thức tính độ nhạy máy thu là:', options: { A: 'Pmin = -174 + F - 10log10B - SNRmin', B: 'Pmin = -174 + F + 10log10B + SNRmin', C: 'Pmin = -114 + F + 10log10B + SNRmin', D: 'Pmin = -174 - F - 10log10B + SNRmin' }, answer: 'B' },
+        { id: 71, type: 'mc', question: 'Cự ly nhảy cách là khoảng cách từ anten phát sao cho sóng trời có tần số nhỏ hơn tần số nào sẽ trở lại trái đất?', options: { A: 'LUF', B: 'EHF', C: 'MUF', D: 'IF' }, answer: 'C' },
+        { id: 72, type: 'mc', question: 'SFDR (Spurious-Free Dynamic Range) là dải động không có:', options: { A: 'Tạp âm', B: 'Méo', C: 'Thành phần hài ký sinh', D: 'Tín hiệu' }, answer: 'C' },
+        { id: 73, type: 'mc', question: 'Câu hỏi này không có trong tài liệu gốc. Nó có thể là một câu hỏi bị trùng lặp hoặc lỗi.', options: { A: '', B: '', C: '', D: '' }, answer: ''},
+        { id: 74, type: 'mc', question: 'Điểm nén 1dB được xác định khi độ khuếch đại của tín hiệu nhỏ giảm đi:', options: { A: '3dB', B: '1dB', C: '0.1dB', D: '10dB' }, answer: 'B' },
+        { id: 75, type: 'mc', question: 'Trong điều chế 4PSK theo tài liệu tham khảo, trạng thái pha kề nhau cách nhau một góc bao nhiêu?', options: { A: '90 độ', B: '180 độ', C: '45 độ', D: '135 độ' }, answer: 'D' },
+        { id: 76, type: 'mc', question: 'Băng thông cực tiểu của một tín hiệu 2PSK có tốc độ bit 8000b/s là bao nhiêu?', options: { A: '4000 Hz', B: '16000 Hz', C: '8000 Hz', D: '2000 Hz' }, answer: 'C' },
+        { id: 77, type: 'mc', question: 'Điều chế số là kỹ thuật gắn thông tin vào:', options: { A: 'Dao động hình sin (sóng mang)', B: 'Tín hiệu băng gốc', C: 'Xung đồng hồ', D: 'Nguồn điện' }, answer: 'A' },
+        { id: 78, type: 'mc', question: 'Tần số ảnh là tần số đối xứng với tần số RF qua:', options: { A: 'Tần số trung gian (IF)', B: 'Tần số sóng mang (LO)', C: 'Tần số băng gốc', D: 'Tần số cắt của bộ lọc' }, answer: 'B' },
+        { id: 79, type: 'mc', question: 'Độ cao ảo trong truyền sóng trời là độ cao giả định khi coi sóng khúc xạ như là sóng:', options: { A: 'Nhiễu xạ', B: 'Phản xạ', C: 'Tán xạ', D: 'Đứng' }, answer: 'B' },
+        { id: 80, type: 'mc', question: 'Độ nhạy của máy thu thường được xác định để đạt một mức BER (Bit Error Rate) nhất định sau khi:', options: { A: 'Khuếch đại', B: 'Lọc', C: 'Giải điều chế', D: 'Mã hóa' }, answer: 'C' },
+        { id: 81, type: 'mc', question: 'Độ khả dụng (Availability) của hệ thống là khả năng thực hiện chức năng yêu cầu tại một:', options: { A: 'Công suất nhất định', B: 'Thời điểm hoặc khoảng thời gian quy định', C: 'Băng thông tối thiểu', D: 'Nhiệt độ tối đa' }, answer: 'B' },
+        { id: 82, type: 'mc', question: 'Tỷ số năng lượng bit trên mật độ phổ tạp âm còn được ký hiệu là:', options: { A: 'SNR', B: 'C/N', C: 'Eb/N0', D: 'BER' }, answer: 'C' },
+        { id: 83, type: 'mc', question: 'Fading là hiện tượng biến thiên năng lượng điện từ tại ______ do môi trường truyền sóng gây ra.', options: { A: 'anten phát', B: 'bộ điều chế', C: 'anten thu', D: 'bộ khuếch đại công suất' }, answer: 'C' },
+        { id: 84, type: 'mc', question: 'Fading phẳng là loại fading xảy ra với _____ các kênh tần số.', options: { A: 'một vài', B: 'tất cả', C: 'kênh ở giữa', D: 'kênh ở biên' }, answer: 'B' },
+        { id: 85, type: 'mc', question: 'Hiện tượng nào là nguyên nhân chính gây ra Fading lựa chọn tần số?', options: { A: 'Hiện tượng đa đường', B: 'Hấp thụ bởi mưa', C: 'Hiệu ứng ống dẫn', D: 'Nhiễu xuyên kênh' }, answer: 'A' },
+        { id: 86, type: 'mc', question: 'Fading nhanh (hiệu ứng Doppler) gây ra bởi sự di chuyển tương đối giữa:', options: { A: 'Các lớp khí quyển', B: 'Các electron trong anten', C: 'Máy phát, máy thu và các vật thể trong kênh truyền', D: 'Trái đất và mặt trời' }, answer: 'C' },
+        { id: 87, type: 'mc', question: 'Fading chậm còn được gọi là hiệu ứng gì?', options: { A: 'Hiệu ứng bóng râm (shadowing)', B: 'Hiệu ứng Doppler', C: 'Hiệu ứng đa đường', D: 'Hiệu ứng ống dẫn' }, answer: 'A' },
+        { id: 88, type: 'mc', question: 'Các phương pháp thực hiện giả ngẫu nhiên hóa là:', options: { A: 'Đồng bộ và dị bộ', B: 'Nhanh và chậm', C: 'Mã khối và mã xoắn', D: 'Tương tự và số' }, answer: 'A' },
+        { id: 89, type: 'mc', question: 'Giải ngẫu nhiên hóa thực hiện phép toán ___ giữa luồng bit thu được với một chuỗi bit giả ngẫu nhiên.', options: { A: 'AND', B: 'OR', C: 'XOR', D: 'NOT' }, answer: 'C' },
+        { id: 90, type: 'mc', question: 'Giải pháp tránh ảnh hưởng của bộ khuếch đại công suất lên bộ dao động nội là giữ cho tần số của chúng:', options: { A: 'Bằng nhau', B: 'Gần nhau', C: 'Cách xa nhau', D: 'Cùng pha' }, answer: 'C' },
+        { id: 91, type: 'mc', question: 'Hệ số tạp âm phụ thuộc vào thông số nào của nguồn tín hiệu?', options: { A: 'Công suất', B: 'Điện áp', C: 'Trở kháng', D: 'Pha' }, answer: 'C' },
+        { id: 92, type: 'mc', question: 'Hệ số tạp âm được định nghĩa dựa trên sự suy giảm của:', options: { A: 'Công suất tín hiệu', B: 'Tỷ số tín hiệu trên tạp âm (SNR)', C: 'Băng thông', D: 'Độ lợi' }, answer: 'B' },
+        { id: 93, type: 'mc', question: 'Trong định nghĩa hệ số tạp âm, nhiệt độ tạp âm chuẩn thường được lấy là:', options: { A: '0 K', B: '273 K', C: '290 K', D: '373 K' }, answer: 'C' },
+        { id: 94, type: 'mc', question: 'Hiện tượng nhiễu xạ xảy ra khi sóng vô tuyến bị che khuất bởi vật chắn có kích thước so với bước sóng?', options: { A: 'Lớn hơn nhiều', B: 'So sánh được (xấp xỉ hoặc nhỏ hơn)', C: 'Không phụ thuộc kích thước', D: 'Chỉ khi vật chắn trong suốt' }, answer: 'B' },
+        { id: 95, type: 'mc', question: 'Hiện tượng ống dẫn xuất hiện khi sóng điện từ bị kẹt trong một lớp không khí có mật độ:', options: { A: 'Đặc hơn giữa hai lớp loãng hơn', B: 'Loãng hơn giữa hai lớp đặc hơn', C: 'Đồng đều', D: 'Thay đổi ngẫu nhiên' }, answer: 'A' },
+        { id: 96, type: 'mc', question: 'Hiện tượng pha-đinh đa đường là kết quả giao thoa giữa tín hiệu trực tiếp và các tia:', options: { A: 'Nhiễu xạ', B: 'Khúc xạ', C: 'Phản xạ', D: 'Tán xạ' }, answer: 'C' },
+        { id: 97, type: 'mc', question: 'Hiện tượng phản xạ sóng điện từ xảy ra khi sóng tác động đến một đối tượng có kích thước so với bước sóng?', options: { A: 'Nhỏ hơn', B: 'Lớn hơn', C: 'Bằng', D: 'Không phụ thuộc' }, answer: 'B' },
+        { id: 98, type: 'mc', question: 'Hiện tượng tán xạ xảy ra khi môi trường truyền dẫn tồn tại các đối tượng có kích thước so với bước sóng?', options: { A: 'Nhỏ hơn', B: 'Lớn hơn', C: 'Bằng', D: 'Không phụ thuộc' }, answer: 'A' },
+        { id: 99, type: 'mc', question: 'Các phương thức điều chế được sử dụng trong hệ thống MMDS là:', options: { A: 'AM và FM', B: 'ASK và FSK', C: 'QPSK và 16QAM', D: 'BPSK và 8PSK' }, answer: 'C' },
+        { id: 100, type: 'mc', question: 'Công suất ra của bộ khuếch đại công suất trong một hệ thống ví dụ nằm trong khoảng:', options: { A: '1-100 W', B: '1-100 kW', C: '1-100 mW', D: '1-100 uW' }, answer: 'C' },
+        { id: 101, type: 'mc', question: 'Hệ thống LMDS cho phép loại thông tin nào?', options: { A: 'Chỉ có thoại', B: 'Chỉ có dữ liệu', C: 'Song biên (thoại, dữ liệu, video, internet)', D: 'Đơn biên (chỉ truyền hình)' }, answer: 'C' },
+        { id: 102, type: 'mc', question: 'Để định lượng ảnh hưởng của hiện tượng biến điệu xuyên điều chế (IM), người ta định nghĩa đại lượng nào?', options: { A: 'Điểm nén 1dB', B: 'Điểm chặn phi tuyến bậc 3 (IP3)', C: 'Hệ số tạp âm (NF)', D: 'Dải động (SFDR)' }, answer: 'B' },
+        { id: 103, type: 'mc', question: 'Để khắc phục hiện tượng fading, ngoài việc dùng độ dự trữ công suất, người ta còn có thể sử dụng kỹ thuật:', options: { A: 'Nén tín hiệu', B: 'Mã hóa nguồn', C: 'Phân tập', D: 'Lọc thông thấp' }, answer: 'C' },
+        { id: 104, type: 'mc', question: 'Một cách để khắc phục fading phẳng là sử dụng một lượng công suất dự trữ, gọi là:', options: { A: 'Công suất ngưỡng', B: 'Độ dự trữ fading', C: 'Công suất đỉnh', D: 'Công suất hiệu dụng' }, answer: 'B' },
+        { id: 105, type: 'mc', question: 'Khi có hiện tượng tần số ảnh, tín hiệu nhận được ở tần số trung gian sẽ:', options: { A: 'Mạnh hơn tín hiệu thật', B: 'Là nhiễu không mang thông tin', C: 'Có tần số gấp đôi tín hiệu thật', D: 'Không có gì thay đổi' }, answer: 'B' },
+        { id: 106, type: 'mc', question: 'Khi tín hiệu đi qua một thành phần phi tuyến, ở đầu ra sẽ xuất hiện các thành phần tần số là:', options: { A: 'Bội số nguyên của tần số đầu vào', B: 'Ước số của tần số đầu vào', C: 'Căn bậc hai của tần số đầu vào', D: 'Không có thành phần tần số mới' }, answer: 'A' },
+        { id: 107, type: 'mc', question: 'Khi lượng hơi nước trong không khí tăng lên, sự hấp thụ sóng điện từ sẽ:', options: { A: 'Giảm đi', B: 'Tăng lên', C: 'Không đổi', D: 'Bằng không' }, answer: 'B' },
+        { id: 108, type: 'mc', question: 'Khi tần số của sóng điện từ tăng, suy hao trong không gian tự do sẽ:', options: { A: 'Giảm', B: 'Không đổi', C: 'Tăng', D: 'Lúc tăng lúc giảm' }, answer: 'C' },
+        { id: 109, type: 'mc', question: 'Kiến trúc Weaver cho phép dịch chuyển tần số mà không bị suy giảm bởi tín hiệu:', options: { A: 'Tần số ảnh', B: 'Tần số lân cận', C: 'Tạp âm', D: 'Tín hiệu điều chế' }, answer: 'A' },
+        { id: 110, type: 'mc', question: 'Trong kiến trúc Weaver, sự di pha 90° được thực hiện bằng:', options: { A: 'Một bộ di pha phần cứng', B: 'Sự dịch chuyển tần lần thứ hai', C: 'Một bộ lọc thông dải', D: 'Một thuật toán phần mềm' }, answer: 'B' },
+        { id: 111, type: 'mc', question: 'Mã sửa lỗi trước (FEC - Forward Error Correction) phù hợp với loại dịch vụ nào?', options: { A: 'Dữ liệu nhạy cảm với trễ và truyền một hướng', B: 'Dữ liệu không nhạy cảm với trễ và truyền hai hướng', C: 'Chỉ cuộc gọi thoại', D: 'Chỉ duyệt web' }, answer: 'A' },
+        { id: 112, type: 'mc', question: 'Loại mã nào được sử dụng trong cơ chế FEC?', options: { A: 'Chỉ mã hóa khối', B: 'Chỉ mã hóa xoắn', C: 'Mã hóa khối và mã hóa xoắn', D: 'Mã CRC' }, answer: 'C' },
+        { id: 113, type: 'mc', question: 'Loại mã nào được sử dụng trong cơ chế yêu cầu phát lại (ARQ)?', options: { A: 'Mã sửa lỗi', B: 'Mã phát hiện lỗi', C: 'Mã xoắn', D: 'Mã Hamming' }, answer: 'B' },
+        { id: 114, type: 'mc', question: 'Lỗi cụm (burst error) là một cụm các bit lỗi xuất hiện:', options: { A: 'Ngẫu nhiên', B: 'Ở đầu gói tin', C: 'Liên tiếp nhau', D: 'Ở cuối gói tin' }, answer: 'C' },
+        { id: 115, type: 'mc', question: 'Các bộ phân nhánh (circulator, duplexer) trong hệ thống siêu cao tần có nhiệm vụ gì?', options: { A: 'Chỉ khuếch đại tín hiệu', B: 'Ghép nối tín hiệu giữa máy phát/thu và anten', C: 'Tạo dao động nội', D: 'Lọc nhiễu' }, answer: 'B' },
+        { id: 116, type: 'mc', question: 'Máy thu không chỉ thu tín hiệu hữu ích mà còn thu cả nhiễu gây ra bởi:', options: { A: 'Chỉ hệ thống đó', B: 'Chỉ hệ thống khác', C: 'Hệ thống đó và hệ thống khác', D: 'Không có nhiễu' }, answer: 'C' },
+        { id: 117, type: 'mc', question: 'Miền Fresnel là quỹ tích những điểm mà tín hiệu phản xạ từ đó đến anten thu sẽ lệch pha so với tín hiệu đi thẳng một góc:', options: { A: 'λ (360°)', B: 'λ/4 (90°)', C: 'λ/2 (180°)', D: '2λ (720°)' }, answer: 'C' },
+        { id: 118, type: 'mc', question: 'Một tín hiệu analog mang 4 bit trong một đơn vị tín hiệu, nếu có 1000 đơn vị tín hiệu được phát đi trong 1s. Tốc độ bit là bao nhiêu?', options: { A: '1000 bps', B: '4000 bps', C: '250 bps', D: '1004 bps' }, answer: 'B' },
+        { id: 119, type: 'mc', question: 'Một tín hiệu có tốc độ 6000 bit/s nếu một đơn vị tín hiệu mang 6 bit thì tốc độ baud là bao nhiêu?', options: { A: '36000 baud/s', B: '6000 baud/s', C: '1000 baud/s', D: '600 baud/s' }, answer: 'C' },
+        { id: 120, type: 'mc', question: 'Mục đích của điều chế trong truyền dẫn vô tuyến số là:', options: { A: 'Biến đổi luồng bit thành dạng sóng phù hợp để truyền qua kênh vô tuyến', B: 'Sửa lỗi cho luồng bit', C: 'Nén luồng bit lại', D: 'Tăng tốc độ bit' }, answer: 'A' },
+        { id: 121, type: 'mc', question: 'Mục đích của mã hóa kênh là:', options: { A: 'Giảm băng thông', B: 'Thêm vào các bit dư để phát hiện và/hoặc sửa lỗi', C: 'Tăng công suất phát', D: 'Loại bỏ các bit dư thừa' }, answer: 'B' },
+        { id: 122, type: 'mc', question: 'Mục đích của truyền dẫn vô tuyến số là phát các bản tin qua kênh vô tuyến với:', options: { A: 'Tốc độ cao và độ chính xác cao nhất có thể', B: 'Tốc độ thấp và độ chính xác thấp', C: 'Chỉ cần tốc độ cao', D: 'Chỉ cần độ chính xác cao' }, answer: 'A' },
+        { id: 123, type: 'mc', question: 'Ngẫu nhiên hóa trong truyền dẫn vô tuyến số được thực hiện bằng phép toán:', options: { A: 'AND', B: 'OR', C: 'XOR', D: 'ADD' }, answer: 'C' },
+        { id: 124, type: 'mc', question: 'Trong sóng điện từ, phương của vector điện trường và vector từ trường như thế nào so với phương truyền sóng?', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Trùng nhau' }, answer: 'B' },
+        { id: 125, type: 'mc', question: 'Trong phân tập không gian, 2 anten thu thường được đặt cách nhau một khoảng đủ lớn về:', options: { A: 'Hướng', B: 'Độ cao hoặc phương ngang', C: 'Góc phân cực', D: 'Công suất' }, answer: 'B' },
+        { id: 126, type: 'mc', question: 'Trong phân tập tần số, hệ thống sử dụng hai máy phát hoạt động ở hai:', options: { A: 'Tần số khác nhau', B: 'Công suất khác nhau', C: 'Pha khác nhau', D: 'Anten khác nhau' }, answer: 'A' },
+        { id: 127, type: 'mc', question: 'Điều chế QAM là sự kết hợp của hai loại điều chế nào?', options: { A: 'ASK và FSK', B: 'ASK và PSK', C: 'FSK và PSK', D: 'PAM và PWM' }, answer: 'B' },
+        { id: 128, type: 'mc', question: 'So với máy phát có trung tần, máy phát không qua trung tần (direct conversion) giảm được mấy bộ trộn?', options: { A: '1', B: '2', C: '3', D: 'Không giảm' }, answer: 'A' },
+        { id: 129, type: 'mc', question: 'Sóng điện từ bị khúc xạ trong không khí gây ra ảnh hưởng nào?', options: { A: 'Chỉ gây fading đa đường', B: 'Chỉ làm đường truyền xa hơn tầm nhìn thẳng', C: 'Gây fading đa đường và làm đường truyền xa hơn tầm nhìn thẳng', D: 'Không gây ảnh hưởng gì' }, answer: 'C' },
+        { id: 130, type: 'mc', question: 'Sóng điện từ có 2 thành phần là:', options: { A: 'Điện trường và Trọng trường', B: 'Điện trường và Từ trường', C: 'Từ trường và Trọng trường', D: 'Sóng dọc và sóng ngang' }, answer: 'B' },
+        { id: 131, type: 'mc', question: 'Dải tần số của sóng điện từ dùng trong viễn thông là:', options: { A: '3KHz - 300GHz', B: '3Hz - 300Hz', C: '3THz - 300THz', D: 'Chỉ từ 3MHz - 30MHz' }, answer: 'A' },
+        { id: 132, type: 'mc', question: 'Một nhược điểm của truyền lan sóng đất là yêu cầu anten có kích thước:', options: { A: 'Nhỏ', B: 'Lớn', C: 'Trung bình', D: 'Không quan trọng' }, answer: 'B' },
+        { id: 133, type: 'mc', question: 'Hiện tượng nào sau đây gây ra Fading phẳng?', options: { A: 'Chỉ hiện tượng đa đường', B: 'Hấp thụ bởi nước trong không khí, hiệu ứng ống dẫn', C: 'Chỉ hiệu ứng Doppler', D: 'Chỉ nhiễu xạ' }, answer: 'B' },
+        { id: 134, type: 'mc', question: 'Nhược điểm của cấu trúc Hartley là sai số về biên độ và ____ giữa hai nhánh I và Q.', options: { A: 'Tần số', B: 'Pha', C: 'Công suất', D: 'Trở kháng' }, answer: 'B' },
+        { id: 135, type: 'mc', question: 'Một nhược điểm chính của máy thu homodyne (direct conversion) là vấn đề:', options: { A: 'Rò rỉ LO', B: 'Tần số ảnh', C: 'Thành phần một chiều (DC-offset)', D: 'Suy hao lớn' }, answer: 'C' },
+        { id: 136, type: 'mc', question: 'Pha-đinh là hiện tượng thăng giáng thất thường của ______ ở điểm thu.', options: { A: 'Tần số sóng mang', B: 'Pha tín hiệu', C: 'Cường độ điện trường', D: 'Băng thông' }, answer: 'C' },
+        { id: 137, type: 'mc', question: 'Phân cực của sóng điện từ phẳng là sự định hướng của vector ______ so với bề mặt trái đất.', options: { A: 'Từ trường', B: 'Điện trường', C: 'Truyền sóng', D: 'Gia tốc' }, answer: 'B' },
+        { id: 138, type: 'mc', question: 'Tia sóng là đường đi dọc theo hướng ______ của sóng điện từ.', options: { A: 'Phản xạ', B: 'Khúc xạ', C: 'Truyền lan', D: 'Nhiễu xạ' }, answer: 'C' },
+        { id: 139, type: 'mc', question: 'Tia dao động điện từ bị khúc xạ trong khí quyển vì chiết suất không khí càng lên cao thì càng:', options: { A: 'Tăng', B: 'Giảm', C: 'Không đổi', D: 'Tăng giảm ngẫu nhiên' }, answer: 'B' },
+        { id: 140, type: 'mc', question: 'Băng thông cực tiểu của một tín hiệu 2ASK có tốc độ bit là 4000bit/s (bộ lọc lý tưởng) là:', options: { A: '8000 Hz', B: '2000 Hz', C: '4000 Hz', D: '1000 Hz' }, answer: 'C' },
+        { id: 141, type: 'mc', question: 'Phát biểu nào sau đây là sai về nhược điểm của truyền dẫn vô tuyến?', options: { A: 'Môi trường kín', B: 'Suy hao lớn', C: 'Chất lượng không ổn định', D: 'Dễ bị nhiễu' }, answer: 'A' },
+        { id: 142, type: 'mc', question: 'Trong truyền dẫn số, mối quan hệ giữa tốc độ baud (R_B) và tốc độ bit (R_b) là:', options: { A: 'Luôn luôn bằng nhau', B: 'Tốc độ baud nhỏ hơn hoặc bằng tốc độ bit', C: 'Tốc độ baud lớn hơn hoặc bằng tốc độ bit', D: 'Không liên quan' }, answer: 'B' },
+        { id: 143, type: 'mc', question: 'Khi trời mưa rất to, đường truyền dẫn vô tuyến ở các băng tần cao sẽ:', options: { A: 'Không bị ảnh hưởng', B: 'Bị suy giảm mạnh', C: 'Được tăng cường', D: 'Chỉ thay đổi pha' }, answer: 'B' },
+        { id: 144, type: 'mc', question: 'Trong cùng một loại điều chế số, khi số mức điều chế tăng lên, khả năng chống nhiễu sẽ như thế nào?', options: { A: 'Tăng lên', B: 'Giảm xuống', C: 'Không đổi', D: 'Tăng lúc đầu, sau đó giảm' }, answer: 'B' },
+        { id: 145, type: 'mc', question: 'Trong điều chế biên độ ASK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Công suất trung bình' }, answer: 'C' },
+        { id: 146, type: 'mc', question: 'Trong điều chế tần số FSK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Chu kỳ' }, answer: 'B' },
+        { id: 147, type: 'mc', question: 'Trong điều chế pha PSK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Bước sóng' }, answer: 'A' },
+        { id: 148, type: 'mc', question: 'Trong máy phát, hiện tượng bộ dao động nội bị ảnh hưởng bởi tín hiệu ra của bộ khuếch đại công suất được gọi là:', options: { A: 'Hiện tượng kéo tần (pulling)', B: 'Hiện tượng xuyên điều chế', C: 'Hiện tượng bão hòa', D: 'Hiện tượng fading' }, answer: 'A' },
+        { id: 149, type: 'mc', question: 'Trong các loại điều chế số cơ bản ASK, PSK, FSK, loại nào có khả năng chống nhiễu kém nhất?', options: { A: 'PSK', B: 'FSK', C: 'ASK', D: 'Cả ba như nhau' }, answer: 'C' },
+        { id: 150, type: 'mc', question: 'Ưu điểm của việc dùng máy phát có trung tần (superheterodyne) là:', options: { A: 'Giảm chi phí', B: 'Thiết kế đơn giản hơn', C: 'Giải quyết vấn đề kéo tần giữa PA và LO', D: 'Tiết kiệm điện năng hơn' }, answer: 'C' },
+        { id: 151, type: 'mc', question: 'Hệ số tạp âm phụ thuộc vào:', options: { A: 'Tỷ số tín hiệu trên tạp âm đầu vào', B: 'Độ lợi của bộ khuếch đại', C: 'Băng thông hệ thống', D: 'Công suất tín hiệu ra' }, answer: 'A' },
+        { id: 152, type: 'mc', question: 'Hiện tượng ống dẫn xuất hiện khi nào?', options: { A: 'Khi sóng điện từ rơi vào vùng không khí đặc giữa hai vùng không khí loãng', B: 'Khi sóng điện từ rơi vào vùng không khí loãng giữa hai vùng không khí đặc', C: 'Khi trời có sấm sét', D: 'Khi có hiện tượng phản xạ từ mặt đất' }, answer: 'A' },
+        { id: 153, type: 'mc', question: 'Công dụng của tần số VHF là gì?', options: { A: 'Thông tin di động, hàng hải, hàng không, phát thanh FM và truyền hình', B: 'Chỉ dùng cho Wifi và Bluetooth', C: 'Chỉ dùng cho radar quân sự', D: 'Chỉ dùng cho thông tin vệ tinh' }, answer: 'A' },
+        { id: 154, type: 'mc', question: 'Mặt sóng là bề mặt có pha của sóng:', options: { A: 'Thay đổi tuyến tính', B: 'Không đổi', C: 'Bằng không', D: 'Thay đổi ngẫu nhiên' }, answer: 'B' },
+        { id: 155, type: 'mc', question: 'Miền Fresnel sạch là khu vực tối thiểu ________ để sóng điện từ có thể truyền qua.', options: { A: 'có vật cản', B: 'không có vật cản', C: 'có nước', D: 'có cây cối' }, answer: 'B' },
+        { id: 156, type: 'mc', question: 'Tạp âm nhiệt trong máy thu sinh ra do sự chuyển động hỗn loạn của:', options: { A: 'Các photon', B: 'Các proton', C: 'Các electron', D: 'Các neutron' }, answer: 'C' },
+        { id: 157, type: 'mc', question: 'Thành phần nào trong khí quyển gây hấp thụ đáng kể nhất đến sóng điện tử ở các băng tần cao?', options: { A: 'Nito', B: 'Hơi nước', C: 'CO2', D: 'Argon' }, answer: 'B' },
+        { id: 158, type: 'mc', question: 'Thiết bị phát là tập hợp các phương tiện kỹ thuật, nằm giữa nguồn tín hiệu và:', options: { A: 'Thiết bị thu', B: 'Môi trường truyền sóng', C: 'Bộ mã hóa', D: 'Bộ giải điều chế' }, answer: 'B' },
+        { id: 159, type: 'mc', question: 'Truyền dẫn vô tuyến số sử dụng ______ để truyền tải thông tin.', options: { A: 'Sóng âm', B: 'Dòng điện', C: 'Sóng điện từ', D: 'Ánh sáng nhìn thấy' }, answer: 'C' },
+        { id: 160, type: 'mc', question: 'Sóng bề mặt là sóng truyền lan dọc theo bề mặt Trái đất, chúng có xu hướng bị suy hao khi tần số:', options: { A: 'Tăng', B: 'Giảm', C: 'Không đổi', D: 'Rất thấp' }, answer: 'A' },
+        { id: 161, type: 'mc', question: 'Hệ thống MMDS (hệ thống phân phối đa điểm đa kênh) có phương thức truyền dẫn là:', options: { A: 'Song công', B: 'Bán song công', C: 'Đơn công', D: 'Luôn là điểm-điểm' }, answer: 'B' },
+        { id: 162, type: 'mc', question: 'Phân cực đứng là khi vector điện trường chuyển động ______ với mặt đất.', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Theo hình tròn' }, answer: 'B' },
+        { id: 163, type: 'mc', question: 'Phân cực ngang là khi vector điện trường di chuyển ______ với bề mặt trái đất.', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Theo hình elip' }, answer: 'A' },
+        { id: 164, type: 'mc', question: 'Tốc độ bit được định nghĩa là:', options: { A: 'Số đơn vị tín hiệu trong một giây', B: 'Số bit trong một giây', C: 'Số symbol trong một giây', D: 'Số chu kỳ sóng trong một giây' }, answer: 'B' },
+        { id: 165, type: 'mc', question: 'Tốc độ baud được định nghĩa là:', options: { A: 'Số đơn vị tín hiệu (symbol) trong một giây', B: 'Số bit trong một giây', C: 'Số byte trong một giây', D: 'Số lỗi trong một giây' }, answer: 'A' },
+        { id: 166, type: 'mc', question: 'Sóng đất (ground wave) yêu cầu anten có kích thước:', options: { A: 'Rất nhỏ', B: 'Lớn', C: 'Trung bình', D: 'Không phụ thuộc kích thước' }, answer: 'B' },
+        { id: 167, type: 'mc', question: 'Ví dụ về nguồn tin rời rạc là:', options: { A: 'Tiếng nói, âm nhạc', B: 'Điện báo, dữ liệu máy tính', C: 'Hình ảnh analog', D: 'Tín hiệu video analog' }, answer: 'B' },
+        { id: 168, type: 'mc', question: 'Phân cực tròn xảy ra khi vector điện trường quay ______ khi sóng đi được một bước sóng.', options: { A: '90 độ', B: '180 độ', C: '360 độ', D: 'Không quay' }, answer: 'C' },
+        { id: 169, type: 'mc', question: 'Phân cực elip xảy ra khi ______ của vector điện trường thay đổi theo góc phân cực.', options: { A: 'Cường độ (biên độ)', B: 'Tần số', C: 'Pha', D: 'Tốc độ' }, answer: 'A' },
+        { id: 170, type: 'mc', question: 'Với điều chế 8-PSK, băng thông tối thiểu để truyền một luồng E1 (2048 kbps) là bao nhiêu?', options: { A: '2048 kHz', B: '1024 kHz', C: '682.67 kHz', D: '4096 kHz' }, answer: 'C', note: 'Mỗi symbol 8-PSK mang 3 bit. Tốc độ baud = 2048/3 = 682.67 kbaud. BW_min = Tốc độ baud.' },
+        { id: 171, type: 'mc', question: 'Băng thông cực tiểu của tín hiệu 4-PSK tốc độ 400 b/s là:', options: { A: '400 Hz', B: '100 Hz', C: '200 Hz', D: '800 Hz' }, answer: 'C', note: 'Mỗi symbol 4-PSK mang 2 bit. Tốc độ baud = 400/2 = 200 baud. BW_min = Tốc độ baud.' },
+        { id: 172, type: 'mc', question: 'Băng thông cực tiểu của tín hiệu 8-PSK tốc độ 1200 b/s là:', options: { A: '1200 Hz', B: '600 Hz', C: '400 Hz', D: '2400 Hz' }, answer: 'C', note: 'Mỗi symbol 8-PSK mang 3 bit. Tốc độ baud = 1200/3 = 400 baud. BW_min = Tốc độ baud.' },
+        { id: 173, type: 'mc', question: 'Hệ thống thông tin chuyển tiếp vi ba số thường là hệ thống vô tuyến:', options: { A: 'Tầm nhìn thẳng (LOS)', B: 'Không tầm nhìn thẳng (NLOS)', C: 'Truyền sóng đất', D: 'Truyền sóng trời' }, answer: 'A' },
+        { id: 174, type: 'mc', question: 'Hệ thống truy nhập vô tuyến cố định như WiMAX thường hoạt động ở chế độ:', options: { A: 'Tầm nhìn thẳng (LOS)', B: 'Không tầm nhìn thẳng (NLOS)', C: 'Chỉ sóng đất', D: 'Chỉ sóng trời' }, answer: 'B' },
+        { id: 175, type: 'mc', question: 'Các tham số nào đặc trưng cho một nguồn tin?', options: { A: 'Các ký hiệu nguồn, tốc độ ký hiệu, xác suất xuất hiện', B: 'Chỉ có tốc độ bit', C: 'Chỉ có băng thông', D: 'Chỉ có công suất' }, answer: 'A' },
+        { id: 176, type: 'mc', question: 'Mã hiệu (code) là một tập hợp hữu hạn các ký hiệu và một:', options: { A: 'Phép ánh xạ', B: 'Phép cộng', C: 'Phép nhân', D: 'Hàm logarit' }, answer: 'A' },
+        { id: 177, type: 'mc', question: 'Trình tự các khối cơ bản trong một hệ thống truyền dẫn vô tuyến số là:', options: { A: 'Nguồn tin -> Điều chế -> Mã hóa -> Kênh', B: 'Nguồn tin -> Mã hóa -> Điều chế -> Kênh', C: 'Nguồn tin -> Kênh -> Mã hóa -> Điều chế', D: 'Điều chế -> Mã hóa -> Nguồn tin -> Kênh' }, answer: 'B' },
+        { id: 178, type: 'mc', question: 'Kiến trúc TDD (Time Division Duplex) phân chia kênh truyền theo:', options: { A: 'Tần số', B: 'Mã', C: 'Thời gian', D: 'Không gian' }, answer: 'C' },
+        { id: 179, type: 'mc', question: 'Phổ tần số SHF thường được dùng cho ứng dụng nào?', options: { A: 'Phát thanh AM', B: 'Radar và thông tin vệ tinh', C: 'Đồng hồ nguyên tử', D: 'Truyền hình mặt đất' }, answer: 'B' },
+        { id: 180, type: 'mc', question: 'Các phổ tần nào sau đây ít được dùng trong hệ thống vô tuyến số thông thường?', options: { A: 'VHF và UHF', B: 'SHF và EHF', C: 'ELF và VF', D: 'HF và MF' }, answer: 'C' },
+        { id: 181, type: 'mc', question: 'Hiện tượng nhiễu xạ xảy ra mạnh nhất khi kích thước vật cản:', options: { A: 'Rất lớn so với bước sóng', B: 'Xấp xỉ bằng bước sóng', C: 'Rất nhỏ so với bước sóng', D: 'Không phụ thuộc vào bước sóng' }, answer: 'B' },
+        { id: 182, type: 'mc', question: 'Nguyên lý của phân tập không gian là nếu fading xảy ra ở một anten thì:', options: { A: 'Cũng sẽ xảy ra ở anten còn lại', B: 'Ít có khả năng xảy ra đồng thời ở anten còn lại', C: 'Sẽ làm hỏng cả hai anten', D: 'Sẽ tăng công suất ở anten còn lại' }, answer: 'B' },
+        { id: 183, type: 'mc', question: 'Nguyên lý của phân tập tần số là nếu fading xảy ra ở một tần số thì:', options: { A: 'Cũng sẽ xảy ra ở tần số khác', B: 'Ít có khả năng xảy ra đồng thời ở tần số khác (đủ xa)', C: 'Sẽ làm nhiễu tất cả các tần số', D: 'Sẽ chuyển sang phân tập không gian' }, answer: 'B' },
+        { id: 184, type: 'mc', question: 'Fading lựa chọn tần số ảnh hưởng đến các thành phần tần số trong kênh:', options: { A: 'Một cách đồng đều', B: 'Không đồng đều', C: 'Chỉ thành phần tần số cao', D: 'Chỉ thành phần tần số thấp' }, answer: 'B' },
+        { id: 185, type: 'mc', question: 'Fading nhanh gây ra bởi hiệu ứng nào?', options: { A: 'Hiệu ứng Doppler', B: 'Hiệu ứng che khuất (shadowing)', C: 'Hiệu ứng đa đường', D: 'Hiệu ứng ống dẫn' }, answer: 'A' },
+        { id: 186, type: 'mc', question: 'Hệ thống LMDS (Local Multipoint Distribution Service) hoạt động ở dải tần:', options: { A: 'Rất thấp (VLF)', B: 'Cao (HF)', C: 'Rất cao (VHF/UHF)', D: 'Siêu cao (SHF), thường trên 20 GHz' }, answer: 'D' },
+    ];
+
+
+    // --- SCRIPT SECTION ---
+    const quizForm = document.getElementById('quiz-form');
+    const resultsContainer = document.getElementById('results');
+    let score = 0;
+    const totalQuestions = quizData.length;
+    const scoredQuestions = []; // Array to track IDs of questions already scored
+
+    function renderQuiz() {
+        let html = '';
+        quizData.forEach((q) => {
+            html += `<div class="question-block" id="q-block-${q.id}">`;
+            html += `<p class="question-text">${q.id}. ${q.question}</p>`;
+            
+            if (q.type === 'mc' && q.options && Object.keys(q.options).length > 0 && q.answer) {
+                html += `<fieldset id="fs-${q.id}">`;
+                html += `<div class="options-container">`;
+                for (const key in q.options) {
+                    html += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}"><label for="q${q.id}_${key}">${key}. ${q.options[key]}</label></div>`;
+                }
+                html += `</div>`;
+                html += `</fieldset>`;
+            } else {
+                 html += `<p><em>(Câu hỏi này không có dữ liệu hoặc định dạng không hợp lệ)</em></p>`;
+            }
+            html += `<div class="correct-answer" id="ca-${q.id}"></div>`;
+            html += `</div>`;
+        });
+        quizForm.innerHTML = html;
+        resultsContainer.innerHTML = `Điểm số: 0 / ${totalQuestions}`;
+    }
+
+    function handleAnswerSelection(event) {
+        const selectedRadio = event.target;
+        // Ensure we are handling a radio button click
+        if (selectedRadio.tagName !== 'INPUT' || selectedRadio.type !== 'radio') return;
+
+        const questionId = parseInt(selectedRadio.name.substring(1));
+        const userAnswer = selectedRadio.value;
+        
+        const questionData = quizData.find(q => q.id === questionId);
+        if (!questionData) return;
+
+        const block = document.getElementById(`q-block-${questionId}`);
+        const correctAnswerEl = document.getElementById(`ca-${questionId}`);
+        const fieldset = document.getElementById(`fs-${questionId}`);
+        
+        const isCorrect = userAnswer === questionData.answer;
+
+        if (isCorrect) {
+            // Remove 'incorrect' class if it was there from a previous wrong attempt
+            block.classList.remove('incorrect');
+            block.classList.add('correct');
+            
+            // Only add score if this is the first time answering this question correctly
+            if (!scoredQuestions.includes(questionId)) {
+                score++;
+                resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
+                scoredQuestions.push(questionId);
+            }
+
+            // Show the correct answer and disable the question
+            let correctAnswerText = `Đáp án đúng: <strong>${questionData.answer}. ${questionData.options[questionData.answer]}</strong>`;
+            let noteText = questionData.note ? `<br><small><i>Lưu ý: ${questionData.note}</i></small>` : '';
+            
+            correctAnswerEl.innerHTML = `${correctAnswerText} ${noteText}`;
+            correctAnswerEl.classList.add('visible');
+            fieldset.disabled = true;
+
+        } else {
+            // Mark the block as incorrect, but don't disable it
+            block.classList.add('incorrect');
+             // Also add the question to the scored list to prevent scoring on subsequent tries
+            if (!scoredQuestions.includes(questionId)) {
+                scoredQuestions.push(questionId);
+            }
+        }
+    }
+
+    // --- INITIALIZATION ---
+    renderQuiz();
+    quizForm.addEventListener('change', handleAnswerSelection);
+
+    </script>
+
+</body>
+</html>
