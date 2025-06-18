@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn tập Xử lý ảnh số</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Ôn tập Xử lý ảnh số</h1>
+
+        <div class="question-section">
+            <div class="question">
+                <p>1. [span_0](start_span)Kỹ thuật nào được đề cập đến trong xử lý ảnh số?[span_0](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q1" value="A"> A. Nâng cao chất lượng ảnh</label>
+                    <label><input type="radio" name="q1" value="B"> B. Biến đổi ảnh</label>
+                    <label><input type="radio" name="q1" value="C"> C. Phân tích ảnh</label>
+                    <label><input type="radio" name="q1" value="D"> D. Tất cả các câu trả lời đều đúng</label>
+                </div>
+                <div class="answer" id="answer1"></div>
+            </div>
+
+            <div class="question">
+                <p>2. [span_1](start_span)Phát biểu nào sau đây mô tả độ sâu của điểm ảnh?[span_1](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q2" value="A"> A. Số đơn vị (unit) được sử dụng để biểu diễn một điểm ảnh trong không gian RGB</label>
+                    <label><input type="radio" name="q2" value="B"> B. Số mm được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB</label>
+                    <label><input type="radio" name="q2" value="C"> C. Số byte được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB</label>
+                    <label><input type="radio" name="q2" value="D"> D. Số bit được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB</label>
+                </div>
+                <div class="answer" id="answer2"></div>
+            </div>
+
+            <div class="question">
+                <p>3. [span_2](start_span)Đâu là bước đầu tiên và quan trọng nhất trong kỹ thuật xử lý ảnh số?[span_2](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q3" value="A"> A. Thu nhận ảnh</label>
+                    <label><input type="radio" name="q3" value="B"> B. Phân vùng ảnh</label>
+                    <label><input type="radio" name="q3" value="C"> C. Nâng cao chất lượng ảnh</label>
+                    <label><input type="radio" name="q3" value="D"> D. Khôi phục ảnh</label>
+                </div>
+                <div class="answer" id="answer3"></div>
+            </div>
+
+            <div class="question">
+                <p>4. Ảnh số được coi là một hàm phụ thuộc vào tọa độ không gian $f(x,y)$ biểu diễn</p>
+                <div class="options">
+                    <label><input type="radio" name="q4" value="A"> A. chiều cao của ảnh</label>
+                    <label><input type="radio" name="q4" value="B"> B. chiều rộng của ảnh</label>
+                    <label><input type="radio" name="q4" value="C"> C. cường độ sáng của ảnh</label>
+                    <label><input type="radio" name="q4" value="D"> D. độ phân giải của ảnh</label>
+                </div>
+                <div class="answer" id="answer4"></div>
+            </div>
+
+            <div class="question">
+                <p>5. Điểm ảnh là</p>
+                <div class="options">
+                    <label><input type="radio" name="q5" value="A"> A. một phần tử của ảnh số</label>
+                    <label><input type="radio" name="q5" value="B"> B. một phần tử của ảnh tương tự</label>
+                    <label><input type="radio" name="q5" value="C"> C. một cụm các phần tử của ảnh số</label>
+                    <label><input type="radio" name="q5" value="D"> D. một cụm các phần tử của ảnh tương tự</label>
+                </div>
+                <div class="answer" id="answer5"></div>
+            </div>
+
+            <div class="question">
+                <p>6. [span_3](start_span)Ảnh có độ phân giải Full HD có kích thước[span_3](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q6" value="A"> A. $512\times512$</label>
+                    <label><input type="radio" name="q6" value="B"> B. $256\times256$</label>
+                    <label><input type="radio" name="q6" value="C"> C. $1920\times1080$</label>
+                    <label><input type="radio" name="q6" value="D"> D. $1080\times1080$</label>
+                </div>
+                <div class="answer" id="answer6"></div>
+            </div>
+
+            <div class="question">
+                <p>7. [span_4](start_span)Mỗi điểm ảnh được tạo nên bởi ba màu cơ bản nào sau đây?[span_4](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q7" value="A"> A. Đỏ, xanh da trời, vàng</label>
+                    <label><input type="radio" name="q7" value="B"> B. Đỏ, xanh lá, xanh da trời</label>
+                    <label><input type="radio" name="q7" value="C"> C. Đỏ, trắng, xanh da trời</label>
+                    <label><input type="radio" name="q7" value="D"> D. Xanh da trời, đen, đỏ</label>
+                </div>
+                <div class="answer" id="answer7"></div>
+            </div>
+
+            <div class="question">
+                <p>8. [span_5](start_span)Giá trị của mỗi thành phần màu trong điểm ảnh nằm trong khoảng:[span_5](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q8" value="A"> A. [0, 100]</label>
+                    <label><input type="radio" name="q8" value="B"> B. [0, 255]</label>
+                    <label><input type="radio" name="q8" value="C"> C. [1, 100]</label>
+                    <label><input type="radio" name="q8" value="D"> D. [1, 256]</label>
+                </div>
+                <div class="answer" id="answer8"></div>
+            </div>
+
+            <div class="question">
+                <p>9. [span_6](start_span)Một điểm ảnh có giá trị $(R,G,B)=(0,255,0)$ , điểm ảnh đó có màu gì?[span_6](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q9" value="A"> A. Màu đỏ</label>
+                    <label><input type="radio" name="q9" value="B"> B. Màu xanh lá</label>
+                    <label><input type="radio" name="q9" value="C"> C. Màu vàng</label>
+                    <label><input type="radio" name="q9" value="D"> D. Màu xanh da trời</label>
+                </div>
+                <div class="answer" id="answer9"></div>
+            </div>
+
+            <div class="question">
+                <p>10. Phổ điện từ của ánh sáng nhìn thấy nằm trong khoảng</p>
+                <div class="options">
+                    <label><input type="radio" name="q10" value="A"> A. 400-700nm</label>
+                    <label><input type="radio" name="q10" value="B"> B. 600-900nm</label>
+                    <label><input type="radio" name="q10" value="C"> C. 400-700pm</label>
+                    <label><input type="radio" name="q10" value="D"> D. 600-900pm</label>
+                </div>
+                <div class="answer" id="answer10"></div>
+            </div>
+
+            <div class="question">
+                <p>11. [span_7](start_span)Hàm nào sau đây biểu diễn biến đổi logarit trong xử lý ảnh?[span_7](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q11" value="A"> A. $g(x,y)=c+log[1+f(x,y)]$</label>
+                    <label><input type="radio" name="q11" value="B"> B. $g(x,y)=c/log[1+f(x,y)]$</label>
+                    <label><input type="radio" name="q11" value="C"> C. $g(x,y)=c-log[1+f(x,y)]$</label>
+                    <label><input type="radio" name="q11" value="D"> D. $g(x,y)=c*log[1+f(x,y)]$</label>
+                </div>
+                <div class="answer" id="answer11"></div>
+            </div>
+
+            <div class="question">
+                <p>12. [span_8](start_span)Bộ lọc làm mịn (smooth) được sử dụng để giảm nhiễu và làm mờ biên ảnh.[span_8](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q12" value="A"> A. Đúng</label>
+                    <label><input type="radio" name="q12" value="B"> B. Sai</label>
+                </div>
+                <div class="answer" id="answer12"></div>
+            </div>
+
+            <div class="question">
+                <p>13. [span_9](start_span)Thuộc tính nào trong không gian màu HSV đặc trưng cho màu gốc (pure color) của điểm ảnh?[span_9](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q13" value="A"> A. Độ bão hòa (Saturation)</label>
+                    <label><input type="radio" name="q13" value="B"> B. Sắc độ (Hue)</label>
+                    <label><input type="radio" name="q13" value="C"> C. Độ sáng (Value)</label>
+                    <label><input type="radio" name="q13" value="D"> D. Cường độ sáng (Intensity)</label>
+                </div>
+                <div class="answer" id="answer13"></div>
+            </div>
+
+            <div class="question">
+                <p>14. [span_10](start_span)Bốn lân cận theo phương ngang và phương thẳng đứng của điểm ảnh (x, y) có tọa độ là:[span_10](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q14" value="A"> A. $(x+1,y+1);$ $(x-1,y-1)$ $(x+1,y-1);$ $(x-1,y+1)$</label>
+                    <label><input type="radio" name="q14" value="B"> B. $(x+1,y);(x-1,y+1);(x-1,y-1);(x,y-1)$</label>
+                    <label><input type="radio" name="q14" value="C"> C. $(x,y+1);$ $(x-1,y-1);$ $(x+1,y+1);$ (x + 1, y - 1)</label>
+                    <label><input type="radio" name="q14" value="D"> D. $(x+1,y);$ $(x-1,y);$ $(x,y+1)$ (x, y - 1)</label>
+                </div>
+                <div class="answer" id="answer14"></div>
+            </div>
+
+            <div class="question">
+                <p>15. [span_11](start_span)Bốn lân cận theo hai đường chéo của điểm ảnh (x, y) có tọa độ là:[span_11](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q15" value="A"> A. $(x+1,y+1);$ (x1, y1); (x + 1, y - 1); $(x-1,y+1)$</label>
+                    <label><input type="radio" name="q15" value="B"> B. $(x+1,y);(x-1,y+1);(x-1,y-1);(x,y-1)$</label>
+                    <label><input type="radio" name="q15" value="C"> C. (x $y+1);(x-1,y-1);($ $(x+1,y-1)$</label>
+                    <label><input type="radio" name="q15" value="D"> D. $(x+1,y);$ $(x-1,y);$ $(x,y+1);$ $(x,y-1)$</label>
+                </div>
+                <div class="answer" id="answer15"></div>
+            </div>
+
+            <div class="question">
+                <p>16. Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh mức xám (gray-scale)?</p>
+                <div class="options">
+                    <label><input type="radio" name="q16" value="A"> A. 8 bit</label>
+                    <label><input type="radio" name="q16" value="B"> B. 4 bit</label>
+                    <label><input type="radio" name="q16" value="C"> C. 2 bit</label>
+                    <label><input type="radio" name="q16" value="D"> D. 24 bit</label>
+                </div>
+                <div class="answer" id="answer16"></div>
+            </div>
+
+            <div class="question">
+                <p>17. Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh màu?</p>
+                <div class="options">
+                    <label><input type="radio" name="q17" value="A"> A. 8 bit</label>
+                    <label><input type="radio" name="q17" value="B"> B. 2 bit</label>
+                    <label><input type="radio" name="q17" value="C"> C. 24 bit</label>
+                    <label><input type="radio" name="q17" value="D"> D. 4 bit</label>
+                </div>
+                <div class="answer" id="answer17"></div>
+            </div>
+
+            <div class="question">
+                <p>18. [span_12](start_span)Trong ảnh nhị phân, cần bao nhiêu bit để biểu diễn một điểm ảnh?[span_12](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q18" value="A"> A. 8 bit</label>
+                    <label><input type="radio" name="q18" value="B"> B. 4 bit</label>
+                    <label><input type="radio" name="q18" value="C"> C. 2 bit</label>
+                    <label><input type="radio" name="q18" value="D"> D. 24 bit</label>
+                </div>
+                <div class="answer" id="answer18"></div>
+            </div>
+
+            <div class="question">
+                <p>19. Trong bước nào sau đây, ảnh được chia thành các vùng nhỏ hơn?</p>
+                <div class="options">
+                    <label><input type="radio" name="q19" value="A"> A. Nâng cao chất lượng ảnh</label>
+                    <label><input type="radio" name="q19" value="B"> B. Thu nhận ảnh</label>
+                    <label><input type="radio" name="q19" value="C"> C. Phân vùng ảnh</label>
+                    <label><input type="radio" name="q19" value="D"> D. Biến đổi Wavelet</label>
+                </div>
+                <div class="answer" id="answer19"></div>
+            </div>
+
+            <div class="question">
+                <p>20. Tham số nào trong không gian màu HSV thể hiện sự pha loãng màu gốc (pure color) bởi ánh sáng trắng?</p>
+                <div class="options">
+                    <label><input type="radio" name="q20" value="A"> A. Độ bão hòa (Saturation)</label>
+                    <label><input type="radio" name="q20" value="B"> B. Sắc độ (Hue)</label>
+                    <label><input type="radio" name="q20" value="C"> C. Độ sáng (Value)</label>
+                    <label><input type="radio" name="q20" value="D"> D. Không đáp án nào đúng</label>
+                </div>
+                <div class="answer" id="answer20"></div>
+            </div>
+
+            <div class="question">
+                <p>21. [span_13](start_span)Trong một hệ thống xử lý ảnh, bước nào được thực hiện ngay trước bước xử lý ảnh màu?[span_13](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q21" value="A"> A. Nâng cao chất lượng ảnh</label>
+                    <label><input type="radio" name="q21" value="B"> B. Biến đổi Wavelet và xử lý đa phân giải</label>
+                    <label><input type="radio" name="q21" value="C"> C. Khôi phục ảnh</label>
+                    <label><input type="radio" name="q21" value="D"> D. Thu nhận ảnh</label>
+                </div>
+                <div class="answer" id="answer21"></div>
+            </div>
+
+            <div class="question">
+                <p>22. Mô hình màu RGB có thể biểu diễn:</p>
+                <div class="options">
+                    <label><input type="radio" name="q22" value="A"> A. hơn 16 triệu màu</label>
+                    <label><input type="radio" name="q22" value="B"> B. hơn 20 triệu màu</label>
+                    <label><input type="radio" name="q22" value="C"> C. hơn 36 triệu màu</label>
+                    <label><input type="radio" name="q22" value="D"> D. hơn 10 triệu màu</label>
+                </div>
+                <div class="answer" id="answer22"></div>
+            </div>
+
+            <div class="question">
+                <p>23. Công thức nào biểu diễn phép biến đổi từ ảnh màu sang ảnh mức xám</p>
+                <div class="options">
+                    <label><input type="radio" name="q23" value="A"> A. $Gray=0.2989*R+0.5870*G+0.1140*B$</label>
+                    <label><input type="radio" name="q23" value="B"> B. $Gray=0.2989*B+0.5870*G+0.1140*R$</label>
+                    <label><input type="radio" name="q23" value="C"> C. $Gray=0.3989*R+0.4870*G+0.1140*B$</label>
+                    <label><input type="radio" name="q23" value="D"> D. $Gray=0.2989*R+0.1140*G+0.5870*B$</label>
+                </div>
+                <div class="answer" id="answer23"></div>
+            </div>
+
+            <div class="question">
+                <p>24. Lược đồ mức xám $h(r_{k})$ được định nghĩa như sau (trong đó $r_{k}$ và $n_{k}$ tương ứng là mức xám thứ k và số lượng điểm ảnh có mức xám $r_{k}$:</p>
+                <div class="options">
+                    <label><input type="radio" name="q24" value="A"> A. $h(r_{k})=n_{k}$</label>
+                    <label><input type="radio" name="q24" value="B"> B. $h(r_{k})=^{n_{k}}/r_{k}$</label>
+                    <label><input type="radio" name="q24" value="C"> C. $h(r_{k})=n_{k}*r_{k}$</label>
+                    <label><input type="radio" name="q24" value="D"> D. $h(r_{k})=\frac{r_{k}}/n_{k}$</label>
+                </div>
+                <div class="answer" id="answer24"></div>
+            </div>
+
+            <div class="question">
+                [span_14](start_span)<p>25. Lược đồ mức xám được chuẩn hóa theo biểu thức nào sau đây?[span_14](end_span) [span_15](start_span)Trong đó $n_{k}$ là số điểm ảnh có mức xám $r_{k}$ và n là tổng số điểm ảnh.[span_15](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q25" value="A"> A. $p(r_{k})=n_{k}/n$</label>
+                    <label><input type="radio" name="q25" value="B"> B. $p(r_{k})=n_{k}*n$</label>
+                    <label><input type="radio" name="q25" value="C"> C. $p(r_{k})=n_{k}+n$</label>
+                    <label><input type="radio" name="q25" value="D"> D. $p(r_{k})=n-n_{k}$</label>
+                </div>
+                <div class="answer" id="answer25"></div>
+            </div>
+
+            <div class="question">
+                [span_16](start_span)<p>Tổng các giá trị thành phần của lược đồ mức xám chuẩn hóa bằng[span_16](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q25_2" value="A"> A. 1</label>
+                    <label><input type="radio" name="q25_2" value="B"> B. -1</label>
+                    <label><input type="radio" name="q25_2" value="C"> C. 0</label>
+                    <label><input type="radio" name="q25_2" value="D"> D. 100</label>
+                </div>
+                <div class="answer" id="answer25_2"></div>
+            </div>
+
+            <div class="question">
+                <p>26. [span_17](start_span)Biểu thức nào biểu diễn phép biến đổi sinh ra ảnh âm bản?[span_17](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q26" value="A"> A. $g(x,y)=L-1-f(x,y)$</label>
+                    <label><input type="radio" name="q26" value="B"> B. $g(x,y)=c*f(x,y)^{y}$</label>
+                    <label><input type="radio" name="q26" value="C"> C. $g(x,y)=c*log[1+f(x,y)]$</label>
+                    <label><input type="radio" name="q26" value="D"> D. $g(x,y)=L-1+f(x,y)$</label>
+                </div>
+                <div class="answer" id="answer26"></div>
+            </div>
+
+            <div class="question">
+                <p>27. Trong công thức của phép biến đổi sinh ra ảnh âm bản: $g(x,y)=L-1-f(x,y).$ Giá trị của tham số “L là:</p>
+                <div class="options">
+                    <label><input type="radio" name="q27" value="A"> A. 255</label>
+                    <label><input type="radio" name="q27" value="B"> B. 256</label>
+                    <label><input type="radio" name="q27" value="C"> C. 512</label>
+                    <label><input type="radio" name="q27" value="D"> D. 128</label>
+                </div>
+                <div class="answer" id="answer27"></div>
+            </div>
+
+            <div class="question">
+                <p>28. Công thức nào biểu diễn phép biến đổi hiệu chuẩn Gamma (Gamma Correction)?</p>
+                <div class="options">
+                    <label><input type="radio" name="q28" value="A"> A. $g(x,y)=c*f(x,y)^{y}$</label>
+                    <label><input type="radio" name="q28" value="B"> B. $g(x,y)=c+f(x,y)^{y}$</label>
+                    <label><input type="radio" name="q28" value="C"> C. $g(x,y)=c/f(x,y)^{\gamma}$</label>
+                    <label><input type="radio" name="q28" value="D"> D. $g(x,y)=c-f(x,y)^{y}$</label>
+                </div>
+                <div class="answer" id="answer28"></div>
+            </div>
+
+            <div class="question">
+                <p>29. Mục đích chính của kỹ thuật tăng cường độ tương phản là</p>
+                <div class="options">
+                    <label><input type="radio" name="q29" value="A"> A. làm ảnh sắc nét, rõ ràng hơn</label>
+                    <label><input type="radio" name="q29" value="B"> B. loại bỏ nhiễu</label>
+                    <label><input type="radio" name="q29" value="C"> C. làm ảnh bị mờ</label>
+                    <label><input type="radio" name="q29" value="D"> D. Không đáp án nào đúng</label>
+                </div>
+                <div class="answer" id="answer29"></div>
+            </div>
+
+            <div class="question">
+                <p>30. Cho hình vẽ mô tả kỹ thuật tăng cường độ tương phản. [span_18](start_span)Hàm nào sau đây biểu diễn phép biến đổi đó?[span_18](end_span)</p>
+                <img src="https://via.placeholder.com/300x200?text=Hình+minh+họa+công+thức+30" alt="Hình minh họa công thức 30">
+                <div class="options">
+                    <label><input type="radio" name="q30" value="A"> A. $T(r)=\begin{cases}\alpha r & r<a \\ \beta(r-a)+s_{a} & a\le r<b \\ \gamma(r-b)+s_{b} & b\le r\end{cases}$</label>
+                    <label><input type="radio" name="q30" value="B"> B. $T(r)=\begin{cases}S_{H}&a\le r\le b\\ s_{L}&con~lai\end{cases}$</label>
+                    <label><input type="radio" name="q30" value="C"> C. $T(r)=\begin{cases}S_{H}\\ r\end{cases}$</label>
+                    <label><input type="radio" name="q30" value="D"> D. $T(r)=\begin{cases}S_{H}\\ \alpha r\end{cases}$</label>
+                </div>
+                <div class="answer" id="answer30"></div>
+            </div>
+
+            <div class="question">
+                <p>31. [span_19](start_span)Đầu ra của bộ lọc làm trơn ảnh, tuyến tính trong miền không gian là[span_19](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q31" value="A"> A. Giá trị trung vị của các điểm ảnh</label>
+                    <label><input type="radio" name="q31" value="B"> B. Giá trị lớn nhất của các điểm ảnh</label>
+                    <label><input type="radio" name="q31" value="C"> C. Giá trị nhỏ nhất của các điểm ảnh</label>
+                    <label><input type="radio" name="q31" value="D"> D. Giá trị trung bình của các điểm ảnh</label>
+                </div>
+                <div class="answer" id="answer31"></div>
+            </div>
+
+            <div class="question">
+                <p>32. Nhược điểm của bộ lọc làm trơn ảnh là</p>
+                <div class="options">
+                    <label><input type="radio" name="q32" value="A"> A. làm mờ biên ảnh</label>
+                    <label><input type="radio" name="q32" value="B"> B. làm mờ các điểm ảnh bên trong</label>
+                    <label><input type="radio" name="q32" value="C"> C. Loại bỏ sự thay đổi đột ngột</label>
+                    <label><input type="radio" name="q32" value="D"> D. Làm sắc nét ảnh</label>
+                </div>
+                <div class="answer" id="answer32"></div>
+            </div>
+
+            <div class="question">
+                <p>33. [span_20](start_span)Ma trận mặt nạ được biểu diễn dưới đây thuộc loại bộ lọc nào?[span_20](end_span)</p>
+                <pre class="matrix">1/16 [1 2 1
+      2 4 2
+      1 2 1]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q33" value="A"> A. Bộ lọc sắc nét trong miền không gian</label>
+                    <label><input type="radio" name="q33" value="B"> B. Bộ lọc trung vị</label>
+                    <label><input type="radio" name="q33" value="C"> C. Bộ lọc sắc nét trong miền tần số</label>
+                    <label><input type="radio" name="q33" value="D"> D. Bộ lọc trung bình</label>
+                </div>
+                <div class="answer" id="answer33"></div>
+            </div>
+
+            <div class="question">
+                <p>34. [span_21](start_span)Ma trận mặt nạ được biểu diễn dưới đây thuộc loại bộ lọc nào?[span_21](end_span)</p>
+                <pre class="matrix">1/9 [1 1 1
+     1 1 1
+     1 1 1]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q34" value="A"> A. Bộ lọc sắc nét trong miền không gian</label>
+                    <label><input type="radio" name="q34" value="B"> B. Bộ lọc trung vị</label>
+                    <label><input type="radio" name="q34" value="C"> C. Bộ lọc sắc nét trong miền tần số</label>
+                    <label><input type="radio" name="q34" value="D"> D. Bộ lọc trung bình</label>
+                </div>
+                <div class="answer" id="answer34"></div>
+            </div>
+
+            <div class="question">
+                <p>35. [span_22](start_span)Cho hai hình ảnh bên dưới mô tả kết quả của bộ lọc trung bình với các kích thước khác nhau.[span_22](end_span) [span_23](start_span)Nếu hình bên trái tương ứng với bộ lọc có kích thước ma trận lọc là 9 thì hình bên phải là kết quả đầu ra của bộ lọc có kích thước là bao nhiêu?[span_23](end_span)</p>
+                <img src="https://via.placeholder.com/200x150?text=Hình+ảnh+trái" alt="Hình ảnh trái" style="display: inline-block; margin-right: 10px;">
+                <img src="https://via.placeholder.com/200x150?text=Hình+ảnh+phải" alt="Hình ảnh phải" style="display: inline-block;">
+                <div class="options">
+                    <label><input type="radio" name="q35" value="A"> A. 5</label>
+                    <label><input type="radio" name="q35" value="B"> B. 7</label>
+                    <label><input type="radio" name="q35" value="C"> C. 9</label>
+                    <label><input type="radio" name="q35" value="D"> D. 15</label>
+                </div>
+                <div class="answer" id="answer35"></div>
+            </div>
+
+            <div class="question">
+                <p>36. Mục tiêu cơ bản của kỹ thuật làm sắc nét ảnh là:</p>
+                <div class="options">
+                    <label><input type="radio" name="q36" value="A"> A. làm nhòe ảnh (blurr)</label>
+                    <label><input type="radio" name="q36" value="B"> B. làm nổi bật các chi tiết trong ảnh</label>
+                    <label><input type="radio" name="q36" value="C"> C. tăng độ sáng của ảnh</label>
+                    <label><input type="radio" name="q36" value="D"> D. giảm độ sáng của ảnh</label>
+                </div>
+                <div class="answer" id="answer36"></div>
+            </div>
+
+            <div class="question">
+                <p>37. [span_24](start_span)Trong miền không gian, phép toán nào sau đây được thực hiện để làm sắc nét ảnh?[span_24](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q37" value="A"> A. tích phân</label>
+                    <label><input type="radio" name="q37" value="B"> B. vi phân</label>
+                    <label><input type="radio" name="q37" value="C"> C. trung bình</label>
+                    <label><input type="radio" name="q37" value="D"> D. trung vị</label>
+                </div>
+                <div class="answer" id="answer37"></div>
+            </div>
+
+            <div class="question">
+                <p>38. [span_25](start_span)Ảnh vi phân làm nổi bật sự thay đổi đột ngột của cường độ sáng và không chú ý tới các điểm ảnh mà tại đó cường độ sáng thay đổi chậm.[span_25](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q38" value="A"> A. Đúng</label>
+                    <label><input type="radio" name="q38" value="B"> B. Sai</label>
+                </div>
+                <div class="answer" id="answer38"></div>
+            </div>
+
+            <div class="question">
+                <p>39. [span_26](start_span)Nếu $f(x,y)$ là cường độ sáng của điểm ảnh tại tọa độ (x, y).[span_26](end_span) [span_27](start_span)Đạo hàm bậc nhất theo phương x được tính như sau:[span_27](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q39" value="A"> A. $f(x+1,y)-f(x,y)$</label>
+                    <label><input type="radio" name="q39" value="B"> B. $f(x,y)-f(x+1,y)$</label>
+                    <label><input type="radio" name="q39" value="C"> C. $f(x-1,y)-f(x+1,y)$</label>
+                    <label><input type="radio" name="q39" value="D"> D. $f(x-1,y)+f(x,y)$</label>
+                </div>
+                <div class="answer" id="answer39"></div>
+            </div>
+
+            <div class="question">
+                <p>40. [span_28](start_span)Biên được sinh ra bởi đạo hàm bậc nhất có độ dày như thế nào so với khi sử dụng đạo hàm bậc hai?[span_28](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q40" value="A"> A. Mảnh hơn</label>
+                    <label><input type="radio" name="q40" value="B"> B. Dày hơn</label>
+                    <label><input type="radio" name="q40" value="C"> C. Bằng nhau</label>
+                    <label><input type="radio" name="q40" value="D"> D. Độc lập với nhau</label>
+                </div>
+                <div class="answer" id="answer40"></div>
+            </div>
+
+            <div class="question">
+                <p>41. Trong kỹ thuật xử lý ảnh, đạo hàm bậc hai của hàm một chiều $f(x)$ được định nghĩa như sau:</p>
+                <div class="options">
+                    <label><input type="radio" name="q41" value="A"> A. $\partial^{2}f/\partial x^{2}=f(x+1)-f(x)$</label>
+                    <label><input type="radio" name="q41" value="B"> B. $\partial^{2}f/\partial x^{2}=f(x+1)+f(x-1)-2f(x)$</label>
+                    <label><input type="radio" name="q41" value="C"> C. $\partial^{2}f/\partial x^{2}=f(x+1)+f(x)$</label>
+                    <label><input type="radio" name="q41" value="D"> D. $\partial^{2}f/\partial x^{2}=f(x+1)+f(x-1)-4f(x)$</label>
+                </div>
+                <div class="answer" id="answer41"></div>
+            </div>
+
+            <div class="question">
+                <p>42. Đạo hàm bậc hai còn được gọi là</p>
+                <div class="options">
+                    <label><input type="radio" name="q42" value="A"> A. Gaussian</label>
+                    <label><input type="radio" name="q42" value="B"> B. Laplacian</label>
+                    <label><input type="radio" name="q42" value="C"> C. Canny</label>
+                    <label><input type="radio" name="q42" value="D"> D. Không đáp án nào đúng</label>
+                </div>
+                <div class="answer" id="answer42"></div>
+            </div>
+
+            <div class="question">
+                <p>43. Bộ lọc làm trơn ảnh được sử dụng để</p>
+                <div class="options">
+                    <label><input type="radio" name="q43" value="A"> A. làm mờ ảnh</label>
+                    <label><input type="radio" name="q43" value="B"> B. loại bỏ nhiễu</label>
+                    <label><input type="radio" name="q43" value="C"> C. loại bỏ nhiễu và làm mờ ảnh</label>
+                    <label><input type="radio" name="q43" value="D"> D. Không đáp án nào đúng</label>
+                </div>
+                <div class="answer" id="answer43"></div>
+            </div>
+
+            <div class="question">
+                <p>44. [span_29](start_span)Đáp ứng ra của bộ lọc làm trơn, tuyến tính trong miền không gian là[span_29](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q44" value="A"> A. Tổng các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc</label>
+                    <label><input type="radio" name="q44" value="B"> B. Tích các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc</label>
+                    <label><input type="radio" name="q44" value="C"> C. Giá trị trung bình của các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc</label>
+                    <label><input type="radio" name="q44" value="D"> D. Không đáp án nào đúng</label>
+                </div>
+                <div class="answer" id="answer44"></div>
+            </div>
+
+            <div class="question">
+                <p>45. [span_30](start_span)Giá trị trung bình của các điểm ảnh trong vùng không gian tương ứng với mặt nạ lọc là kết quả đầu ra của bộ lọc[span_30](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q45" value="A"> A. Bộ lọc trung bình</label>
+                    <label><input type="radio" name="q45" value="B"> B. Bộ lọc làm trơn ảnh</label>
+                    <label><input type="radio" name="q45" value="C"> C. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q45" value="D"> D. Cả ba đáp án còn lại đều đúng</label>
+                </div>
+                <div class="answer" id="answer45"></div>
+            </div>
+
+            <div class="question">
+                <p>46. [span_31](start_span)Biểu thức nào sau đây biểu diễn toán tử Laplacian?[span_31](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q46" value="A"> A. $\nabla^{2}f=f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-4f(x,y)$</label>
+                    <label><input type="radio" name="q46" value="B"> B. $\nabla^{2}f=f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-f(x,y)$</label>
+                    <label><input type="radio" name="q46" value="C"> C. $\nabla^{2}f=f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-8f(x,y)$</label>
+                    <label><input type="radio" name="q46" value="D"> D. $\nabla^{2}f=f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)+4f(x,y)$</label>
+                </div>
+                <div class="answer" id="answer46"></div>
+            </div>
+
+            <div class="question">
+                <p>47. [span_32](start_span)Ma trận lọc được biểu diễn như hình dưới đây là bộ lọc nào?[span_32](end_span)</p>
+                <pre class="matrix">[0 1 0
+ 1 -4 1
+ 0 1 0]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q47" value="A"> A. Bộ lọc sắc nét</label>
+                    <label><input type="radio" name="q47" value="B"> B. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q47" value="C"> C. Bộ lọc trung bình</label>
+                    <label><input type="radio" name="q47" value="D"> D. Bộ lọc Gaussian</label>
+                </div>
+                <div class="answer" id="answer47"></div>
+            </div>
+
+            <div class="question">
+                <p>48. [span_33](start_span)Ma trận lọc được biểu diễn như hình dưới đây là bộ lọc nào?[span_33](end_span)</p>
+                <pre class="matrix">[0 -1 0
+ -1 4 -1
+ 0 -1 0]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q48" value="A"> A. Bộ lọc sắc nét</label>
+                    <label><input type="radio" name="q48" value="B"> B. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q48" value="C"> C. Bộ lọc trung bình</label>
+                    <label><input type="radio" name="q48" value="D"> D. Bộ lọc Gaussian</label>
+                </div>
+                <div class="answer" id="answer48"></div>
+            </div>
+
+            <div class="question">
+                <p>49. [span_34](start_span)Bộ lọc được biểu diễn bởi phương trình: $g(x,y)=f(x,y)-\nabla^{2}f(x,y)$ là bộ lọc gì?[span_34](end_span)</p>
+                <div class="options">
+                    <label><input type="radio" name="q49" value="A"> A. Lọc trung bình</label>
+                    <label><input type="radio" name="q49" value="B"> B. Lọc trung vị</label>
+                    <label><input type="radio" name="q49" value="C"> C. Lọc sắc nét</label>
+                    <label><input type="radio" name="q49" value="D"> D. Lọc thông thấp</label>
+                </div>
+                <div class="answer" id="answer49"></div>
+            </div>
+
+            <div class="question">
+                <p>50. [span_35](start_span)Ma trận lọc được biểu diễn như hình dưới đây là bộ lọc nào?[span_35](end_span)</p>
+                <pre class="matrix">[0 -1 0
+ -1 5 -1
+ 0 -1 0]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q50" value="A"> A. Bộ lọc sắc nét</label>
+                    <label><input type="radio" name="q50" value="B"> B. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q50" value="C"> C. Bộ lọc trung bình</label>
+                    <label><input type="radio" name="q50" value="D"> D. Bộ lọc Gaussian</label>
+                </div>
+                <div class="answer" id="answer50"></div>
+            </div>
+
+            <div class="question">
+                <p>51. [span_36](start_span)Ma trận lọc được biểu diễn như hình dưới đây là bộ lọc nào?[span_36](end_span)</p>
+                <pre class="matrix">[-1 -1 -1
+ -1 9 -1
+ -1 -1 -1]</pre>
+                <div class="options">
+                    <label><input type="radio" name="q51" value="A"> A. Bộ lọc sắc nét</label>
+                    <label><input type="radio" name="q51" value="B"> B. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q51" value="C"> C. Bộ lọc trung bình</label>
+                    <label><input type="radio" name="q51" value="D"> D. Bộ lọc Gaussian</label>
+                </div>
+                <div class="answer" id="answer51"></div>
+            </div>
+
+            <div class="question">
+                <p>52. [span_37](start_span)Hình vẽ sau biểu diễn bộ lọc nào trong miền tần số?[span_37](end_span)</p>
+                <img src="https://via.placeholder.com/200x150?text=Bộ+lọc+tần+số+thông+thấp" alt="Bộ lọc tần số thông thấp" style="display: block; margin: 10px 0;">
+                <div class="options">
+                    <label><input type="radio" name="q52" value="A"> A. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q52" value="B"> B. Bộ lọc thông cao</label>
+                </div>
+                <div class="answer" id="answer52"></div>
+            </div>
+
+            <div class="question">
+                <p>53. [span_38](start_span)Hình vẽ sau biểu diễn bộ lọc nào trong miền tần số?[span_38](end_span)</p>
+                <img src="https://via.placeholder.com/200x150?text=Bộ+lọc+tần+số+thông+cao" alt="Bộ lọc tần số thông cao" style="display: block; margin: 10px 0;">
+                <div class="options">
+                    <label><input type="radio" name="q53" value="A"> A. Bộ lọc thông thấp</label>
+                    <label><input type="radio" name="q53" value="B"> B. Bộ lọc thông cao</label>
+                </div>
+                <div class="answer" id="answer53"></div>
+            </div>
+
+            <div class="question">
+                <p>54. [span_39](start_span)Phương trình dưới đây biểu diễn bộ lọc nào trong miền tần số?[span_39](end_span)</p>
+                <p>$D(u,v)=[(u-M/2)^{2}+(v-N/2)^{2}]^{1/2}$</p>
+                <div class="options">
+                    <label><input type="radio" name="q54" value="A"> A. Bộ lọc thông thấp lý tưởng</label>
+                    <label><input type="radio" name="q54" value="B"> B. Bộ lọc thông cao lý tưởng</label>
+                    <label><input type="radio" name="q54" value="C"> C. Bộ lọc thông thấp Butterworth</label>
+                    <label><input type="radio" name="q54" value="D"> D. Bộ lọc thông thấp Gauss</label>
+                </div>
+                <div class="answer" id="answer54"></div>
+            </div>
+
+        </div>
+
+        <button onclick="checkAnswers()">Kiểm tra đáp án</button>
+        <button onclick="showAnswers()">Hiện đáp án</button>
+        <button onclick="resetQuiz()">Làm lại</button>
+    </div>
+
+    <script>
+        const correctAnswers = {
+            q1: 'D',
+            q2: 'D',
+            q3: 'A',
+            q4: 'C',
+            q5: 'A',
+            q6: 'C',
+            q7: 'B',
+            q8: 'B',
+            q9: 'B',
+            q10: 'A',
+            q11: 'D',
+            q12: 'A',
+            q13: 'B',
+            q14: 'D',
+            q15: 'A',
+            q16: 'A',
+            q17: 'C',
+            q18: 'A',
+            q19: 'C',
+            q20: 'A',
+            q21: 'D',
+            q22: 'A',
+            q23: 'A',
+            q24: 'A',
+            q25: 'A',
+            q25_2: 'A', // For the sub-question about sum of normalized histogram
+            q26: 'A',
+            q27: 'B',
+            q28: 'A',
+            q29: 'A',
+            q30: 'A',
+            q31: 'D',
+            q32: 'A',
+            q33: 'D',
+            q34: 'D',
+            q35: 'D',
+            q36: 'B',
+            q37: 'B',
+            q38: 'A',
+            q39: 'A',
+            q40: 'B',
+            q41: 'B',
+            q42: 'B',
+            q43: 'C',
+            q44: 'C',
+            q45: 'D',
+            q46: 'A',
+            q47: 'A',
+            q48: 'A',
+            q49: 'C',
+            q50: 'A',
+            q51: 'A',
+            q52: 'A',
+            q53: 'B',
+            q54: 'A'
+        };
+
+        function checkAnswers() {
+            for (let i = 1; i <= 54; i++) {
+                let questionName = 'q' + i;
+                let selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                let answerDiv = document.getElementById('answer' + i);
+
+                if (selectedOption) {
+                    if (selectedOption.value === correctAnswers[questionName]) {
+                        answerDiv.textContent = 'Chính xác!';
+                        answerDiv.style.color = 'green';
+                    } else {
+                        answerDiv.textContent = 'Sai. Đáp án đúng là ' + correctAnswers[questionName];
+                        answerDiv.style.color = 'red';
+                    }
+                } else {
+                    answerDiv.textContent = 'Bạn chưa trả lời câu này.';
+                    answerDiv.style.color = 'orange';
+                }
+            }
+            // Special handling for question 25 sub-question
+            let q25_2_selectedOption = document.querySelector(`input[name="q25_2"]:checked`);
+            let q25_2_answerDiv = document.getElementById('answer25_2');
+            if (q25_2_selectedOption) {
+                if (q25_2_selectedOption.value === correctAnswers['q25_2']) {
+                    q25_2_answerDiv.textContent = 'Chính xác!';
+                    q25_2_answerDiv.style.color = 'green';
+                } else {
+                    q25_2_answerDiv.textContent = 'Sai. Đáp án đúng là ' + correctAnswers['q25_2'];
+                    q25_2_answerDiv.style.color = 'red';
+                }
+            } else {
+                q25_2_answerDiv.textContent = 'Bạn chưa trả lời câu này.';
+                q25_2_answerDiv.style.color = 'orange';
+            }
+        }
+
+        function showAnswers() {
+            for (let i = 1; i <= 54; i++) {
+                let questionName = 'q' + i;
+                let answerDiv = document.getElementById('answer' + i);
+                answerDiv.textContent = 'Đáp án đúng: ' + correctAnswers[questionName];
+                answerDiv.style.color = 'blue';
+            }
+            // Special handling for question 25 sub-question
+            let q25_2_answerDiv = document.getElementById('answer25_2');
+            q25_2_answerDiv.textContent = 'Đáp án đúng: ' + correctAnswers['q25_2'];
+            q25_2_answerDiv.style.color = 'blue';
+        }
+
+        function resetQuiz() {
+            for (let i = 1; i <= 54; i++) {
+                let questionName = 'q' + i;
+                let radios = document.querySelectorAll(`input[name="${questionName}"]`);
+                radios.forEach(radio => radio.checked = false);
+                document.getElementById('answer' + i).textContent = '';
+            }
+            // Special handling for question 25 sub-question
+            let q25_2_radios = document.querySelectorAll(`input[name="q25_2"]`);
+            q25_2_radios.forEach(radio => radio.checked = false);
+            document.getElementById('answer25_2').textContent = '';
+        }
+    </script>
+</body>
+</html>
