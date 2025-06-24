@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
+    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh (Ôn tập)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -66,8 +66,9 @@
         }
         .options-container div {
             margin-bottom: 8px;
-            padding: 5px;
+            padding: 10px;
             border-radius: 6px;
+            border: 1px solid transparent;
         }
         label {
             margin-left: 10px;
@@ -87,13 +88,17 @@
         fieldset:disabled label {
             cursor: not-allowed;
         }
-        .correct {
+        .question-block.correct {
             background-color: #d4edda;
             border-color: #c3e6cb;
         }
-        .incorrect {
-            background-color: #f8d7da;
+        .question-block.incorrect {
+            background-color: #fff1f2; /* Lighter red for the block */
             border-color: #f5c6cb;
+        }
+        .options-container div.incorrect-option {
+             background-color: #f8d7da; /* Stronger red for the specific wrong option */
+             border-color: #f5c6cb;
         }
         .correct-answer {
             margin-top: 15px;
@@ -103,11 +108,8 @@
             border-top: 1px dashed #ccc;
             display: none; /* Initially hidden */
         }
-        .correct-answer.incorrect-user {
-            color: #721c24;
-        }
         .correct-answer.visible {
-            display: block; /* Becomes visible after answering correctly */
+            display: block;
         }
         .note {
             font-size: 0.9em;
@@ -120,7 +122,7 @@
 <body>
     <div id="user-info">Thanh Hưng K62</div>
     <div id="test-container">
-        <h1>Bài Kiểm Tra Tổng Hợp Xử Lý Ảnh</h1>
+        <h1>Bài Kiểm Tra Tổng Hợp Xử Lý Ảnh (Chế độ ôn tập)</h1>
         <div id="results">Điểm số: 0 / 81</div>
         
         <form id="quiz-form">
@@ -130,6 +132,7 @@
     <script>
     // --- DATA SECTION (81 Unique Questions) ---
     const quizData = [
+        // Dữ liệu 81 câu hỏi đã được chèn ở đây (giữ nguyên như cũ)
         { id: 1, question: "Kỹ thuật nào được đề cập đến trong xử lý ảnh số?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi ảnh", C: "Phân tích ảnh", D: "Tất cả các câu trả lời đều đúng" }, answer: "D" },
         { id: 2, question: "Phát biểu nào sau đây mô tả độ sâu của điểm ảnh?", options: { A: "Số đơn vị (unit) được sử dụng để biểu diễn một điểm ảnh trong không gian RGB", B: "Số mm được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", C: "Số byte được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", D: "Số bit được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB" }, answer: "D" },
         { id: 3, question: "Đâu là bước đầu tiên và quan trọng nhất trong kỹ thuật xử lý ảnh số?", options: { A: "Thu nhận ảnh", B: "Phân vùng ảnh", C: "Nâng cao chất lượng ảnh", D: "Khôi phục ảnh" }, answer: "A" },
@@ -217,7 +220,7 @@
     const quizForm = document.getElementById('quiz-form');
     const resultsContainer = document.getElementById('results');
     let score = 0;
-    const totalQuestions = quizData.filter(q => q.answer).length; // Count only valid questions
+    const totalQuestions = quizData.filter(q => q.answer).length;
     const scoredQuestions = []; 
 
     function renderQuiz() {
@@ -260,32 +263,41 @@
         
         const isCorrect = userAnswer === questionData.answer;
 
-        // Reveal the correct answer immediately
-        let correctAnswerText = `Đáp án đúng: <strong>${questionData.answer}. ${questionData.options[questionData.answer]}</strong>`;
-        if (questionData.note) {
-            correctAnswerText += `<br><span class="note">${questionData.note}</span>`;
-        }
-        correctAnswerEl.innerHTML = correctAnswerText;
-        correctAnswerEl.classList.add('visible');
-
         if (isCorrect) {
+            // Remove incorrect styling from block if present
             block.classList.remove('incorrect');
+            
+            // Add correct styling
             block.classList.add('correct');
             
+            // Update score if it's the first successful attempt for this question
             if (!scoredQuestions.includes(questionId)) {
                 score++;
                 scoredQuestions.push(questionId);
             }
-        } else {
-            block.classList.add('incorrect');
-            correctAnswerEl.classList.add('incorrect-user');
-             if (!scoredQuestions.includes(questionId)) {
-                scoredQuestions.push(questionId);
+            resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
+
+            // Reveal the correct answer
+            let correctAnswerText = `Đáp án đúng: <strong>${questionData.answer}. ${questionData.options[questionData.answer]}</strong>`;
+            if (questionData.note) {
+                correctAnswerText += `<br><span class="note">${questionData.note}</span>`;
             }
+            correctAnswerEl.innerHTML = correctAnswerText;
+            correctAnswerEl.classList.add('visible');
+
+            // Lock the entire question
+            fieldset.disabled = true;
+
+        } else {
+            // Mark the block as being attempted and incorrect
+            block.classList.add('incorrect');
+            
+            // Mark the specific selected option div as incorrect
+            selectedRadio.parentElement.classList.add('incorrect-option');
+            
+            // Disable just the wrong radio button
+            selectedRadio.disabled = true;
         }
-        
-        resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
-        fieldset.disabled = true;
     }
 
     // --- INITIALIZATION ---
