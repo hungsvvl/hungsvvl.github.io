@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* =================================
+           GIAO DIỆN HIỆN ĐẠI MỚI
+        ================================= */
+
         :root {
             --primary-color: #8a2be2;
             --correct-color: #28a745;
             --incorrect-color: #dc3545;
             --text-color: #f0f2f5;
-            --bg-light: rgba(255, 255, 255, 0.2);
-            --bg-very-light: rgba(255, 255, 255, 0.3);
-            --border-color: rgba(255, 255, 255, 0.4);
+            --bg-glass: rgba(255, 255, 255, 0.15);
+            --border-glass: rgba(255, 255, 255, 0.2);
         }
 
         * {
@@ -25,7 +32,7 @@
             font-family: 'Poppins', sans-serif;
             line-height: 1.7;
             color: var(--text-color);
-            /* ** SỬA LỖI Ở ĐÂY: Loại bỏ overflow: hidden và height: 100vh ** */
+            padding: 20px;
         }
 
         .background-gradient {
@@ -36,7 +43,7 @@
             height: 100%;
             background: linear-gradient(45deg, #2c3e50, #4ca1af, #8a2be2, #4a00e0);
             background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
+            animation: gradientAnimation 20s ease infinite;
             z-index: -1;
         }
 
@@ -48,11 +55,11 @@
 
         #main-container {
             max-width: 900px;
-            margin: 20px auto;
-            background: var(--bg-light);
+            margin: auto;
+            background: var(--bg-glass);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-glass);
             border-radius: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
             padding: 30px;
@@ -64,12 +71,13 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* --- Màn hình Cài đặt & Kết quả --- */
         #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
         }
         #final-result-screen h2 { font-size: 2.2em; }
-        #final-score-text { font-size: 1.6em; font-weight: 600; color: #fff; }
+        #final-score-text { font-size: 1.6em; font-weight: 600; color: #fff; margin: 20px 0; }
         #redirect-message { font-size: 1em; color: #eee; }
         
         #time-selection {
@@ -101,55 +109,49 @@
             display: none;
         }
 
+        /* --- Màn hình Quiz --- */
         #quiz-container { display: none; }
         
         #sticky-header {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 30px;
             z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-            margin: -30px -30px 20px -30px; /* Mở rộng ra sát viền container */
+            margin: -30px -30px 20px -30px;
+            border-bottom: 1px solid var(--border-glass);
             border-top-left-radius: 16px;
             border-top-right-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative; 
+            position: relative;
         }
         
         #user-credit {
-            position: absolute;
-            left: 30px;
-            font-weight: 500;
-            color: #eee;
-            font-size: 0.9em;
+            position: absolute; left: 30px; font-weight: 500;
+            color: #eee; font-size: 0.9em;
         }
 
         #timer-display {
-            text-align: center;
-            font-size: 2em;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center; font-size: 2em; font-weight: 700;
+            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         #timer-display.ending { color: #ffdddd; }
         
         .question-block {
             margin-bottom: 25px;
-            background: var(--bg-light);
-            border: 1px solid var(--border-color);
-            padding: 20px;
+            background: rgba(0,0,0,0.1);
+            border: 1px solid var(--border-glass);
+            padding: 25px;
             border-radius: 12px;
         }
-        .question-text { font-weight: 600; margin-bottom: 15px; font-size: 1.2em; }
+        .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.2em; }
 
+        /* Custom Radio Buttons */
         .options-container label {
             display: block;
-            background: var(--bg-very-light);
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
@@ -157,21 +159,44 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .options-container input[type="radio"] { display: none; }
-        .options-container label:hover { border-color: var(--border-color); }
-        .options-container input[type="radio"]:checked + span { font-weight: 600; }
-        .question-block.correct .options-container input[type="radio"]:checked + span { font-weight: 700; }
-        .question-block.correct .options-container input[type="radio"]:checked + span::before { content: '✔ '; color: var(--correct-color); }
-        .question-block.incorrect .options-container div.incorrect-option label { border-color: var(--incorrect-color); background: rgba(220, 53, 69, 0.3); }
-        .question-block.incorrect .options-container div.incorrect-option span::before { content: '✖ '; color: var(--incorrect-color); }
+        .options-container input[type="radio"] {
+            display: none;
+        }
+        .options-container label:hover {
+            border-color: var(--border-glass);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .options-container input[type="radio"]:checked + span {
+            font-weight: 600;
+        }
         
-        fieldset { border: none; padding: 0; margin: 0; }
+        .question-block.correct .options-container .correct-selection label {
+            border-color: var(--correct-color);
+            background: rgba(40, 167, 69, 0.3);
+        }
+        .question-block.correct .options-container .correct-selection span::before {
+            content: '✔ ';
+            color: var(--correct-color);
+        }
+        
+        .question-block.incorrect .options-container div.incorrect-option label {
+             border-color: var(--incorrect-color);
+             background: rgba(220, 53, 69, 0.3);
+        }
+        .question-block.incorrect .options-container div.incorrect-option span::before {
+             content: '✖ ';
+             color: var(--incorrect-color);
+        }
+        
         fieldset:disabled label {
             cursor: not-allowed;
-            background: rgba(44, 62, 80, 0.5);
-            border-color: transparent;
+            opacity: 0.7;
         }
-        fieldset:disabled .correct-selection {
+        fieldset:disabled label:hover {
+            border-color: transparent;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        fieldset:disabled .correct-selection label, fieldset:disabled .correct-selection label:hover {
             background: rgba(40, 167, 69, 0.5);
             border-color: var(--correct-color);
         }
@@ -373,7 +398,7 @@
         { id: 281, question: "Đoạn chương trình vẽ các hình nhưng không nhìn thấy hình chữ nhật, tại sao?", options: { A: "Không nhìn thấy đường thẳng trong ảnh.", B: "Không nhìn thấy hình tròn trong ảnh.", C: "Không nhìn thấy hình chữ nhật trong ảnh.", D: "Không nhìn thấy tất cả." }, answer: "C", note: "Phân tích code: Nền đỏ (0,0,255), hình chữ nhật cũng màu đỏ (0,0,255)." }
     ];
 
-    const uniqueQuestions = new Map();
+     const uniqueQuestions = new Map();
     allQuestions.forEach(q => {
         const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
         if (!uniqueQuestions.has(trimmedQuestion)) {
@@ -416,7 +441,7 @@
 
     startButton.addEventListener('click', () => {
         setupContainer.style.display = 'none';
-        quizContainer.style.display = 'flex'; // Dùng flex để header và content-wrapper hoạt động tốt
+        quizContainer.style.display = 'block';
         submitButton.style.display = 'block';
         
         const selectedTimeInput = document.querySelector('input[name="time"]:checked');
@@ -465,7 +490,6 @@
             html += `<fieldset id="fs-${q.id}">`;
             html += `<div class="options-container">`;
             for (const key in shuffledOptions) {
-                // Thay đổi cấu trúc để label bao bọc input
                 html += `<div>
                             <label>
                                 <input type="radio" name="q${q.id}" value="${key}">
@@ -542,12 +566,11 @@
     function endQuiz(isTimeOut = false) {
         clearInterval(timerInterval);
         if (isTimeOut) {
-            timerDisplay.textContent = "HẾT GIỜ!";
             alert("Đã hết giờ làm bài!");
         }
         
-        mainContainer.innerHTML = ''; // Xóa nội dung cũ
-        mainContainer.appendChild(finalResultScreen); // Chỉ hiển thị màn hình kết quả
+        mainContainer.innerHTML = '';
+        mainContainer.appendChild(finalResultScreen);
 
         const totalQuestions = quizData.length;
         document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
