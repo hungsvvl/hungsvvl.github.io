@@ -123,7 +123,7 @@
     <div id="user-info">Thanh Hưng K62</div>
     <div id="test-container">
         <h1>Bài Kiểm Tra Tổng Hợp Xử Lý Ảnh (Chế độ ôn tập)</h1>
-        <div id="results">Điểm số: 0 / 81</div>
+        <div id="results">Điểm số: 0 / 126</div>
         
         <form id="quiz-form">
             </form>
@@ -204,6 +204,60 @@
     { id: 70, question: "Nhược điểm của bộ lọc làm trơn ảnh là", options: { A: "Loại bỏ sự thay đổi đột ngột", B: "làm mờ các điểm ảnh bên trong", C: "Làm sắc nét ảnh", D: "làm mờ biên ảnh" }, answer: "D" },
     { id: 71, question: "Bộ lọc nào phù hợp cho việc loại bỏ nhiễu muối tiêu?", options: { A: "Bộ lọc trung vị", B: "Bộ lọc", C: "Không đáp án nào đúng", D: "Bộ lọc trung bình" }, answer: "A" },
     { id: 72, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" }
+    { id: 73, question: "Kỹ thuật nào được đề cập đến trong xử lý ảnh số?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi ảnh", C: "Phân tích ảnh", D: "Tất cả các câu trả lời đều đúng" }, answer: "D" },
+    { id: 74, question: "Phát biểu nào sau đây mô tả độ sâu của điểm ảnh?", options: { A: "Số đơn vị (unit) được sử dụng để biểu diễn một điểm ảnh trong không gian RGB", B: "Số mm được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", C: "Số byte được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", D: "Số bit được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB" }, answer: "D" },
+    { id: 75, question: "Đâu là bước đầu tiên và quan trọng nhất trong kỹ thuật xử lý ảnh số?", options: { A: "Thu nhận ảnh", B: "Phân vùng ảnh", C: "Nâng cao chất lượng ảnh", D: "Khôi phục ảnh" }, answer: "A" },
+    { id: 76, question: "Ảnh số được coi là một hàm phụ thuộc vào tọa độ không gian f(x,y) biểu diễn:", options: { A: "chiều cao của ảnh", B: "chiều rộng của ảnh", C: "cường độ sáng của ảnh", D: "độ phân giải của ảnh" }, answer: "C" },
+    { id: 77, question: "Điểm ảnh là:", options: { A: "một phần tử của ảnh số", B: "một phần tử của ảnh tương tự", C: "một cụm các phần tử của ảnh số", D: "một cụm các phần tử của ảnh tương tự" }, answer: "A" },
+    { id: 78, question: "Ảnh có độ phân giải Full HD có kích thước:", options: { A: "512x512", B: "256x256", C: "1920x1080", D: "1080x1080" }, answer: "C" },
+    { id: 79, question: "Mỗi điểm ảnh được tạo nên bởi ba màu cơ bản nào sau đây?", options: { A: "Đỏ, xanh da trời, vàng", B: "Đỏ, xanh lá, xanh da trời", C: "Đỏ, trắng, xanh da trời", D: "Xanh da trời, đen, đỏ" }, answer: "B" },
+    { id: 80, question: "Giá trị của mỗi thành phần màu trong điểm ảnh nằm trong khoảng:", options: { A: "[0, 100]", B: "[0, 255]", C: "[1, 100]", D: "[1, 256]" }, answer: "B" },
+    { id: 81, question: "Một điểm ảnh có giá trị (R,G,B)=(0,255,0), điểm ảnh đó có màu gì?", options: { A: "Màu đỏ", B: "Màu xanh lá", C: "Màu vàng", D: "Màu xanh da trời" }, answer: "B" },
+    { id: 82, question: "Phổ điện từ của ánh sáng nhìn thấy nằm trong khoảng:", options: { A: "400-700nm", B: "600-900nm", C: "400-700pm", D: "600-900pm" }, answer: "A" },
+    { id: 83, question: "Hàm nào sau đây biểu diễn biến đổi logarit trong xử lý ảnh?", options: { A: "g(x,y)=c+log[1+f(x,y)]", B: "g(x,y)=c/log[1+f(x,y)]", C: "g(x,y)=c-log[1+f(x,y)]", D: "g(x,y)=c*log[1+f(x,y)]" }, answer: "D" },
+    { id: 84, question: "Bộ lọc làm mịn (smooth) được sử dụng để giảm nhiễu và làm mờ biên ảnh.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
+    { id: 85, question: "Thuộc tính nào trong không gian màu HSV đặc trưng cho màu gốc (pure color) của điểm ảnh?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Cường độ sáng (Intensity)" }, answer: "B" },
+    { id: 86, question: "Bốn lân cận theo phương ngang và phương thẳng đứng của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y+1); (x+1,y-1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "D" },
+    { id: 87, question: "Bốn lân cận theo hai đường chéo của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y-1); (x+1,y+1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "A" },
+    { id: 88, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh mức xám (gray-scale)?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A" },
+    { id: 89, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh màu?", options: { A: "8 bit", B: "2 bit", C: "24 bit", D: "4 bit" }, answer: "C" },
+    { id: 90, question: "Trong ảnh nhị phân, cần bao nhiêu bit để biểu diễn một điểm ảnh?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A", note: "Đáp án đúng theo lý thuyết là 1 bit, nhưng không có trong lựa chọn." },
+    { id: 91, question: "Trong bước nào sau đây, ảnh được chia thành các vùng nhỏ hơn?", options: { A: "Nâng cao chất lượng ảnh", B: "Thu nhận ảnh", C: "Phân vùng ảnh", D: "Biến đổi Wavelet" }, answer: "C" },
+    { id: 92, question: "Tham số nào trong không gian màu HSV thể hiện sự pha loãng màu gốc (pure color) bởi ánh sáng trắng?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Không đáp án nào đúng" }, answer: "A" },
+    { id: 93, question: "Trong một hệ thống xử lý ảnh, bước nào được thực hiện ngay trước bước xử lý ảnh màu?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi Wavelet và xử lý đa phân giải", C: "Khôi phục ảnh", D: "Thu nhận ảnh" }, answer: "D" },
+    { id: 94, question: "Mô hình màu RGB có thể biểu diễn:", options: { A: "hơn 16 triệu màu", B: "hơn 20 triệu màu", C: "hơn 36 triệu màu", D: "hơn 10 triệu màu" }, answer: "A" },
+    { id: 95, question: "Công thức nào biểu diễn phép biến đổi từ ảnh màu sang ảnh mức xám?", options: { A: "Gray = 0.2989*R + 0.5870*G + 0.1140*B", B: "Gray = 0.2989*B + 0.5870*G + 0.1140*R", C: "Gray = 0.3989*R + 0.4870*G + 0.1140*B", D: "Gray = 0.2989*R + 0.1140*G + 0.5870*B" }, answer: "A" },
+    { id: 96, question: "Lược đồ mức xám h(rk) được định nghĩa như sau (trong đó rk và nk tương ứng là mức xám thứ k và số lượng điểm ảnh có mức xám rk):", options: { A: "h(rk) = nk", B: "h(rk) = nk/rk", C: "h(rk) = nk*rk", D: "h(rk) = rk/nk" }, answer: "A" },
+    { id: 97, question: "Lược đồ mức xám được chuẩn hóa theo biểu thức nào sau đây? (nk là số điểm ảnh có mức xám rk và n là tổng số điểm ảnh)", options: { A: "p(rk) = nk/n", B: "p(rk) = nk*n", C: "p(rk) = nk+n", D: "p(rk) = n-nk" }, answer: "A" },
+    { id: 98, question: "Biểu thức nào biểu diễn phép biến đổi sinh ra ảnh âm bản?", options: { A: "g(x,y) = L-1-f(x,y)", B: "g(x,y) = L-1+f(x,y)", C: "g(x,y) = c*log[1+f(x,y)]", D: "g(x,y) = c*f(x,y)ᵞ" }, answer: "A" },
+    { id: 99, question: "Trong công thức của phép biến đổi sinh ra ảnh âm bản, giá trị của tham số L là:", options: { A: "255", B: "256", C: "512", D: "128" }, answer: "B" },
+    { id: 100, question: "Công thức nào biểu diễn phép biến đổi hiệu chuẩn Gamma (Gamma Correction)?", options: { A: "g(x,y) = c*f(x,y)ᵞ", B: "g(x,y) = c+f(x,y)ᵞ", C: "g(x,y) = c/f(x,y)ᵞ", D: "g(x,y) = c-f(x,y)ᵞ" }, answer: "A" },
+    { id: 101, question: "Mục đích chính của kỹ thuật tăng cường độ tương phản là:", options: { A: "làm ảnh sắc nét, rõ ràng hơn", B: "loại bỏ nhiễu", C: "làm ảnh bị mờ", D: "Không đáp án nào đúng" }, answer: "A" },
+    { id: 102, question: "Cho hình vẽ mô tả kỹ thuật tăng cường độ tương phản. Hàm nào sau đây biểu diễn phép biến đổi đó?", options: { A: "T(r)={αr, β(r-a)+sa, γ(r-b)+sb}", B: "T(r)={SH, SL}", C: "T(r)={SH, r}", D: "T(r)={SH, αr}" }, answer: "A", note: "Lựa chọn A là công thức tổng quát nhất." },
+    { id: 103, question: "Đầu ra của bộ lọc làm trơn ảnh, tuyến tính trong miền không gian là:", options: { A: "Giá trị trung vị của các điểm ảnh", B: "Giá trị lớn nhất của các điểm ảnh", C: "Giá trị nhỏ nhất của các điểm ảnh", D: "Giá trị trung bình của các điểm ảnh" }, answer: "D" },
+    { id: 104, question: "Nhược điểm của bộ lọc làm trơn ảnh là:", options: { A: "làm mờ biên ảnh", B: "làm mờ các điểm ảnh bên trong", C: "Loại bỏ sự thay đổi đột ngột", D: "Làm sắc nét ảnh" }, answer: "A" },
+    { id: 105, question: "Ma trận mặt nạ (1/16 * [[1,2,1],[2,4,2],[1,2,1]]) thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
+    { id: 106, question: "Ma trận mặt nạ (1/9 * [[1,1,1],[1,1,1],[1,1,1]]) thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
+    { id: 107, question: "Nếu hình bên trái tương ứng với bộ lọc có kích thước 9 thì hình bên phải (mờ hơn) có kích thước là bao nhiêu?", options: { A: "5", B: "7", C: "9", D: "15" }, answer: "D" },
+    { id: 108, question: "Mục tiêu cơ bản của kỹ thuật làm sắc nét ảnh là:", options: { A: "làm nhòe ảnh (blurr)", B: "làm nổi bật các chi tiết trong ảnh", C: "tăng độ sáng của ảnh", D: "giảm độ sáng của ảnh" }, answer: "B" },
+    { id: 109, question: "Trong miền không gian, phép toán nào sau đây được thực hiện để làm sắc nét ảnh?", options: { A: "tích phân", B: "vi phân", C: "trung bình", D: "trung vị" }, answer: "B" },
+    { id: 110, question: "Ảnh vi phân làm nổi bật sự thay đổi đột ngột của cường độ sáng và không chú ý tới các điểm ảnh mà tại đó cường độ sáng thay đổi chậm.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
+    { id: 111, question: "Đạo hàm bậc nhất theo phương x được tính như sau:", options: { A: "f(x+1,y)-f(x,y)", B: "f(x,y)-f(x+1,y)", C: "f(x-1,y)-f(x+1,y)", D: "f(x-1,y)+f(x,y)" }, answer: "A" },
+    { id: 112, question: "Biên được sinh ra bởi đạo hàm bậc nhất có độ dày như thế nào so với khi sử dụng đạo hàm bậc hai?", options: { A: "Mảnh hơn", B: "Dày hơn", C: "Bằng nhau", D: "Độc lập với nhau" }, answer: "B" },
+    { id: 113, question: "Đạo hàm bậc hai của hàm một chiều f(x) được định nghĩa như sau:", options: { A: "∂²f/∂x² = f(x+1) - f(x)", B: "∂²f/∂x² = f(x+1) + f(x-1) - 2f(x)", C: "∂²f/∂x² = f(x+1) + f(x)", D: "∂²f/∂x² = f(x+1) + f(x-1) - 4f(x)" }, answer: "B" },
+    { id: 114, question: "Đạo hàm bậc hai còn được gọi là:", options: { A: "Gaussian", B: "Laplacian", C: "Canny", D: "Không đáp án nào đúng" }, answer: "B" },
+    { id: 115, question: "Bộ lọc làm trơn ảnh được sử dụng để:", options: { A: "làm mờ ảnh", B: "loại bỏ nhiễu", C: "loại bỏ nhiễu và làm mờ ảnh", D: "Không đáp án nào đúng" }, answer: "C" },
+    { id: 116, question: "Đáp ứng ra của bộ lọc làm trơn, tuyến tính trong miền không gian là:", options: { A: "Tổng các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", B: "Tích các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", C: "Giá trị trung bình của các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", D: "Không đáp án nào đúng" }, answer: "C" },
+    { id: 117, question: "Giá trị trung bình của các điểm ảnh trong vùng không gian tương ứng với mặt nạ lọc là kết quả đầu ra của bộ lọc:", options: { A: "Bộ lọc trung bình", B: "Bộ lọc làm trơn ảnh", C: "Bộ lọc thông thấp", D: "Cả ba đáp án còn lại đều đúng" }, answer: "D" },
+    { id: 118, question: "Biểu thức nào sau đây biểu diễn toán tử Laplacian?", options: { A: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 4f(x,y)", B: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - f(x,y)", C: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 8f(x,y)", D: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) + 4f(x,y)" }, answer: "A" },
+    { id: 119, question: "Ma trận lọc [[0,1,0],[1,-4,1],[0,1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+    { id: 120, question: "Ma trận lọc [[0,-1,0],[-1,4,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+    { id: 121, question: "Bộ lọc được biểu diễn bởi phương trình g(x,y) = f(x,y) - ∇²f(x,y) là bộ lọc gì?", options: { A: "Lọc trung bình", B: "Lọc trung vị", C: "Lọc sắc nét", D: "Lọc thông thấp" }, answer: "C" },
+    { id: 122, question: "Ma trận lọc [[0,-1,0],[-1,5,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+    { id: 123, question: "Ma trận lọc [[-1,-1,-1],[-1,9,-1],[-1,-1,-1]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+    { id: 124, question: "Hình vẽ sau (hình tròn trắng trên nền đen) biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "A" },
+    { id: 125, question: "Hình vẽ sau (hình tròn đen trên nền trắng) biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "B" },
+    { id: 126, question: "Phương trình D(u,v)=[(u-M/2)²+(v-N/2)²]¹/² dùng để làm gì?", options: { A: "Bộ lọc thông thấp lý tưởng", B: "Bộ lọc thông cao lý tưởng", C: "Bộ lọc thông thấp Butterworth", D: "Tính khoảng cách trong miền tần số" }, answer: "D", note: "Đây là công thức tính khoảng cách Euclide, một thành phần để xây dựng các bộ lọc." }
 ];
 
     // --- SCRIPT SECTION ---
