@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* =================================
-           THIẾT KẾ HIỆN ĐẠI MỚI
-        ================================= */
-
         :root {
             --primary-color: #8a2be2;
             --correct-color: #28a745;
@@ -32,10 +25,9 @@
             font-family: 'Poppins', sans-serif;
             line-height: 1.7;
             color: var(--text-color);
-            
+            /* ** SỬA LỖI Ở ĐÂY: Loại bỏ overflow: hidden và height: 100vh ** */
         }
 
-        /* Nền Gradient chuyển động */
         .background-gradient {
             position: fixed;
             top: 0;
@@ -54,9 +46,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Container chính với hiệu ứng kính mờ */
         #main-container {
-            height: calc(100vh - 40px);
             max-width: 900px;
             margin: 20px auto;
             background: var(--bg-light);
@@ -65,23 +55,15 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* Đảm bảo các góc bo được giữ nguyên */
+            padding: 30px;
         }
         
-        .content-wrapper {
-            padding: 30px;
-            overflow-y: auto; /* Thêm thanh cuộn cho nội dung */
-        }
-
         h1, h2 {
             text-align: center;
             color: #fff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- Màn hình Cài đặt & Kết quả --- */
         #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
@@ -97,7 +79,6 @@
         #time-selection h4 { width: 100%; margin-bottom: 10px; font-weight: 500; }
         #time-selection label { cursor: pointer; padding: 5px 10px; }
 
-        /* Nút bấm hiện đại */
         .modern-button {
             font-size: 1.1em; padding: 12px 24px; margin: 10px;
             cursor: pointer; border-radius: 50px; border: none;
@@ -120,28 +101,40 @@
             display: none;
         }
 
-        /* --- Màn hình Quiz --- */
-        #quiz-container { display: none; flex-grow: 1; display: flex; flex-direction: column; }
+        #quiz-container { display: none; }
         
         #sticky-header {
-            background: var(--bg-very-light);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 15px;
             z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            margin: -30px -30px 20px -30px; /* Mở rộng ra sát viền container */
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            position: relative; 
         }
         
         #user-credit {
-            position: absolute; left: 30px; font-weight: 500;
-            color: #eee; font-size: 0.9em;
+            position: absolute;
+            left: 30px;
+            font-weight: 500;
+            color: #eee;
+            font-size: 0.9em;
         }
 
         #timer-display {
-            text-align: center; font-size: 2em; font-weight: 700;
-            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         #timer-display.ending { color: #ffdddd; }
         
@@ -152,11 +145,8 @@
             padding: 20px;
             border-radius: 12px;
         }
-        .question-text {
-            font-weight: 600; margin-bottom: 15px; font-size: 1.2em;
-        }
+        .question-text { font-weight: 600; margin-bottom: 15px; font-size: 1.2em; }
 
-        /* Custom Radio Buttons */
         .options-container label {
             display: block;
             background: var(--bg-very-light);
@@ -167,32 +157,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .options-container input[type="radio"] {
-            display: none; /* Ẩn nút radio mặc định */
-        }
-        .options-container label:hover {
-            border-color: var(--border-color);
-        }
-        .options-container input[type="radio"]:checked + span {
-            font-weight: 600;
-        }
-
-        .question-block.correct .options-container input[type="radio"]:checked + span {
-             font-weight: 700;
-        }
-        .question-block.correct .options-container input[type="radio"]:checked + span::before {
-             content: '✔ ';
-             color: var(--correct-color);
-        }
-        .question-block.incorrect .options-container div.incorrect-option label {
-             border-color: var(--incorrect-color);
-             background: rgba(220, 53, 69, 0.3);
-        }
-        .question-block.incorrect .options-container div.incorrect-option span::before {
-             content: '✖ ';
-             color: var(--incorrect-color);
-        }
+        .options-container input[type="radio"] { display: none; }
+        .options-container label:hover { border-color: var(--border-color); }
+        .options-container input[type="radio"]:checked + span { font-weight: 600; }
+        .question-block.correct .options-container input[type="radio"]:checked + span { font-weight: 700; }
+        .question-block.correct .options-container input[type="radio"]:checked + span::before { content: '✔ '; color: var(--correct-color); }
+        .question-block.incorrect .options-container div.incorrect-option label { border-color: var(--incorrect-color); background: rgba(220, 53, 69, 0.3); }
+        .question-block.incorrect .options-container div.incorrect-option span::before { content: '✖ '; color: var(--incorrect-color); }
         
+        fieldset { border: none; padding: 0; margin: 0; }
         fieldset:disabled label {
             cursor: not-allowed;
             background: rgba(44, 62, 80, 0.5);
@@ -209,8 +182,7 @@
     <button id="submit-button" class="modern-button">Nộp bài</button>
 
     <div id="main-container">
-        
-        <div id="setup-container" class="content-wrapper">
+        <div id="setup-container">
             <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
             <h2>Thiết lập bài làm</h2>
             
@@ -232,12 +204,10 @@
                 <span id="user-credit">Hung</span>
                 <div id="timer-display"></div>
             </div>
-            <div class="content-wrapper">
-                <form id="quiz-form"></form>
-            </div>
+            <form id="quiz-form"></form>
         </div>
 
-        <div id="final-result-screen" class="content-wrapper" style="display: none;">
+        <div id="final-result-screen" style="display: none;">
             <h2>Kết quả bài làm</h2>
             <p id="final-score-text"></p>
             <p id="redirect-message"></p>
