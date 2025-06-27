@@ -4,165 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.6;
+        /* =================================
+           THIẾT KẾ HIỆN ĐẠI MỚI
+        ================================= */
+
+        :root {
+            --primary-color: #8a2be2;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --text-color: #f0f2f5;
+            --bg-light: rgba(255, 255, 255, 0.2);
+            --bg-very-light: rgba(255, 255, 255, 0.3);
+            --border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-            color: #1c1e21;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            overflow: hidden; /* Ẩn scroll của body */
+            height: 100vh;
+        }
+
+        /* Nền Gradient chuyển động */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #2c3e50, #4ca1af, #8a2be2, #4a00e0);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Container chính với hiệu ứng kính mờ */
         #main-container {
+            height: calc(100vh - 40px);
             max-width: 900px;
-            margin: auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border: 1px solid #dddfe2;
+            margin: 20px auto;
+            background: var(--bg-light);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Đảm bảo các góc bo được giữ nguyên */
         }
+        
+        .content-wrapper {
+            padding: 30px;
+            overflow-y: auto; /* Thêm thanh cuộn cho nội dung */
+        }
+
         h1, h2 {
             text-align: center;
-            color: #0056b3;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        /* --- Setup & Final Result Screen --- */
+
+        /* --- Màn hình Cài đặt & Kết quả --- */
         #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
         }
-        #final-result-screen h2 {
-            font-size: 2em;
-        }
-        #final-score-text {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #28a745;
-        }
-        #redirect-message {
-            font-size: 1em;
-            color: #6c757d;
-        }
+        #final-result-screen h2 { font-size: 2.2em; }
+        #final-score-text { font-size: 1.6em; font-weight: 600; color: #fff; }
+        #redirect-message { font-size: 1em; color: #eee; }
+        
         #time-selection {
-            margin: 20px 0;
+            margin: 20px 0; display: flex; justify-content: center;
+            align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        #time-selection h4 { width: 100%; margin-bottom: 10px; font-weight: 500; }
+        #time-selection label { cursor: pointer; padding: 5px 10px; }
+
+        /* Nút bấm hiện đại */
+        .modern-button {
+            font-size: 1.1em; padding: 12px 24px; margin: 10px;
+            cursor: pointer; border-radius: 50px; border: none;
+            font-weight: 600; color: white;
+            background: linear-gradient(45deg, var(--primary-color), #4a00e0);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        #shuffle-button.shuffled {
+            background: linear-gradient(45deg, #28a745, #218838);
+        }
+        #submit-button {
+            position: fixed; right: 20px; top: 50%;
+            transform: translateY(-50%); z-index: 200;
+            background: linear-gradient(45deg, #e22b5d, #dc3545);
+            display: none;
+        }
+
+        /* --- Màn hình Quiz --- */
+        #quiz-container { display: none; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        #sticky-header {
+            background: var(--bg-very-light);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            z-index: 100;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        #time-selection h4 {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        #time-selection label {
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-        #setup-container button, #submit-button {
-            font-size: 1.1em;
-            padding: 12px 24px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
-        #start-button {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        #start-button:hover {
-            background-color: #0056b3;
-        }
-        #shuffle-button {
-            background-color: #6c757d;
-            color: white;
-            border-color: #6c757d;
-        }
-        #shuffle-button.shuffled {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        
-        #submit-button {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 200;
-            background-color: #dc3545;
-            color: white;
-            border-color: #dc3545;
-            display: none;
-        }
-        #submit-button:hover {
-            background-color: #c82333;
-        }
-
-        /* --- Quiz Screen --- */
-        #quiz-container {
-             display: none;
-        }
-        
-        #sticky-header {
-            position: sticky;
-            top: 0;
-            background-color: white;
-            padding: 15px 30px;
-            z-index: 100;
-            border-bottom: 1px solid #dddfe2;
-            margin: -30px -30px 20px -30px;
-            display: flex;
-            justify-content: center; /* Center timer */
-            align-items: center;
-            position: relative; /* For credit positioning */
+            position: relative;
         }
         
         #user-credit {
-            position: absolute;
-            left: 30px;
-            font-weight: bold;
-            color: #6c757d;
-            font-size: 0.9em;
+            position: absolute; left: 30px; font-weight: 500;
+            color: #eee; font-size: 0.9em;
         }
 
         #timer-display {
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            padding: 5px 15px;
-            background-color: #e7f3ff;
-            color: #0056b3;
-            border-radius: 8px;
+            text-align: center; font-size: 2em; font-weight: 700;
+            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        #timer-display.ending {
-            background-color: #f8d7da;
-            color: #721c24;
+        #timer-display.ending { color: #ffdddd; }
+        
+        .question-block {
+            margin-bottom: 25px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .question-text {
+            font-weight: 600; margin-bottom: 15px; font-size: 1.2em;
+        }
+
+        /* Custom Radio Buttons */
+        .options-container label {
+            display: block;
+            background: var(--bg-very-light);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .options-container input[type="radio"] {
+            display: none; /* Ẩn nút radio mặc định */
+        }
+        .options-container label:hover {
+            border-color: var(--border-color);
+        }
+        .options-container input[type="radio"]:checked + span {
+            font-weight: 600;
+        }
+
+        .question-block.correct .options-container input[type="radio"]:checked + span {
+             font-weight: 700;
+        }
+        .question-block.correct .options-container input[type="radio"]:checked + span::before {
+             content: '✔ ';
+             color: var(--correct-color);
+        }
+        .question-block.incorrect .options-container div.incorrect-option label {
+             border-color: var(--incorrect-color);
+             background: rgba(220, 53, 69, 0.3);
+        }
+        .question-block.incorrect .options-container div.incorrect-option span::before {
+             content: '✖ ';
+             color: var(--incorrect-color);
         }
         
-        .question-block { margin-bottom: 25px; padding: 20px; border: 1px solid #dddfe2; border-radius: 8px; }
-        .question-text { font-weight: bold; margin-bottom: 15px; font-size: 1.1em; }
-        .options-container div { margin-bottom: 8px; padding: 10px; border-radius: 6px; }
-        label { margin-left: 10px; cursor: pointer; }
-        input[type="radio"] { cursor: pointer; }
-        fieldset { border: none; padding: 0; margin: 0; }
-        fieldset:disabled { opacity: 0.7; }
-        fieldset:disabled label { cursor: not-allowed; }
-        .question-block.correct { background-color: #d4edda; border-color: #c3e6cb; }
-        .question-block.incorrect { background-color: #fff1f2; border-color: #f5c6cb; }
-        .options-container div.incorrect-option { background-color: #f8d7da; }
+        fieldset:disabled label {
+            cursor: not-allowed;
+            background: rgba(44, 62, 80, 0.5);
+            border-color: transparent;
+        }
+        fieldset:disabled .correct-selection {
+            background: rgba(40, 167, 69, 0.5);
+            border-color: var(--correct-color);
+        }
     </style>
 </head>
 <body>
-    <button id="submit-button">Nộp bài</button>
+    <div class="background-gradient"></div>
+    <button id="submit-button" class="modern-button">Nộp bài</button>
 
     <div id="main-container">
-        <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
         
-        <div id="setup-container">
+        <div id="setup-container" class="content-wrapper">
+            <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
             <h2>Thiết lập bài làm</h2>
             
             <div id="time-selection">
@@ -174,8 +224,8 @@
             </div>
 
             <p>Nhấn "Xáo trộn câu hỏi" nếu bạn muốn thay đổi thứ tự. <br> Sẵn sàng để bắt đầu?</p>
-            <button id="shuffle-button">Xáo trộn câu hỏi</button>
-            <button id="start-button">Bắt đầu</button>
+            <button id="shuffle-button" class="modern-button">Xáo trộn câu hỏi</button>
+            <button id="start-button" class="modern-button">Bắt đầu</button>
         </div>
 
         <div id="quiz-container">
@@ -183,10 +233,12 @@
                 <span id="user-credit">Hung</span>
                 <div id="timer-display"></div>
             </div>
-            <form id="quiz-form"></form>
+            <div class="content-wrapper">
+                <form id="quiz-form"></form>
+            </div>
         </div>
 
-        <div id="final-result-screen" style="display: none;">
+        <div id="final-result-screen" class="content-wrapper" style="display: none;">
             <h2>Kết quả bài làm</h2>
             <p id="final-score-text"></p>
             <p id="redirect-message"></p>
@@ -194,7 +246,6 @@
     </div>
 
     <script>
-    // --- DATA SECTION ---
     const allQuestions = [
         // Bộ đề 1 (72 câu)
         { id: 101, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc Gaussian", C: "Bộ lọc sắc nét", D: "Bộ lọc thông thấp" }, answer: "C" },
@@ -374,6 +425,7 @@
     const shuffleButton = document.getElementById('shuffle-button');
     const submitButton = document.getElementById('submit-button');
     const finalResultScreen = document.getElementById('final-result-screen');
+    const mainContainer = document.getElementById('main-container');
     
     let score = 0;
     let timerInterval;
@@ -395,7 +447,7 @@
 
     startButton.addEventListener('click', () => {
         setupContainer.style.display = 'none';
-        quizContainer.style.display = 'block';
+        quizContainer.style.display = 'flex'; // Dùng flex để header và content-wrapper hoạt động tốt
         submitButton.style.display = 'block';
         
         const selectedTimeInput = document.querySelector('input[name="time"]:checked');
@@ -435,10 +487,22 @@
             html += `<div class="question-block" id="q-block-${q.id}">`;
             html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
             
+            if (q.image) {
+                html += `<div style="text-align: center; margin-bottom: 15px;">
+                            <img src="${q.image}" alt="Hình ảnh cho câu hỏi ${index + 1}" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
+                         </div>`;
+            }
+
             html += `<fieldset id="fs-${q.id}">`;
             html += `<div class="options-container">`;
             for (const key in shuffledOptions) {
-                html += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}"><label for="q${q.id}_${key}">${key}. ${shuffledOptions[key]}</label></div>`;
+                // Thay đổi cấu trúc để label bao bọc input
+                html += `<div>
+                            <label>
+                                <input type="radio" name="q${q.id}" value="${key}">
+                                <span>${key}. ${shuffledOptions[key]}</span>
+                            </label>
+                         </div>`;
             }
             html += `</div>`;
             html += `</fieldset>`;
@@ -462,13 +526,15 @@
         const block = document.getElementById(`q-block-${questionId}`);
         block.classList.remove('correct', 'incorrect');
         Array.from(block.querySelectorAll('.options-container div')).forEach(div => {
-            div.classList.remove('incorrect-option');
+            div.classList.remove('incorrect-option', 'correct-selection');
         });
 
         const isCorrect = userAnswer === questionData.shuffledAnswer;
+        const selectedLabelDiv = selectedRadio.closest('div');
 
         if (isCorrect) {
             block.classList.add('correct');
+            selectedLabelDiv.classList.add('correct-selection');
             document.getElementById(`fs-${questionId}`).disabled = true;
             questionData.answeredCorrectly = true;
 
@@ -477,7 +543,7 @@
             }
         } else {
             block.classList.add('incorrect');
-            selectedRadio.parentElement.classList.add('incorrect-option');
+            selectedLabelDiv.classList.add('incorrect-option');
 
             if (!incorrectlyAttemptedQuestions.includes(questionId)) {
                 incorrectlyAttemptedQuestions.push(questionId);
@@ -511,8 +577,8 @@
             alert("Đã hết giờ làm bài!");
         }
         
-        quizContainer.style.display = 'none';
-        submitButton.style.display = 'none';
+        mainContainer.innerHTML = ''; // Xóa nội dung cũ
+        mainContainer.appendChild(finalResultScreen); // Chỉ hiển thị màn hình kết quả
 
         const totalQuestions = quizData.length;
         document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
