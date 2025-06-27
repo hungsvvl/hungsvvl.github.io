@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh (Ôn tập)</title>
+    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -26,10 +26,22 @@
             text-align: center;
             color: #0056b3;
         }
-        /* --- Setup Screen --- */
-        #setup-container {
+        /* --- Setup & Final Result Screen --- */
+        #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
+        }
+        #final-result-screen h2 {
+            font-size: 2em;
+        }
+        #final-score-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        #redirect-message {
+            font-size: 1em;
+            color: #6c757d;
         }
         #time-selection {
             margin: 20px 0;
@@ -47,8 +59,8 @@
             cursor: pointer;
             padding: 5px 10px;
         }
-        #setup-container button {
-            font-size: 1.2em;
+        #setup-container button, #submit-button {
+            font-size: 1.1em;
             padding: 12px 24px;
             margin: 10px;
             cursor: pointer;
@@ -74,15 +86,30 @@
             background-color: #28a745;
             border-color: #28a745;
         }
+        
+        /* ** Thay đổi ở đây: Thêm style cho nút nộp bài ** */
+        #submit-button {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            display: none; /* Ẩn ban đầu */
+        }
+        #submit-button:hover {
+            background-color: #c82333;
+        }
 
         /* --- Quiz Screen --- */
         #quiz-container {
-             display: none; /* Hide by default */
+             display: none;
         }
         
-        /* ** SỬA LỖI Ở ĐÂY ** */
         #sticky-header {
-            position: sticky; /* Chỉ giữ lại thuộc tính này */
+            position: sticky;
             top: 0;
             background-color: white;
             padding-top: 15px;
@@ -92,6 +119,7 @@
             margin: -30px -30px 20px -30px;
             padding-left: 30px;
             padding-right: 30px;
+            position: relative; 
         }
         
         #user-credit {
@@ -102,7 +130,6 @@
             color: #6c757d;
             font-size: 0.9em;
         }
-
         #timer-display {
             text-align: center;
             font-size: 28px;
@@ -128,7 +155,6 @@
             padding: 20px;
             border: 1px solid #dddfe2;
             border-radius: 8px;
-            transition: all 0.3s ease;
         }
         .question-text {
             font-weight: bold;
@@ -139,7 +165,6 @@
             margin-bottom: 8px;
             padding: 10px;
             border-radius: 6px;
-            border: 1px solid transparent;
         }
         label {
             margin-left: 10px;
@@ -169,11 +194,12 @@
         }
         .options-container div.incorrect-option {
              background-color: #f8d7da;
-             border-color: #f5c6cb;
         }
     </style>
 </head>
 <body>
+    <button id="submit-button">Nộp bài</button>
+
     <div id="main-container">
         <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
         
@@ -196,15 +222,22 @@
         <div id="quiz-container">
             <div id="sticky-header">
                 <span id="user-credit">Hung</span>
-                <div id="timer-display">20:00</div>
-                <div id="results">Điểm số: 0 / 126</div>
+                <div id="timer-display"></div>
+                <div id="results"></div>
             </div>
             <form id="quiz-form"></form>
+        </div>
+
+        <div id="final-result-screen" style="display: none;">
+            <h2>Kết quả bài làm</h2>
+            <p id="final-score-text"></p>
+            <p id="redirect-message"></p>
         </div>
     </div>
 
     <script>
     const quizData = [
+        // 126 câu hỏi của bạn
         { id: 1, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc Gaussian", C: "Bộ lọc sắc nét", D: "Bộ lọc thông thấp" }, answer: "C" },
         { id: 2, question: "Bộ lọc nào được sử dụng để tìm điểm sáng nhất trong ảnh?", options: { A: "Bộ lọc trung bình", B: "Không đáp án nào đúng", C: "Bộ lọc cực đại", D: "Bộ lọc trung vị" }, answer: "C" },
         { id: 3, question: "Trong kỹ thuật lọc ảnh, thuật ngữ nào được sử dụng để mô tả phép nhân các điểm ảnh với các hệ số khác nhau trong ma trận lọc?", options: { A: "Lọc trung bình trong miền không gian", B: "Lọc trung bình có trọng số", C: "Không đáp án nào đúng", D: "Lọc trung bình bình phương" }, answer: "B" },
@@ -340,7 +373,9 @@
     const quizContainer = document.getElementById('quiz-container');
     const startButton = document.getElementById('start-button');
     const shuffleButton = document.getElementById('shuffle-button');
-
+    const submitButton = document.getElementById('submit-button');
+    const finalResultScreen = document.getElementById('final-result-screen');
+    
     let score = 0;
     let timerInterval;
     const incorrectlyAttemptedQuestions = []; 
@@ -354,11 +389,6 @@
 
     shuffleButton.addEventListener('click', () => {
         shuffleArray(quizData);
-        // Đánh số lại ID để đảm bảo tính duy nhất và không bị trùng lặp sau khi xáo trộn
-        quizData.forEach((q, index) => {
-            q.originalIdForMapping = q.id; // Giữ lại id gốc nếu cần
-            q.id = index + 1; // Gán id mới tuần tự
-        });
         shuffleButton.textContent = 'Đã xáo trộn!';
         shuffleButton.classList.add('shuffled');
         shuffleButton.disabled = true;
@@ -367,12 +397,19 @@
     startButton.addEventListener('click', () => {
         setupContainer.style.display = 'none';
         quizContainer.style.display = 'block';
+        submitButton.style.display = 'block';
         
         const selectedTimeInput = document.querySelector('input[name="time"]:checked');
         const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 20;
         startTimer(durationInMinutes);
 
         renderQuiz();
+    });
+
+    submitButton.addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn nộp bài không?')) {
+            endQuiz();
+        }
     });
 
     function renderQuiz() {
@@ -467,12 +504,43 @@
             }
 
             if (--duration < 0) {
-                clearInterval(timerInterval);
-                timerDisplay.textContent = "HẾT GIỜ!";
-                alert("Đã hết giờ làm bài!");
-                Array.from(quizForm.elements).forEach(el => el.disabled = true);
+                endQuiz(true); // true để báo là hết giờ
             }
         }, 1000);
+    }
+
+    function endQuiz(isTimeOut = false) {
+        clearInterval(timerInterval);
+        if (isTimeOut) {
+            alert("Đã hết giờ làm bài!");
+        }
+        
+        // Ẩn giao diện làm bài
+        quizContainer.style.display = 'none';
+        submitButton.style.display = 'none';
+
+        // Hiển thị màn hình kết quả
+        const totalQuestions = quizData.length;
+        document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
+        finalResultScreen.style.display = 'block';
+
+        // Đếm ngược để quay về trang chủ
+        let countdown = 5;
+        const redirectMessage = document.getElementById('redirect-message');
+        redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+
+        // Thực hiện tải lại trang sau 5 giây
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
     }
 
     quizForm.addEventListener('click', handleAnswerSelection);
