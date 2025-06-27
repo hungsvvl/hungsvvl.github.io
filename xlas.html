@@ -13,6 +13,18 @@
             background-color: #f0f2f5;
             color: #1c1e21;
         }
+        #user-info {
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            background-color: rgba(0, 86, 179, 0.1);
+            color: #0056b3;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 200;
+            border: 1px solid rgba(0, 86, 179, 0.2);
+        }
         #main-container {
             max-width: 900px;
             margin: auto;
@@ -60,23 +72,45 @@
         }
 
         /* --- Quiz Screen --- */
+        #quiz-container {
+             display: none; /* Hide by default */
+        }
+        
+        /* ** Thay đổi ở đây: Tạo header cố định ** */
+        #sticky-header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding-top: 15px;
+            padding-bottom: 5px;
+            z-index: 100;
+            border-bottom: 1px solid #dddfe2;
+            margin: -30px -30px 20px -30px; /* Căn chỉnh lại với container */
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
         #timer-display {
             text-align: center;
             font-size: 28px;
             font-weight: bold;
-            margin: 10px 0 30px 0;
             padding: 10px;
             background-color: #e7f3ff;
             color: #0056b3;
             border-radius: 8px;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
         }
         #timer-display.ending {
             background-color: #f8d7da;
             color: #721c24;
         }
+        #results {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+            margin-top: 10px;
+        }
+
         .question-block {
             margin-bottom: 25px;
             padding: 20px;
@@ -102,6 +136,17 @@
         input[type="radio"] {
             cursor: pointer;
         }
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        fieldset:disabled {
+            opacity: 0.7;
+        }
+        fieldset:disabled label {
+            cursor: not-allowed;
+        }
         .question-block.correct {
             background-color: #d4edda;
             border-color: #c3e6cb;
@@ -117,6 +162,8 @@
     </style>
 </head>
 <body>
+    <div id="user-info">by Hung62</div>
+
     <div id="main-container">
         <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
         
@@ -127,17 +174,18 @@
             <button id="start-button">Bắt đầu làm bài (20:00)</button>
         </div>
 
-        <div id="quiz-container" style="display: none;">
-            <div id="timer-display">20:00</div>
-            <div id="results">Điểm số: 0 / 126</div>
+        <div id="quiz-container">
+            <div id="sticky-header">
+                <div id="timer-display">20:00</div>
+                <div id="results">Điểm số: 0 / 126</div>
+            </div>
             <form id="quiz-form"></form>
         </div>
     </div>
 
     <script>
-    // --- DATA SECTION ---
     const quizData = [
-        // Dán 126 câu hỏi của bạn vào đây
+        // 126 câu hỏi của bạn
         { id: 1, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc Gaussian", C: "Bộ lọc sắc nét", D: "Bộ lọc thông thấp" }, answer: "C" },
         { id: 2, question: "Bộ lọc nào được sử dụng để tìm điểm sáng nhất trong ảnh?", options: { A: "Bộ lọc trung bình", B: "Không đáp án nào đúng", C: "Bộ lọc cực đại", D: "Bộ lọc trung vị" }, answer: "C" },
         { id: 3, question: "Trong kỹ thuật lọc ảnh, thuật ngữ nào được sử dụng để mô tả phép nhân các điểm ảnh với các hệ số khác nhau trong ma trận lọc?", options: { A: "Lọc trung bình trong miền không gian", B: "Lọc trung bình có trọng số", C: "Không đáp án nào đúng", D: "Lọc trung bình bình phương" }, answer: "B" },
@@ -277,8 +325,7 @@
 
     let score = 0;
     let timerInterval;
-    const attemptedQuestions = []; // Chỉ theo dõi những câu đã trả lời sai lần đầu
-
+    
     /**
      * Shuffles array in-place.
      * @param {Array} array An array containing the items.
@@ -306,7 +353,8 @@
 
     function renderQuiz() {
         let html = '';
-        quizData.forEach((q) => {
+        // ** Thay đổi ở đây: Dùng `index` để đánh số thứ tự từ 1 **
+        quizData.forEach((q, index) => {
             // Xáo trộn đáp án cho mỗi câu hỏi
             const correctAnswerText = q.options[q.answer];
             let optionsArray = Object.keys(q.options).map(key => ({ key, text: q.options[key] }));
@@ -316,25 +364,29 @@
             let newAnswerKey = '';
             const newKeys = ['A', 'B', 'C', 'D'];
 
-            optionsArray.forEach((option, index) => {
-                const currentKey = newKeys[index];
+            optionsArray.forEach((option, i) => {
+                const currentKey = newKeys[i];
                 shuffledOptions[currentKey] = option.text;
                 if (option.text === correctAnswerText) {
                     newAnswerKey = currentKey;
                 }
             });
             
-            // Lưu lại đáp án đã bị xáo trộn để kiểm tra
             q.shuffledAnswer = newAnswerKey;
 
             html += `<div class="question-block" id="q-block-${q.id}">`;
-            html += `<p class="question-text">${q.id}. ${q.question}</p>`;
+            // ** Thay đổi ở đây: Hiển thị `index + 1` thay vì `q.id` **
+            html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
             
+            // Dùng fieldset để nhóm các radio button của một câu hỏi
+            html += `<fieldset id="fs-${q.id}">`;
             html += `<div class="options-container">`;
             for (const key in shuffledOptions) {
+                // `name` phải dùng q.id để đảm bảo tính duy nhất cho dù câu hỏi bị xáo trộn
                 html += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}"><label for="q${q.id}_${key}">${key}. ${shuffledOptions[key]}</label></div>`;
             }
             html += `</div>`;
+            html += `</fieldset>`;
             html += `</div>`;
         });
         quizForm.innerHTML = html;
@@ -346,42 +398,38 @@
         const selectedRadio = event.target;
         if (selectedRadio.tagName !== 'INPUT' || selectedRadio.type !== 'radio') return;
 
+        // Lấy q.id từ thuộc tính name của radio button
         const questionId = parseInt(selectedRadio.name.substring(1));
         const userAnswer = selectedRadio.value;
         
         const questionData = quizData.find(q => q.id === questionId);
-        if (!questionData) return;
+        if (!questionData || questionData.answeredCorrectly) {
+            // Nếu không tìm thấy câu hỏi hoặc câu hỏi đã được trả lời đúng -> không làm gì cả
+            return;
+        }
 
-        // Nếu câu hỏi đã được trả lời đúng trước đó thì không làm gì
-        if (questionData.answeredCorrectly) return;
-
-        // Xóa các style cũ để cho phép chọn lại và thay đổi màu
         const block = document.getElementById(`q-block-${questionId}`);
-        block.classList.remove('correct', 'incorrect');
+        block.classList.remove('incorrect');
         Array.from(block.querySelectorAll('.options-container div')).forEach(div => {
             div.classList.remove('incorrect-option');
         });
 
         const isCorrect = userAnswer === questionData.shuffledAnswer;
-
+        
+        // ** Thay đổi ở đây: Logic tính điểm mới **
         if (isCorrect) {
+            score++;
+            const totalQuestions = quizData.length;
+            resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
+            
             block.classList.add('correct');
             questionData.answeredCorrectly = true; // Đánh dấu đã trả lời đúng
-
-            // Chỉ cộng điểm nếu chưa từng trả lời sai câu này
-            if (!attemptedQuestions.includes(questionId)) {
-                score++;
-                const totalQuestions = quizData.length;
-                resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
-            }
+            
+            // Khoá câu hỏi lại sau khi đã trả lời đúng
+            document.getElementById(`fs-${questionId}`).disabled = true;
         } else {
             block.classList.add('incorrect');
             selectedRadio.parentElement.classList.add('incorrect-option');
-
-            // Đánh dấu câu này đã bị trả lời sai 1 lần
-            if (!attemptedQuestions.includes(questionId)) {
-                attemptedQuestions.push(questionId);
-            }
         }
     }
 
@@ -394,7 +442,7 @@
 
             timerDisplay.textContent = `${minutes}:${seconds}`;
             
-            if (duration < 60) {
+            if (duration < 60 && !timerDisplay.classList.contains('ending')) {
                 timerDisplay.classList.add('ending');
             }
 
@@ -402,6 +450,7 @@
                 clearInterval(timerInterval);
                 timerDisplay.textContent = "HẾT GIỜ!";
                 alert("Đã hết giờ làm bài!");
+                
                 // Vô hiệu hóa toàn bộ form
                 Array.from(quizForm.elements).forEach(el => el.disabled = true);
             }
