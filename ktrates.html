@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Kiểm Tra Vô Tuyến Số - (Phiên bản cập nhật)</title>
+    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -13,7 +13,7 @@
             background-color: #f0f2f5;
             color: #1c1e21;
         }
-        #test-container {
+        #main-container {
             max-width: 900px;
             margin: auto;
             background: #ffffff;
@@ -22,323 +22,429 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 1px solid #dddfe2;
         }
-        h1 {
+        h1, h2 {
             text-align: center;
             color: #0056b3;
+        }
+        /* --- Setup & Final Result Screen --- */
+        #setup-container, #final-result-screen {
+            text-align: center;
+            padding: 40px 0;
+        }
+        #final-result-screen h2 {
+            font-size: 2em;
+        }
+        #final-score-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        #redirect-message {
+            font-size: 1em;
+            color: #6c757d;
+        }
+        #time-selection {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        #time-selection h4 {
+            width: 100%;
             margin-bottom: 10px;
         }
-        #results {
-            text-align: center;
-            font-size: 24px;
+        #time-selection label {
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        #setup-container button, #submit-button {
+            font-size: 1.1em;
+            padding: 12px 24px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid transparent;
             font-weight: bold;
-            margin: 10px 0 30px 0;
-            padding: 10px;
+            transition: all 0.2s ease;
+        }
+        #start-button {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        #start-button:hover {
+            background-color: #0056b3;
+        }
+        #shuffle-button {
+            background-color: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+        #shuffle-button.shuffled {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        #submit-button {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 200;
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            display: none;
+        }
+        #submit-button:hover {
+            background-color: #c82333;
+        }
+
+        /* --- Quiz Screen --- */
+        #quiz-container {
+             display: none;
+        }
+        
+        #sticky-header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 15px 30px;
+            z-index: 100;
+            border-bottom: 1px solid #dddfe2;
+            margin: -30px -30px 20px -30px;
+            display: flex;
+            justify-content: center; /* Center timer */
+            align-items: center;
+            position: relative; /* For credit positioning */
+        }
+        
+        #user-credit {
+            position: absolute;
+            left: 30px;
+            font-weight: bold;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        #timer-display {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 5px 15px;
             background-color: #e7f3ff;
             color: #0056b3;
             border-radius: 8px;
-            position: sticky;
-            top: 10px;
-            z-index: 100;
         }
-        .question-block {
-            margin-bottom: 25px;
-            padding: 20px;
-            border: 1px solid #dddfe2;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .question-text {
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-        .options-container div {
-            margin-bottom: 8px;
-            padding: 5px;
-            border-radius: 6px;
-        }
-        label {
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        input[type="radio"] {
-            cursor: pointer;
-        }
-        fieldset {
-            border: none;
-            padding: 0;
-            margin: 0;
-        }
-        fieldset:disabled {
-            opacity: 0.7;
-        }
-        fieldset:disabled label {
-            cursor: not-allowed;
-        }
-        .correct {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-        .incorrect {
+        #timer-display.ending {
             background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
-        .correct-answer {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #155724;
-            padding-top: 10px;
-            border-top: 1px dashed #ccc;
-            display: none; /* Initially hidden */
-        }
-        .correct-answer.incorrect-user {
             color: #721c24;
         }
-        .correct-answer.visible {
-            display: block; /* Becomes visible after answering correctly */
-        }
-        .note {
-            font-size: 0.9em;
-            color: #555;
-            margin-left: 5px;
-            font-style: italic;
-        }
+        
+        .question-block { margin-bottom: 25px; padding: 20px; border: 1px solid #dddfe2; border-radius: 8px; }
+        .question-text { font-weight: bold; margin-bottom: 15px; font-size: 1.1em; }
+        .options-container div { margin-bottom: 8px; padding: 10px; border-radius: 6px; }
+        label { margin-left: 10px; cursor: pointer; }
+        input[type="radio"] { cursor: pointer; }
+        fieldset { border: none; padding: 0; margin: 0; }
+        fieldset:disabled { opacity: 0.7; }
+        fieldset:disabled label { cursor: not-allowed; }
+        .question-block.correct { background-color: #d4edda; border-color: #c3e6cb; }
+        .question-block.incorrect { background-color: #fff1f2; border-color: #f5c6cb; }
+        .options-container div.incorrect-option { background-color: #f8d7da; }
     </style>
 </head>
 <body>
+    <button id="submit-button">Nộp bài</button>
 
-    <div id="test-container">
-        <h1>Bài Kiểm Tra Vô Tuyến Số 📡 (Đã cập nhật đáp án)</h1>
-        <div id="results">Điểm số: 0 / 186</div>
+    <div id="main-container">
+        <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
         
-        <form id="quiz-form">
-            </form>
+        <div id="setup-container">
+            <h2>Thiết lập bài làm</h2>
+            
+            <div id="time-selection">
+                <h4>Chọn thời gian làm bài:</h4>
+                <div><input type="radio" name="time" value="20" id="t20" checked><label for="t20">20 phút</label></div>
+                <div><input type="radio" name="time" value="30" id="t30"><label for="t30">30 phút</label></div>
+                <div><input type="radio" name="time" value="40" id="t40"><label for="t40">40 phút</label></div>
+                <div><input type="radio" name="time" value="50" id="t50"><label for="t50">50 phút</label></div>
+            </div>
+
+            <p>Nhấn "Xáo trộn câu hỏi" nếu bạn muốn thay đổi thứ tự. <br> Sẵn sàng để bắt đầu?</p>
+            <button id="shuffle-button">Xáo trộn câu hỏi</button>
+            <button id="start-button">Bắt đầu</button>
+        </div>
+
+        <div id="quiz-container">
+            <div id="sticky-header">
+                <span id="user-credit">Hung</span>
+                <div id="timer-display"></div>
+            </div>
+            <form id="quiz-form"></form>
+        </div>
+
+        <div id="final-result-screen" style="display: none;">
+            <h2>Kết quả bài làm</h2>
+            <p id="final-score-text"></p>
+            <p id="redirect-message"></p>
+        </div>
     </div>
 
     <script>
-    // --- DATA SECTION (Full 186 Questions with updated answers) ---
-    const quizData = [
-        // ----- Q1-60 with new answers -----
-        { id: 1, type: 'mc', question: "Truyền dẫn vô tuyến số là hình thức truyền dẫn vô tuyến số sử dụng môi trường truyền dẫn là …., phương tiện truyền dẫn là sóng điện từ.", options: { A: "Cáp đồng", B: "Cáp quang", C: "Cáp đồng trục", D: "Không gian" }, answer: "D" },
-        { id: 2, type: 'mc', question: "Độ nhạy máy thu là:", options: { A: "Tỷ số tín hiệu tạp âm tối thiểu", B: "Công suất tạp âm tối thiểu", C: "Công suất tín hiệu tối thiểu", D: "Tỷ số tạp âm tín hiệu tối thiểu" }, answer: "C" },
-        { id: 3, type: 'mc', question: "Tìm phát biểu sai về nhược điểm của truyền dẫn vô tuyến so với truyền dẫn hữu tuyến khác là:", options: { A: "Môi trường kín", B: "Suy hao lớn", C: "Chất lượng không ổn định", D: "Dễ bị nhiễu" }, answer: "A" },
-        { id: 4, type: 'mc', question: "Các tín hiệu đầu ra có thành phần tần số là bội tần số đầu vào hệ thống phi tuyến được gọi là:", options: { A: "Thành phần cơ bản", B: "Thành phần bậc cao hơn", C: "Các hài", D: "Tín hiệu bội" }, answer: "C", note: "File đáp án ghi 'Các hải', đây có thể là lỗi chính tả của 'Các hài'." },
-        { id: 5, type: 'mc', question: "Điểm IP3 ở đầu vào hệ thống điều chế được xác định là mức tín hiệu đầu vào ở đầu ra hệ thống các mức tín hiệu tương đối với thành phần tần số cơ bản và các thành phần:", options: { A: "Bậc 1", B: "Bậc 2", C: "Bậc 3", D: "Bậc 4" }, answer: "C" },
-        { id: 6, type: 'mc', question: "Ngẫu nhiên hóa trong truyền dẫn vô tuyến số được thực hiện bằng cách:", options: { A: "Thực hiện phép toán XOR giữa luồng bit cần truyền đi với một chuỗi bit giả ngẫu nhiên", B: "Thực hiện phép toán XOR giữa luồng bit thu được với một chuỗi bit giả ngẫu nhiên hoàn toàn", C: "Thực hiện phép toán AND giữa luồng bit thu được với một chuỗi bit ngẫu nhiên hoàn toàn", D: "Thực hiện phép toán OR giữa luồng bit truyền đi với một chuỗi bit giả ngẫu nhiên" }, answer: "A", note: "Nội dung lựa chọn A đã được điều chỉnh để khớp với đáp án đúng từ file ktttvt.docx." },
-        { id: 7, type: 'mc', question: "Suy hao trong không gian tự do của sóng điện từ cho khoảng cách là 10km, tần số là 10GHz là bao nhiêu?", options: { A: "100,4 dB", B: "107,4 dB", C: "132,4 dB", D: "Các đáp án trên đều sai" }, answer: "C" },
-        { id: 8, type: 'mc', question: "Thiết bị thu là tập hợp các phương tiện kỹ thuật dùng để:", options: { A: "Mã hóa kênh", B: "Điều chế", C: "Khôi phục lại nguồn tin ban đầu", D: "Mã hóa nguồn" }, answer: "C" },
-        { id: 9, type: 'mc', question: "Hiệu ứng ống dẫn xuất hiện khi nào?", options: { A: "Khi sóng điện từ rơi vào vùng không khí đặc hơn giữa 2 vùng không khí loãng hơn", B: "Khi sóng điện từ vào vùng không khí loãng hơn giữa 2 vùng không khí đặc hơn", C: "Khi sóng điện từ truyền từ đại liên", D: "Khi sóng điện từ truyền qua vùng mua to đến rất to" }, answer: "A" },
-        { id: 10, type: 'mc', question: "Chuỗi giả bit ngẫu nhiên được tạo ra tại khối ngẫu nhiên hóa đầu phát và giải ngẫu nhiên hóa đầu thu có quan hệ như thế nào với nhau?", options: { A: "Ngẫu nhiên hóa hoàn toàn, không có quan hệ gì", B: "Đồng bộ đồng hồ với nhau", C: "Giống nhau hoàn toàn", D: "Tất cả đáp án trên đều sai" }, answer: "C" },
-        { id: 11, type: 'mc', question: "Giải pháp tránh ảnh hưởng của tín hiệu đầu ra của bộ khuếch đại công suất với bộ dao động nội là:", options: { A: "Tần số tín hiệu ra đủ lớn hay đủ nhỏ so với tần số bộ dao động nội", B: "Tần số đầu ra bằng không", C: "Tần số đầu ra bằng tần số dao động nội", D: "Tần số đầu ra xấp xỉ tần số dao động nội" }, answer: "A" },
-        { id: 12, type: 'mc', question: "Hiện tượng tán xạ sóng điện từ xảy ra khi nào?", options: { A: "Khi sóng điện tử đang truyền tác động đến một đối tượng có kích thước lớn so với bước sóng", B: "Khi môi trường truyền dẫn mà sóng đi qua tồn tại nhiều đối tượng có kích thước nhỏ hơn bước sóng của tín hiệu", C: "Khi trường sóng giữa trạm phát và trạm thu bị che khuất bởi bề mặt không bằng phẳng", D: "Ba đáp án đều sai" }, answer: "B" },
-        { id: 13, type: 'mc', question: "Nguồn chính gây ra những nhiễu ký sinh trong máy thu đến từ:", options: { A: "Hệ thống khác", B: "Máy thu khác", C: "Bộ dao động nội", D: "Bội tần của xung đồng hồ" }, answer: "C", note: "Đáp án được cập nhật theo file ktttvt.docx. Bội tần xung đồng hồ cũng là một nguyên nhân, nhưng đáp án đã cho là 'Bộ dao động nội'." },
-        { id: 14, type: 'mc', question: "Hệ số tạp âm phụ thuộc:", options: { A: "Tỷ số tín hiệu tạp âm đầu vào", B: "Độ nhạy thu", C: "Công suất nhiễu Gauss", D: "Tỷ số tín hiệu nhiễu Gauss" }, answer: "A" },
-        { id: 15, type: 'mc', question: "Cho chuỗi bit cần truyền là “0000 1111”, giả sử chuỗi bit ngẫu nhiên là “1011 0110”. Chuỗi bit đã được ngẫu nhiên hóa là?", options: { A: "1011 1001", B: "0011 1001", C: "0110 1001", D: "Tất cả đáp án trên đều sai" }, answer: "A" },
-        { id: 16, type: 'mc', question: "Sóng điện từ chịu ảnh hưởng từ các yếu tố nào của khí quyển?", options: { A: "Sự hấp thụ, sự khúc xạ, hiệu ứng ống dẫn, suy hao trong không gian tự do", B: "Sự hấp thụ, hiệu ứng ống dẫn, suy hao trong không gian tự do", C: "Sự hấp thụ, sự khúc xạ, hiệu ứng ống dẫn", D: "Sự hấp thụ, hiệu ứng ống dẫn, suy hao trong không gian tự do" }, answer: "C" },
-        { id: 17, type: 'mc', question: "Trong cùng một loại điều chế số khi mức điều chế tăng lên, khả năng chống nhiễu của tín hiệu điều chế sẽ như thế nào?", options: { A: "Tăng lên", B: "Giảm xuống", C: "Không đổi", D: "Tăng đến một ngưỡng rồi giảm" }, answer: "B" },
-        { id: 18, type: 'mc', question: "Trong điều chế số, các tham số nào của sóng mang có thể mang tin?", options: { A: "Biên độ", B: "Tần số", C: "Pha", D: "Tất cả các tham số trên" }, answer: "D" },
-        { id: 19, type: 'mc', question: "Giải ngẫu nhiên hoá trong truyền dẫn vô tuyến số được thực hiện bằng cách nào ?", options: { A: "Thực hiện phép toán XOR giữa luồng bit thu được với một chuỗi bit giả ngẫu nhiên tương tự chuỗi bit dung để ngẫu nhiên hoá", B: "Thực hiện phép toán XOR giữa luồng bit cần truyền đi với một chuỗi bit giả ngẫu nhiên", C: "Thực hiện phép toán AND giữa luồng bit thu được với một chuỗi bit ngẫu nhiên", D: "Thực hiện phép toán OR giữa luồng bit thu được với một chuỗi bit ngẫu nhiên" }, answer: "A" },
-        { id: 20, type: 'mc', question: "Máy thu không chỉ thu tín hiệu hữu ích mà còn thu cả nhiễu gây ra bởi:", options: { A: "Chỉnh tĩnh thật máy thu", B: "Chính hệ thống đó và hệ thống khác", C: "Không có nhiễu", D: "Không có nhiều" }, answer: "B", note: "Nội dung lựa chọn B được điều chỉnh để khớp với đáp án 'Chính hệ thống đó và hệ thống khác'." },
-        { id: 21, type: 'mc', question: "Bộ lọc thông dải đầu tiên ở máy thu thường dùng để:", options: { A: "Lọc băng tần", B: "Lựa chọn kênh", C: "Lọc kênh", D: "Chặn băng tần" }, answer: "A" },
-        { id: 22, type: 'mc', question: "Cho một truyền dẫn vô tuyến tầm nhìn thẳng nằm giữa 2 anten dài 60km tần số f=4GHz tìm bán kính miền Fresnel thứ nhất tại điểm A cách anten thứ nhất 10km?", options: { A: "25 m", B: "25 km", C: "29,1 m", D: "Các đáp án trên đều sai" }, answer: "A" },
-        { id: 23, type: 'mc', question: "Tạp âm trắng Gaussian được đặc trưng bởi quá trình ngẫu nhiên có trị trung bình là :", options: { A: "1", B: "-1", C: "0", D: "0,5" }, answer: "C" },
-        { id: 24, type: 'mc', question: "Truyền dẫn vô tuyến có nhược điểm gì hơn so với loại hình truyền dẫn quang:", options: { A: "Tính linh hoạt", B: "Tính di động", C: "Giá thành rẻ", D: "Tốc độ thấp" }, answer: "D" },
-        { id: 25, type: 'mc', question: "Các phổ tần số nào hữu ích của các hệ thống vô tuyến, vô tuyến số trải dài từ 10KHz đến GHz là:", options: { A: "ELF, VLF, LF, MF, HF, VHF, UHF, SHF", B: "VLF, LF, MF, HF, VHF, UHF, SHF, EHF", C: "LF, MF, HF, VHF, UHF, SHF, EHF", D: "Cả 3 đáp án trên đều sai" }, answer: "B", note: "Đáp án trong file ktttvt.docx thiếu EHF, nhưng lựa chọn B trong file TN_VTS.docx là đầy đủ nhất và đúng về mặt kỹ thuật." },
-        { id: 26, type: 'mc', question: "Phổ tần số nào dùng cho kênh thương mại (14 đến 83 kênh) và trong dịch vụ thông tin di động mặt đất?", options: { A: "UHF", B: "SHF", C: "EHF", D: "HFF" }, answer: "A" },
-        { id: 27, type: 'mc', question: "Phổ tần số nào ít dùng trong hệ thống vô tuyến số?", options: { A: "ELF", B: "VF", C: "EHF", D: "Cả 3 ý trên" }, answer: "D" },
-        { id: 28, type: 'mc', question: "Công dụng của tần số VHF là gì?", options: { A: "Dùng trong thông tin di động", B: "Dùng trong rada", C: "Dùng trong thông tin di động, thông tin hàng hải và hàng không, phát thanh FM và truyền hình thương mại", D: "Chữa các tần số kênh điện thoại tiêu chuẩn" }, answer: "C" },
-        { id: 29, type: 'mc', question: "Tần số của MF nằm trong khoảng tần số nào?", options: { A: "30 đến 300Hz", B: "3 đến 30KHz", C: "300 đến 3000KHz", D: "Cả ba đáp án trên đều sai" }, answer: "C" },
-        { id: 30, type: 'mc', question: "Phổ tần số nào chỉ dùng trong hệ thống Viba và thông tin vệ tinh?", options: { A: "SHF", B: "UHF", C: "VHF", D: "VF" }, answer: "A" },
-        { id: 31, type: 'mc', question: "Hiện tượng Phading gây ra bởi hiện tượng:", options: { A: "Khúc xạ và phản xạ", B: "Bức xạ và tán xạ", C: "Hấp thụ và suy hao", D: "Chỉ do hiệu ứng Doppler" }, answer: "A", note: "Nội dung lựa chọn A được điều chỉnh để khớp với đáp án 'Khúc xạ và phản xạ'." },
-        { id: 32, type: 'mc', question: "Trải doppler gồm mấy loại Phading?", options: { A: "1", B: "3", C: "2", D: "Cả 3 đáp án trên đều sai" }, answer: "C" },
-        { id: 33, type: 'mc', question: "Trải trễ đa đường trong hiện tượng phading đa đường gồm có:", options: { A: "Phading phẳng và Phading lựa chọn tần số", B: "Phading nhanh và Phading chậm", C: "Phading chậm và Phading lựa chọn tần số", D: "Phading nhanh và Phading đa đường" }, answer: "A" },
-        { id: 34, type: 'mc', question: "Ảnh hưởng của hiện tượng phading đa đường?", options: { A: "Làm biến thiên năng lượng điện từ tại Anten phát", B: "Làm biến thiên năng lượng điện từ tại Anten thu", C: "Làm thăng giáng tín hiệu tại điểm thu", D: "Cả B và C đều đúng" }, answer: "D" },
-        { id: 35, type: 'mc', question: "Mục đích sử dụng của bộ điều chế?", options: { A: "Điều chế sóng mang bằng tín hiệu số chuyển đổi tín hiệu số vào vùng tần số thấp để truyền tín hiệu", B: "Điều chế sóng mang bằng tín hiệu số chuyển đổi tín hiệu số vào vùng tần số cao để truyền tín hiệu", C: "Cả A và B đúng", D: "Cả A và B đều sai" }, answer: "B", note: "Đáp án trong file ktttvt.docx bị nhầm sang câu 36. Đáp án đúng cho câu 35 là B." },
-        { id: 36, type: 'mc', question: "Mục đích sử dụng của bộ giải điều chế?", options: { A: "Mã hóa kênh", B: "Giải mã hóa kênh", C: "Mã hóa nguồn", D: "Khôi phục lại tín hiệu ban đầu" }, answer: "D" },
-        { id: 37, type: 'mc', question: "Chức năng của bộ nâng tần số?", options: { A: "Cho phép chuyển tín hiệu trung tần phát vào tần số vô tuyến trước khi phát đi", B: "Cho phép chuyển tín hiệu cao tần phát vào tần số vô tuyến trước khi phát đi", C: "Cho phép chuyển tín hiệu thu vào tần số trung tần", D: "Cho phép chuyển tín hiệu trung tần thu vào tần số vô tuyến" }, answer: "A" },
-        { id: 38, type: 'mc', question: "Chức năng của bộ hạ tần số?", options: { A: "Biến đổi tín hiệu thu được vào trung tần thu nhờ máy biến đổi hạ tần", B: "Biến đổi tín hiệu thu được vào hạ tần thu như máy biến đổi hạ tần", C: "Biến đổi tín hiệu thu được vào cao tần thu như máy biến đổi hạ tần", D: "Cả ba đáp án đều sai" }, answer: "A" },
-        { id: 39, type: 'mc', question: "Mục đích sử dụng của tuyến thu rộng hạ chế?", options: { A: "Khuếch đại tín hiệu", B: "Lọc dải rộng", C: "Biến đổi về tín hiệu điện tần số trung gian", D: "Cả ba đáp án đều đúng" }, answer: "D" },
-        { id: 40, type: 'mc', question: "Chọn đáp án đúng nhất trong các đáp án sau. Mục đích sử dụng của tuyến thu hẹp hạn chế?", options: { A: "Khuếch đại, lọc dải rộng, biến đổi tín hiệu về tín hiệu điện tần số trung gian", B: "Khuếch đại, lọc dải hẹp, biến đổi tín hiệu về tín hiệu điện tần số trung gian", C: "Khuếch đại và lọc dải hẹp", D: "Khuếch đại và lọc dải rộng" }, answer: "B" },
-        { id: 41, type: 'mc', question: "Có mấy loại phân tập sử dụng trong hệ thống thông tin vô tuyến?", options: { A: "1", B: "2", C: "3", D: "Không có đáp án đúng" }, answer: "B", note: "Đáp án trong file ktttvt.docx là '2'. Mặc dù thực tế có nhiều hơn, ta tuân theo đáp án đã cho." },
-        { id: 42, type: 'mc', question: "Sóng điện từ gồm mấy thành phần, và tần số nằm trong khoảng nào?", options: { A: "Hai thành phần và nằm trong khoảng tần số (30KHz đến 300GHz)", B: "Ba thành phần và nằm trong khoảng tần số (300KHz đến 3000GHz)", C: "Hai thành phần và nằm trong khoảng tần số (3KHz đến 30GHz)", D: "Ba thành phần và nằm trong khoảng tần số (300Hz đến 3000GHz)" }, answer: "A" },
-        { id: 43, type: 'mc', question: "Công thức tính suy hao trong không gian tự do của sóng điện từ là:", options: { A: "Ldb=92,4+10log(f)+10log(d)", B: "Ldb=134.55+20log(f)+20log(d)", C: "Ldb=92,4+20log(f)+20log(d)", D: "Ldb=134.55+10log(f)+10log(d)" }, answer: "C" },
-        { id: 44, type: 'mc', question: "Suy hao của sóng điện từ sẽ thay đổi như thế nào khi ta tăng tần số?", options: { A: "Tăng", B: "Giảm", C: "Không đổi", D: "Trở về mức 0" }, answer: "A" },
-        { id: 45, type: 'mc', question: "Sóng điện từ chịu ảnh hưởng nào trong khí quyển?", options: { A: "Hấp thụ của khí quyển", B: "Sự khúc xạ", C: "Hiệu ứng ống dẫn", D: "Cả ba đáp án trên" }, answer: "D" },
-        { id: 46, type: 'mc', question: "Thành phần nào sau đây gây hấp thụ lên sóng điện từ?", options: { A: "Nước", B: "Nito", C: "Oxi", D: "Cả A và C" }, answer: "A", note: "Đáp án trong file ktttvt là 'Nước'. Mặc dù Oxi cũng gây hấp thụ, ta tuân theo đáp án đã cho là Nước." },
-        { id: 47, type: 'mc', question: "Sự hấp thụ nước của sóng điện từ sẽ như thế nào nếu tăng tần số?", options: { A: "Tăng", B: "Giảm", C: "Không hấp thụ", D: "Không đổi" }, answer: "A" },
-        { id: 48, type: 'mc', question: "Nguyên nhân dẫn đến hiện tượng khúc xạ sóng điện từ trong không khí?", options: { A: "Không khí càng lên cao chiết suất càng tăng nên sóng điện từ có sự hướng bề cong", B: "Không khí càng lên cao chiết suất càng giảm nên sóng điện từ có xu hướng bẻ cong", C: "Cả A và B đều đúng", D: "Cả A và B đều sai" }, answer: "B" },
-        { id: 49, type: 'mc', question: "Hiện tượng gì sẽ xảy ra trong hiệu ứng ống dẫn?", options: { A: "Phản xạ", B: "Khúc xạ", C: "Bức xạ", D: "Phản xạ toàn phần" }, answer: "D" },
-        { id: 50, type: 'mc', question: "Ảnh hưởng của hiệu ứng ống dẫn đối với hệ thống thông tin vô tuyến?", options: { A: "Thăng giáng tín hiệu tại phía anten thu", B: "Sóng điện từ không đến được anten thu", C: "Tín hiệu luôn mạnh hơn", D: "Không có ảnh hưởng gì" }, answer: "B" },
-        { id: 51, type: 'mc', question: "Hiện tượng phản xạ sóng điện từ xảy ra khi nào?", options: { A: "Khi môi trường truyền dẫn mà sóng đi qua tồn tại nhiều đối tượng có kích thước nhỏ hơn bước sóng của tín hiệu", B: "Khi sóng điện từ đang truyền tác động đến một đối tượng có kích thước lớn hơn bước sóng của sóng được truyền", C: "Khi trường sóng giữa trạm phát và trạm thu bị che khuất bởi bề mặt không bằng phẳng", D: "Cả ba đáp án đều sai" }, answer: "B" },
-        { id: 52, type: 'mc', question: "Hiện tượng nhiễu xạ sóng điện tự xảy ra khi nào?", options: { A: "Khi sóng vô tuyến giữa trạm phát và trạm thu bị che khuất bởi bề mặt không bằng phẳng", B: "Khi môi trường truyền dẫn mà sóng đi qua tồn tại nhiều đối tượng có kích thước nhỏ hơn bước sóng của tín hiệu", C: "Khi sóng điện từ đang truyền tác động đến một đối tượng có kích thước lớn hơn bước sóng của sóng được truyền", D: "Cả ba đáp án đều sai" }, answer: "A" },
-        { id: 53, type: 'mc', question: "Ảnh hưởng quan trọng nhất của hiện tượng phản xạ sóng điện từ trong hệ thống thông tin vô tuyến là:", options: { A: "Fading đa đường", B: "Fading nhanh", C: "Fading chậm", D: "Doppler" }, answer: "A", note: "Đáp án trong file ktttvt là 'fading từ trường' không phải là thuật ngữ chuẩn và không có trong lựa chọn. 'Fading đa đường' là hậu quả trực tiếp của phản xạ và là đáp án đúng về mặt kỹ thuật." },
-        { id: 54, type: 'mc', question: "Miền Fresnel?", options: { A: "Khu vực tối thiểu không có vật chắn để sóng điện từ có thể truyền qua", B: "Miền ecliptic tối thiểu không có vật cản để sóng điện từ có thể truyền qua", C: "Khu vực tối thiểu có vật cản để sóng điện từ có thể truyền qua", D: "Cả ba đáp án trên đều sai" }, answer: "A" },
-        { id: 55, type: 'mc', question: "Có mấy hệ thống trong miền Fresnel?", options: { A: "2", B: "1", C: "3", D: "4" }, answer: "A", note: "Câu hỏi này không rõ ràng về mặt kỹ thuật, nhưng tuân theo đáp án '2' từ file ktttvt.docx." },
-        { id: 56, type: 'mc', question: "Sóng điện từ sẽ bị ảnh hưởng như thế nào khi gặp một vật chắn hình 'nêm'?", options: { A: "Tín hiệu được truyền tới anten thu bằng cách lướt lên bề mặt vật chắn", B: "Tín hiệu bị phản xạ hoàn toàn", C: "Tín hiệu bị hấp thụ hoàn toàn", D: "Tín hiệu không bị ảnh hưởng" }, answer: "A", note: "Đây là câu 56 trong file ktttvt.docx. Đáp án được khớp với nội dung." },
-        { id: 57, type: 'mc', question: "Fading phẳng xảy ra ở:", options: { A: "Các kênh tần số lân cận", B: "Tất cả các kênh tần số", C: "Chỉ một vài kênh tần số", D: "Cả ba đáp án trên sai" }, answer: "B", note: "Câu 57 trong file ktttvt có nội dung 'tất cả các kênh tần số', tương ứng với câu 56 trong file TN_VTS." },
-        { id: 58, type: 'mc', question: "Cách khắc phục hiện tượng fading?", options: { A: "Sử dụng kỹ thuật phân tập", B: "Tăng công suất phía phát", C: "Phát công suất lớn phía phát", D: "Cả ba đáp án trên" }, answer: "D", note: "Đáp án trong file ktttvt là 'cả ba đáp án trên', khớp với câu 57 trong file TN_VTS." },
-        { id: 59, type: 'mc', question: "Trong nhiều trường hợp tín hiệu trước khi trộn hạ tần tín hiệu được khuếch đại lên mức đủ lớn bằng bộ khuếch đại:", options: { A: "LNA", B: "Bộ khuếch đại IF", C: "Bộ khuếch đại vi sai", D: "Cả ba đáp án trên" }, answer: "A" },
-        { id: 60, type: 'mc', question: "Chức năng của máy thu vô tuyến số?", options: { A: "Thu tín hiệu RF", B: "Trộn hạ tần", C: "Giải điều chế", D: "Cả ba đáp án trên" }, answer: "D", note: "Câu 60 trong file ktttvt là câu về 'khuếch đại mấy lần'. Tuy nhiên, câu 60 trong file TN_VTS là câu này, và đáp án 'cả ba đáp án trên' là hợp lý." },
-        
-        // ----- Q61-186 -----
-        { id: 61, type: 'mc', question: 'Trong phần IF, tín hiệu sau khi trộn hạ tần được khuếch đại mấy lần?', options: { A: '1', B: '2', C: '3', D: 'Tùy thiết kế' }, answer: 'B', note: 'Đáp án được cập nhật theo file ktttvt.docx là "2".' },
-        // ... Các câu hỏi từ 62 đến 186 giữ nguyên như phiên bản trước ...
-        { id: 62, type: 'mc', question: 'Bộ lọc thông dải đầu tiên ở máy thu thường dùng để:', options: { A: 'Lọc băng tần', B: 'Lọc kênh lân cận', C: 'Khuếch đại tín hiệu', D: 'Giải điều chế' }, answer: 'A' },
-        { id: 63, type: 'mc', question: 'Bộ mã sửa sai gồm:', options: { A: 'Mã hóa và giải mã', B: 'Mã đồng bộ và dị bộ', C: 'Mã phát hiện sai và mã sửa sai', D: 'Mã khối và mã FEC' }, answer: 'C' },
-        { id: 64, type: 'mc', question: 'Các hệ thống vô tuyến số được sử dụng trong các đường truyền dẫn số giữa các phần tử khác nhau của ________.', options: { A: 'mạng viễn thông', B: 'mạng máy tính', C: 'hệ thống điện', D: 'mạng truyền hình' }, answer: 'A' },
-        { id: 65, type: 'mc', question: 'Cho một băng thông 10KHz, tốc độ bit cực đại của tín hiệu 2FSK có thể truyền qua, giả thiết khoảng cách tần số là 2KHz, là bao nhiêu?', options: { A: '10000 bps', B: '8000 bps', C: '12000 bps', D: '2000 bps' }, answer: 'B' },
-        { id: 66, type: 'mc', question: 'Chức năng của bộ trộn hạ tần là:', options: { A: 'Trộn tín hiệu RF với tín hiệu IF để ra tín hiệu RF cao hơn', B: 'Trộn tín hiệu RF với sóng mang tại chỗ để cho ra tín hiệu trung tần thu IF', C: 'Trộn tín hiệu băng gốc với sóng mang để điều chế', D: 'Tách tín hiệu và nhiễu ra khỏi nhau' }, answer: 'B' },
-        { id: 67, type: 'mc', question: 'Chuỗi giả ngẫu nhiên được tạo ra tại khối ngẫu nhiên hóa đầu phát và giải ngẫu nhiên hóa đầu thu có quan hệ như thế nào với nhau?', options: { A: 'Giống nhau hoàn toàn', B: 'Ngược nhau hoàn toàn', C: 'Không liên quan', D: 'Tương tự nhau 90%' }, answer: 'A' },
-        { id: 68, type: 'mc', question: 'Ba thông số của sóng mang có thể dùng để mang tin là:', options: { A: 'Công suất, băng thông, pha', B: 'Tốc độ, biên độ, tần số', C: 'Biên độ, tần số, pha', D: 'Bước sóng, chu kỳ, biên độ' }, answer: 'C' },
-        { id: 69, type: 'mc', question: 'Loại phân tập nào có thể áp dụng để khắc phục phading đa đường?', options: { A: 'Phân tập không gian và phân tập tần số', B: 'Phân tập điều chế và phân tập mã hóa', C: 'Phân tập công suất và phân tập băng thông', D: 'Phân tập anten và phân tập bộ lọc' }, answer: 'A' },
-        { id: 70, type: 'mc', question: 'Công thức tính độ nhạy máy thu là:', options: { A: 'Pmin = -174 + F - 10log10B - SNRmin', B: 'Pmin = -174 + F + 10log10B + SNRmin', C: 'Pmin = -114 + F + 10log10B + SNRmin', D: 'Pmin = -174 - F - 10log10B + SNRmin' }, answer: 'B' },
-        { id: 71, type: 'mc', question: 'Cự ly nhảy cách là khoảng cách từ anten phát sao cho sóng trời có tần số nhỏ hơn tần số nào sẽ trở lại trái đất?', options: { A: 'LUF', B: 'EHF', C: 'MUF', D: 'IF' }, answer: 'C' },
-        { id: 72, type: 'mc', question: 'SFDR (Spurious-Free Dynamic Range) là dải động không có:', options: { A: 'Tạp âm', B: 'Méo', C: 'Thành phần hài ký sinh', D: 'Tín hiệu' }, answer: 'C' },
-        { id: 73, type: 'mc', question: 'Câu hỏi này không có trong tài liệu gốc. Nó có thể là một câu hỏi bị trùng lặp hoặc lỗi.', options: { A: '', B: '', C: '', D: '' }, answer: ''},
-        { id: 74, type: 'mc', question: 'Điểm nén 1dB được xác định khi độ khuếch đại của tín hiệu nhỏ giảm đi:', options: { A: '3dB', B: '1dB', C: '0.1dB', D: '10dB' }, answer: 'B' },
-        { id: 75, type: 'mc', question: 'Trong điều chế 4PSK theo tài liệu tham khảo, trạng thái pha kề nhau cách nhau một góc bao nhiêu?', options: { A: '90 độ', B: '180 độ', C: '45 độ', D: '135 độ' }, answer: 'D' },
-        { id: 76, type: 'mc', question: 'Băng thông cực tiểu của một tín hiệu 2PSK có tốc độ bit 8000b/s là bao nhiêu?', options: { A: '4000 Hz', B: '16000 Hz', C: '8000 Hz', D: '2000 Hz' }, answer: 'C' },
-        { id: 77, type: 'mc', question: 'Điều chế số là kỹ thuật gắn thông tin vào:', options: { A: 'Dao động hình sin (sóng mang)', B: 'Tín hiệu băng gốc', C: 'Xung đồng hồ', D: 'Nguồn điện' }, answer: 'A' },
-        { id: 78, type: 'mc', question: 'Tần số ảnh là tần số đối xứng với tần số RF qua:', options: { A: 'Tần số trung gian (IF)', B: 'Tần số sóng mang (LO)', C: 'Tần số băng gốc', D: 'Tần số cắt của bộ lọc' }, answer: 'B' },
-        { id: 79, type: 'mc', question: 'Độ cao ảo trong truyền sóng trời là độ cao giả định khi coi sóng khúc xạ như là sóng:', options: { A: 'Nhiễu xạ', B: 'Phản xạ', C: 'Tán xạ', D: 'Đứng' }, answer: 'B' },
-        { id: 80, type: 'mc', question: 'Độ nhạy của máy thu thường được xác định để đạt một mức BER (Bit Error Rate) nhất định sau khi:', options: { A: 'Khuếch đại', B: 'Lọc', C: 'Giải điều chế', D: 'Mã hóa' }, answer: 'C' },
-        { id: 81, type: 'mc', question: 'Độ khả dụng (Availability) của hệ thống là khả năng thực hiện chức năng yêu cầu tại một:', options: { A: 'Công suất nhất định', B: 'Thời điểm hoặc khoảng thời gian quy định', C: 'Băng thông tối thiểu', D: 'Nhiệt độ tối đa' }, answer: 'B' },
-        { id: 82, type: 'mc', question: 'Tỷ số năng lượng bit trên mật độ phổ tạp âm còn được ký hiệu là:', options: { A: 'SNR', B: 'C/N', C: 'Eb/N0', D: 'BER' }, answer: 'C' },
-        { id: 83, type: 'mc', question: 'Fading là hiện tượng biến thiên năng lượng điện từ tại ______ do môi trường truyền sóng gây ra.', options: { A: 'anten phát', B: 'bộ điều chế', C: 'anten thu', D: 'bộ khuếch đại công suất' }, answer: 'C' },
-        { id: 84, type: 'mc', question: 'Fading phẳng là loại fading xảy ra với _____ các kênh tần số.', options: { A: 'một vài', B: 'tất cả', C: 'kênh ở giữa', D: 'kênh ở biên' }, answer: 'B' },
-        { id: 85, type: 'mc', question: 'Hiện tượng nào là nguyên nhân chính gây ra Fading lựa chọn tần số?', options: { A: 'Hiện tượng đa đường', B: 'Hấp thụ bởi mưa', C: 'Hiệu ứng ống dẫn', D: 'Nhiễu xuyên kênh' }, answer: 'A' },
-        { id: 86, type: 'mc', question: 'Fading nhanh (hiệu ứng Doppler) gây ra bởi sự di chuyển tương đối giữa:', options: { A: 'Các lớp khí quyển', B: 'Các electron trong anten', C: 'Máy phát, máy thu và các vật thể trong kênh truyền', D: 'Trái đất và mặt trời' }, answer: 'C' },
-        { id: 87, type: 'mc', question: 'Fading chậm còn được gọi là hiệu ứng gì?', options: { A: 'Hiệu ứng bóng râm (shadowing)', B: 'Hiệu ứng Doppler', C: 'Hiệu ứng đa đường', D: 'Hiệu ứng ống dẫn' }, answer: 'A' },
-        { id: 88, type: 'mc', question: 'Các phương pháp thực hiện giả ngẫu nhiên hóa là:', options: { A: 'Đồng bộ và dị bộ', B: 'Nhanh và chậm', C: 'Mã khối và mã xoắn', D: 'Tương tự và số' }, answer: 'A' },
-        { id: 89, type: 'mc', question: 'Giải ngẫu nhiên hóa thực hiện phép toán ___ giữa luồng bit thu được với một chuỗi bit giả ngẫu nhiên.', options: { A: 'AND', B: 'OR', C: 'XOR', D: 'NOT' }, answer: 'C' },
-        { id: 90, type: 'mc', question: 'Giải pháp tránh ảnh hưởng của bộ khuếch đại công suất lên bộ dao động nội là giữ cho tần số của chúng:', options: { A: 'Bằng nhau', B: 'Gần nhau', C: 'Cách xa nhau', D: 'Cùng pha' }, answer: 'C' },
-        { id: 91, type: 'mc', question: 'Hệ số tạp âm phụ thuộc vào thông số nào của nguồn tín hiệu?', options: { A: 'Công suất', B: 'Điện áp', C: 'Trở kháng', D: 'Pha' }, answer: 'C' },
-        { id: 92, type: 'mc', question: 'Hệ số tạp âm được định nghĩa dựa trên sự suy giảm của:', options: { A: 'Công suất tín hiệu', B: 'Tỷ số tín hiệu trên tạp âm (SNR)', C: 'Băng thông', D: 'Độ lợi' }, answer: 'B' },
-        { id: 93, type: 'mc', question: 'Trong định nghĩa hệ số tạp âm, nhiệt độ tạp âm chuẩn thường được lấy là:', options: { A: '0 K', B: '273 K', C: '290 K', D: '373 K' }, answer: 'C' },
-        { id: 94, type: 'mc', question: 'Hiện tượng nhiễu xạ xảy ra khi sóng vô tuyến bị che khuất bởi vật chắn có kích thước so với bước sóng?', options: { A: 'Lớn hơn nhiều', B: 'So sánh được (xấp xỉ hoặc nhỏ hơn)', C: 'Không phụ thuộc kích thước', D: 'Chỉ khi vật chắn trong suốt' }, answer: 'B' },
-        { id: 95, type: 'mc', question: 'Hiện tượng ống dẫn xuất hiện khi sóng điện từ bị kẹt trong một lớp không khí có mật độ:', options: { A: 'Đặc hơn giữa hai lớp loãng hơn', B: 'Loãng hơn giữa hai lớp đặc hơn', C: 'Đồng đều', D: 'Thay đổi ngẫu nhiên' }, answer: 'A' },
-        { id: 96, type: 'mc', question: 'Hiện tượng pha-đinh đa đường là kết quả giao thoa giữa tín hiệu trực tiếp và các tia:', options: { A: 'Nhiễu xạ', B: 'Khúc xạ', C: 'Phản xạ', D: 'Tán xạ' }, answer: 'C' },
-        { id: 97, type: 'mc', question: 'Hiện tượng phản xạ sóng điện từ xảy ra khi sóng tác động đến một đối tượng có kích thước so với bước sóng?', options: { A: 'Nhỏ hơn', B: 'Lớn hơn', C: 'Bằng', D: 'Không phụ thuộc' }, answer: 'B' },
-        { id: 98, type: 'mc', question: 'Hiện tượng tán xạ xảy ra khi môi trường truyền dẫn tồn tại các đối tượng có kích thước so với bước sóng?', options: { A: 'Nhỏ hơn', B: 'Lớn hơn', C: 'Bằng', D: 'Không phụ thuộc' }, answer: 'A' },
-        { id: 99, type: 'mc', question: 'Các phương thức điều chế được sử dụng trong hệ thống MMDS là:', options: { A: 'AM và FM', B: 'ASK và FSK', C: 'QPSK và 16QAM', D: 'BPSK và 8PSK' }, answer: 'C' },
-        { id: 100, type: 'mc', question: 'Công suất ra của bộ khuếch đại công suất trong một hệ thống ví dụ nằm trong khoảng:', options: { A: '1-100 W', B: '1-100 kW', C: '1-100 mW', D: '1-100 uW' }, answer: 'C' },
-        { id: 101, type: 'mc', question: 'Hệ thống LMDS cho phép loại thông tin nào?', options: { A: 'Chỉ có thoại', B: 'Chỉ có dữ liệu', C: 'Song biên (thoại, dữ liệu, video, internet)', D: 'Đơn biên (chỉ truyền hình)' }, answer: 'C' },
-        { id: 102, type: 'mc', question: 'Để định lượng ảnh hưởng của hiện tượng biến điệu xuyên điều chế (IM), người ta định nghĩa đại lượng nào?', options: { A: 'Điểm nén 1dB', B: 'Điểm chặn phi tuyến bậc 3 (IP3)', C: 'Hệ số tạp âm (NF)', D: 'Dải động (SFDR)' }, answer: 'B' },
-        { id: 103, type: 'mc', question: 'Để khắc phục hiện tượng fading, ngoài việc dùng độ dự trữ công suất, người ta còn có thể sử dụng kỹ thuật:', options: { A: 'Nén tín hiệu', B: 'Mã hóa nguồn', C: 'Phân tập', D: 'Lọc thông thấp' }, answer: 'C' },
-        { id: 104, type: 'mc', question: 'Một cách để khắc phục fading phẳng là sử dụng một lượng công suất dự trữ, gọi là:', options: { A: 'Công suất ngưỡng', B: 'Độ dự trữ fading', C: 'Công suất đỉnh', D: 'Công suất hiệu dụng' }, answer: 'B' },
-        { id: 105, type: 'mc', question: 'Khi có hiện tượng tần số ảnh, tín hiệu nhận được ở tần số trung gian sẽ:', options: { A: 'Mạnh hơn tín hiệu thật', B: 'Là nhiễu không mang thông tin', C: 'Có tần số gấp đôi tín hiệu thật', D: 'Không có gì thay đổi' }, answer: 'B' },
-        { id: 106, type: 'mc', question: 'Khi tín hiệu đi qua một thành phần phi tuyến, ở đầu ra sẽ xuất hiện các thành phần tần số là:', options: { A: 'Bội số nguyên của tần số đầu vào', B: 'Ước số của tần số đầu vào', C: 'Căn bậc hai của tần số đầu vào', D: 'Không có thành phần tần số mới' }, answer: 'A' },
-        { id: 107, type: 'mc', question: 'Khi lượng hơi nước trong không khí tăng lên, sự hấp thụ sóng điện từ sẽ:', options: { A: 'Giảm đi', B: 'Tăng lên', C: 'Không đổi', D: 'Bằng không' }, answer: 'B' },
-        { id: 108, type: 'mc', question: 'Khi tần số của sóng điện từ tăng, suy hao trong không gian tự do sẽ:', options: { A: 'Giảm', B: 'Không đổi', C: 'Tăng', D: 'Lúc tăng lúc giảm' }, answer: 'C' },
-        { id: 109, type: 'mc', question: 'Kiến trúc Weaver cho phép dịch chuyển tần số mà không bị suy giảm bởi tín hiệu:', options: { A: 'Tần số ảnh', B: 'Tần số lân cận', C: 'Tạp âm', D: 'Tín hiệu điều chế' }, answer: 'A' },
-        { id: 110, type: 'mc', question: 'Trong kiến trúc Weaver, sự di pha 90° được thực hiện bằng:', options: { A: 'Một bộ di pha phần cứng', B: 'Sự dịch chuyển tần lần thứ hai', C: 'Một bộ lọc thông dải', D: 'Một thuật toán phần mềm' }, answer: 'B' },
-        { id: 111, type: 'mc', question: 'Mã sửa lỗi trước (FEC - Forward Error Correction) phù hợp với loại dịch vụ nào?', options: { A: 'Dữ liệu nhạy cảm với trễ và truyền một hướng', B: 'Dữ liệu không nhạy cảm với trễ và truyền hai hướng', C: 'Chỉ cuộc gọi thoại', D: 'Chỉ duyệt web' }, answer: 'A' },
-        { id: 112, type: 'mc', question: 'Loại mã nào được sử dụng trong cơ chế FEC?', options: { A: 'Chỉ mã hóa khối', B: 'Chỉ mã hóa xoắn', C: 'Mã hóa khối và mã hóa xoắn', D: 'Mã CRC' }, answer: 'C' },
-        { id: 113, type: 'mc', question: 'Loại mã nào được sử dụng trong cơ chế yêu cầu phát lại (ARQ)?', options: { A: 'Mã sửa lỗi', B: 'Mã phát hiện lỗi', C: 'Mã xoắn', D: 'Mã Hamming' }, answer: 'B' },
-        { id: 114, type: 'mc', question: 'Lỗi cụm (burst error) là một cụm các bit lỗi xuất hiện:', options: { A: 'Ngẫu nhiên', B: 'Ở đầu gói tin', C: 'Liên tiếp nhau', D: 'Ở cuối gói tin' }, answer: 'C' },
-        { id: 115, type: 'mc', question: 'Các bộ phân nhánh (circulator, duplexer) trong hệ thống siêu cao tần có nhiệm vụ gì?', options: { A: 'Chỉ khuếch đại tín hiệu', B: 'Ghép nối tín hiệu giữa máy phát/thu và anten', C: 'Tạo dao động nội', D: 'Lọc nhiễu' }, answer: 'B' },
-        { id: 116, type: 'mc', question: 'Máy thu không chỉ thu tín hiệu hữu ích mà còn thu cả nhiễu gây ra bởi:', options: { A: 'Chỉ hệ thống đó', B: 'Chỉ hệ thống khác', C: 'Hệ thống đó và hệ thống khác', D: 'Không có nhiễu' }, answer: 'C' },
-        { id: 117, type: 'mc', question: 'Miền Fresnel là quỹ tích những điểm mà tín hiệu phản xạ từ đó đến anten thu sẽ lệch pha so với tín hiệu đi thẳng một góc:', options: { A: 'λ (360°)', B: 'λ/4 (90°)', C: 'λ/2 (180°)', D: '2λ (720°)' }, answer: 'C' },
-        { id: 118, type: 'mc', question: 'Một tín hiệu analog mang 4 bit trong một đơn vị tín hiệu, nếu có 1000 đơn vị tín hiệu được phát đi trong 1s. Tốc độ bit là bao nhiêu?', options: { A: '1000 bps', B: '4000 bps', C: '250 bps', D: '1004 bps' }, answer: 'B' },
-        { id: 119, type: 'mc', question: 'Một tín hiệu có tốc độ 6000 bit/s nếu một đơn vị tín hiệu mang 6 bit thì tốc độ baud là bao nhiêu?', options: { A: '36000 baud/s', B: '6000 baud/s', C: '1000 baud/s', D: '600 baud/s' }, answer: 'C' },
-        { id: 120, type: 'mc', question: 'Mục đích của điều chế trong truyền dẫn vô tuyến số là:', options: { A: 'Biến đổi luồng bit thành dạng sóng phù hợp để truyền qua kênh vô tuyến', B: 'Sửa lỗi cho luồng bit', C: 'Nén luồng bit lại', D: 'Tăng tốc độ bit' }, answer: 'A' },
-        { id: 121, type: 'mc', question: 'Mục đích của mã hóa kênh là:', options: { A: 'Giảm băng thông', B: 'Thêm vào các bit dư để phát hiện và/hoặc sửa lỗi', C: 'Tăng công suất phát', D: 'Loại bỏ các bit dư thừa' }, answer: 'B' },
-        { id: 122, type: 'mc', question: 'Mục đích của truyền dẫn vô tuyến số là phát các bản tin qua kênh vô tuyến với:', options: { A: 'Tốc độ cao và độ chính xác cao nhất có thể', B: 'Tốc độ thấp và độ chính xác thấp', C: 'Chỉ cần tốc độ cao', D: 'Chỉ cần độ chính xác cao' }, answer: 'A' },
-        { id: 123, type: 'mc', question: 'Ngẫu nhiên hóa trong truyền dẫn vô tuyến số được thực hiện bằng phép toán:', options: { A: 'AND', B: 'OR', C: 'XOR', D: 'ADD' }, answer: 'C' },
-        { id: 124, type: 'mc', question: 'Trong sóng điện từ, phương của vector điện trường và vector từ trường như thế nào so với phương truyền sóng?', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Trùng nhau' }, answer: 'B' },
-        { id: 125, type: 'mc', question: 'Trong phân tập không gian, 2 anten thu thường được đặt cách nhau một khoảng đủ lớn về:', options: { A: 'Hướng', B: 'Độ cao hoặc phương ngang', C: 'Góc phân cực', D: 'Công suất' }, answer: 'B' },
-        { id: 126, type: 'mc', question: 'Trong phân tập tần số, hệ thống sử dụng hai máy phát hoạt động ở hai:', options: { A: 'Tần số khác nhau', B: 'Công suất khác nhau', C: 'Pha khác nhau', D: 'Anten khác nhau' }, answer: 'A' },
-        { id: 127, type: 'mc', question: 'Điều chế QAM là sự kết hợp của hai loại điều chế nào?', options: { A: 'ASK và FSK', B: 'ASK và PSK', C: 'FSK và PSK', D: 'PAM và PWM' }, answer: 'B' },
-        { id: 128, type: 'mc', question: 'So với máy phát có trung tần, máy phát không qua trung tần (direct conversion) giảm được mấy bộ trộn?', options: { A: '1', B: '2', C: '3', D: 'Không giảm' }, answer: 'A' },
-        { id: 129, type: 'mc', question: 'Sóng điện từ bị khúc xạ trong không khí gây ra ảnh hưởng nào?', options: { A: 'Chỉ gây fading đa đường', B: 'Chỉ làm đường truyền xa hơn tầm nhìn thẳng', C: 'Gây fading đa đường và làm đường truyền xa hơn tầm nhìn thẳng', D: 'Không gây ảnh hưởng gì' }, answer: 'C' },
-        { id: 130, type: 'mc', question: 'Sóng điện từ có 2 thành phần là:', options: { A: 'Điện trường và Trọng trường', B: 'Điện trường và Từ trường', C: 'Từ trường và Trọng trường', D: 'Sóng dọc và sóng ngang' }, answer: 'B' },
-        { id: 131, type: 'mc', question: 'Dải tần số của sóng điện từ dùng trong viễn thông là:', options: { A: '3KHz - 300GHz', B: '3Hz - 300Hz', C: '3THz - 300THz', D: 'Chỉ từ 3MHz - 30MHz' }, answer: 'A' },
-        { id: 132, type: 'mc', question: 'Một nhược điểm của truyền lan sóng đất là yêu cầu anten có kích thước:', options: { A: 'Nhỏ', B: 'Lớn', C: 'Trung bình', D: 'Không quan trọng' }, answer: 'B' },
-        { id: 133, type: 'mc', question: 'Hiện tượng nào sau đây gây ra Fading phẳng?', options: { A: 'Chỉ hiện tượng đa đường', B: 'Hấp thụ bởi nước trong không khí, hiệu ứng ống dẫn', C: 'Chỉ hiệu ứng Doppler', D: 'Chỉ nhiễu xạ' }, answer: 'B' },
-        { id: 134, type: 'mc', question: 'Nhược điểm của cấu trúc Hartley là sai số về biên độ và ____ giữa hai nhánh I và Q.', options: { A: 'Tần số', B: 'Pha', C: 'Công suất', D: 'Trở kháng' }, answer: 'B' },
-        { id: 135, type: 'mc', question: 'Một nhược điểm chính của máy thu homodyne (direct conversion) là vấn đề:', options: { A: 'Rò rỉ LO', B: 'Tần số ảnh', C: 'Thành phần một chiều (DC-offset)', D: 'Suy hao lớn' }, answer: 'C' },
-        { id: 136, type: 'mc', question: 'Pha-đinh là hiện tượng thăng giáng thất thường của ______ ở điểm thu.', options: { A: 'Tần số sóng mang', B: 'Pha tín hiệu', C: 'Cường độ điện trường', D: 'Băng thông' }, answer: 'C' },
-        { id: 137, type: 'mc', question: 'Phân cực của sóng điện từ phẳng là sự định hướng của vector ______ so với bề mặt trái đất.', options: { A: 'Từ trường', B: 'Điện trường', C: 'Truyền sóng', D: 'Gia tốc' }, answer: 'B' },
-        { id: 138, type: 'mc', question: 'Tia sóng là đường đi dọc theo hướng ______ của sóng điện từ.', options: { A: 'Phản xạ', B: 'Khúc xạ', C: 'Truyền lan', D: 'Nhiễu xạ' }, answer: 'C' },
-        { id: 139, type: 'mc', question: 'Tia dao động điện từ bị khúc xạ trong khí quyển vì chiết suất không khí càng lên cao thì càng:', options: { A: 'Tăng', B: 'Giảm', C: 'Không đổi', D: 'Tăng giảm ngẫu nhiên' }, answer: 'B' },
-        { id: 140, type: 'mc', question: 'Băng thông cực tiểu của một tín hiệu 2ASK có tốc độ bit là 4000bit/s (bộ lọc lý tưởng) là:', options: { A: '8000 Hz', B: '2000 Hz', C: '4000 Hz', D: '1000 Hz' }, answer: 'C' },
-        { id: 141, type: 'mc', question: 'Phát biểu nào sau đây là sai về nhược điểm của truyền dẫn vô tuyến?', options: { A: 'Môi trường kín', B: 'Suy hao lớn', C: 'Chất lượng không ổn định', D: 'Dễ bị nhiễu' }, answer: 'A' },
-        { id: 142, type: 'mc', question: 'Trong truyền dẫn số, mối quan hệ giữa tốc độ baud (R_B) và tốc độ bit (R_b) là:', options: { A: 'Luôn luôn bằng nhau', B: 'Tốc độ baud nhỏ hơn hoặc bằng tốc độ bit', C: 'Tốc độ baud lớn hơn hoặc bằng tốc độ bit', D: 'Không liên quan' }, answer: 'B' },
-        { id: 143, type: 'mc', question: 'Khi trời mưa rất to, đường truyền dẫn vô tuyến ở các băng tần cao sẽ:', options: { A: 'Không bị ảnh hưởng', B: 'Bị suy giảm mạnh', C: 'Được tăng cường', D: 'Chỉ thay đổi pha' }, answer: 'B' },
-        { id: 144, type: 'mc', question: 'Trong cùng một loại điều chế số, khi số mức điều chế tăng lên, khả năng chống nhiễu sẽ như thế nào?', options: { A: 'Tăng lên', B: 'Giảm xuống', C: 'Không đổi', D: 'Tăng lúc đầu, sau đó giảm' }, answer: 'B' },
-        { id: 145, type: 'mc', question: 'Trong điều chế biên độ ASK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Công suất trung bình' }, answer: 'C' },
-        { id: 146, type: 'mc', question: 'Trong điều chế tần số FSK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Chu kỳ' }, answer: 'B' },
-        { id: 147, type: 'mc', question: 'Trong điều chế pha PSK, tham số nào của sóng mang bị thay đổi để mang tin?', options: { A: 'Pha', B: 'Tần số', C: 'Biên độ', D: 'Bước sóng' }, answer: 'A' },
-        { id: 148, type: 'mc', question: 'Trong máy phát, hiện tượng bộ dao động nội bị ảnh hưởng bởi tín hiệu ra của bộ khuếch đại công suất được gọi là:', options: { A: 'Hiện tượng kéo tần (pulling)', B: 'Hiện tượng xuyên điều chế', C: 'Hiện tượng bão hòa', D: 'Hiện tượng fading' }, answer: 'A' },
-        { id: 149, type: 'mc', question: 'Trong các loại điều chế số cơ bản ASK, PSK, FSK, loại nào có khả năng chống nhiễu kém nhất?', options: { A: 'PSK', B: 'FSK', C: 'ASK', D: 'Cả ba như nhau' }, answer: 'C' },
-        { id: 150, type: 'mc', question: 'Ưu điểm của việc dùng máy phát có trung tần (superheterodyne) là:', options: { A: 'Giảm chi phí', B: 'Thiết kế đơn giản hơn', C: 'Giải quyết vấn đề kéo tần giữa PA và LO', D: 'Tiết kiệm điện năng hơn' }, answer: 'C' },
-        { id: 151, type: 'mc', question: 'Hệ số tạp âm phụ thuộc vào:', options: { A: 'Tỷ số tín hiệu trên tạp âm đầu vào', B: 'Độ lợi của bộ khuếch đại', C: 'Băng thông hệ thống', D: 'Công suất tín hiệu ra' }, answer: 'A' },
-        { id: 152, type: 'mc', question: 'Hiện tượng ống dẫn xuất hiện khi nào?', options: { A: 'Khi sóng điện từ rơi vào vùng không khí đặc giữa hai vùng không khí loãng', B: 'Khi sóng điện từ rơi vào vùng không khí loãng giữa hai vùng không khí đặc', C: 'Khi trời có sấm sét', D: 'Khi có hiện tượng phản xạ từ mặt đất' }, answer: 'A' },
-        { id: 153, type: 'mc', question: 'Công dụng của tần số VHF là gì?', options: { A: 'Thông tin di động, hàng hải, hàng không, phát thanh FM và truyền hình', B: 'Chỉ dùng cho Wifi và Bluetooth', C: 'Chỉ dùng cho radar quân sự', D: 'Chỉ dùng cho thông tin vệ tinh' }, answer: 'A' },
-        { id: 154, type: 'mc', question: 'Mặt sóng là bề mặt có pha của sóng:', options: { A: 'Thay đổi tuyến tính', B: 'Không đổi', C: 'Bằng không', D: 'Thay đổi ngẫu nhiên' }, answer: 'B' },
-        { id: 155, type: 'mc', question: 'Miền Fresnel sạch là khu vực tối thiểu ________ để sóng điện từ có thể truyền qua.', options: { A: 'có vật cản', B: 'không có vật cản', C: 'có nước', D: 'có cây cối' }, answer: 'B' },
-        { id: 156, type: 'mc', question: 'Tạp âm nhiệt trong máy thu sinh ra do sự chuyển động hỗn loạn của:', options: { A: 'Các photon', B: 'Các proton', C: 'Các electron', D: 'Các neutron' }, answer: 'C' },
-        { id: 157, type: 'mc', question: 'Thành phần nào trong khí quyển gây hấp thụ đáng kể nhất đến sóng điện tử ở các băng tần cao?', options: { A: 'Nito', B: 'Hơi nước', C: 'CO2', D: 'Argon' }, answer: 'B' },
-        { id: 158, type: 'mc', question: 'Thiết bị phát là tập hợp các phương tiện kỹ thuật, nằm giữa nguồn tín hiệu và:', options: { A: 'Thiết bị thu', B: 'Môi trường truyền sóng', C: 'Bộ mã hóa', D: 'Bộ giải điều chế' }, answer: 'B' },
-        { id: 159, type: 'mc', question: 'Truyền dẫn vô tuyến số sử dụng ______ để truyền tải thông tin.', options: { A: 'Sóng âm', B: 'Dòng điện', C: 'Sóng điện từ', D: 'Ánh sáng nhìn thấy' }, answer: 'C' },
-        { id: 160, type: 'mc', question: 'Sóng bề mặt là sóng truyền lan dọc theo bề mặt Trái đất, chúng có xu hướng bị suy hao khi tần số:', options: { A: 'Tăng', B: 'Giảm', C: 'Không đổi', D: 'Rất thấp' }, answer: 'A' },
-        { id: 161, type: 'mc', question: 'Hệ thống MMDS (hệ thống phân phối đa điểm đa kênh) có phương thức truyền dẫn là:', options: { A: 'Song công', B: 'Bán song công', C: 'Đơn công', D: 'Luôn là điểm-điểm' }, answer: 'B' },
-        { id: 162, type: 'mc', question: 'Phân cực đứng là khi vector điện trường chuyển động ______ với mặt đất.', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Theo hình tròn' }, answer: 'B' },
-        { id: 163, type: 'mc', question: 'Phân cực ngang là khi vector điện trường di chuyển ______ với bề mặt trái đất.', options: { A: 'Song song', B: 'Vuông góc', C: 'Tạo góc 45 độ', D: 'Theo hình elip' }, answer: 'A' },
-        { id: 164, type: 'mc', question: 'Tốc độ bit được định nghĩa là:', options: { A: 'Số đơn vị tín hiệu trong một giây', B: 'Số bit trong một giây', C: 'Số symbol trong một giây', D: 'Số chu kỳ sóng trong một giây' }, answer: 'B' },
-        { id: 165, type: 'mc', question: 'Tốc độ baud được định nghĩa là:', options: { A: 'Số đơn vị tín hiệu (symbol) trong một giây', B: 'Số bit trong một giây', C: 'Số byte trong một giây', D: 'Số lỗi trong một giây' }, answer: 'A' },
-        { id: 166, type: 'mc', question: 'Sóng đất (ground wave) yêu cầu anten có kích thước:', options: { A: 'Rất nhỏ', B: 'Lớn', C: 'Trung bình', D: 'Không phụ thuộc kích thước' }, answer: 'B' },
-        { id: 167, type: 'mc', question: 'Ví dụ về nguồn tin rời rạc là:', options: { A: 'Tiếng nói, âm nhạc', B: 'Điện báo, dữ liệu máy tính', C: 'Hình ảnh analog', D: 'Tín hiệu video analog' }, answer: 'B' },
-        { id: 168, type: 'mc', question: 'Phân cực tròn xảy ra khi vector điện trường quay ______ khi sóng đi được một bước sóng.', options: { A: '90 độ', B: '180 độ', C: '360 độ', D: 'Không quay' }, answer: 'C' },
-        { id: 169, type: 'mc', question: 'Phân cực elip xảy ra khi ______ của vector điện trường thay đổi theo góc phân cực.', options: { A: 'Cường độ (biên độ)', B: 'Tần số', C: 'Pha', D: 'Tốc độ' }, answer: 'A' },
-        { id: 170, type: 'mc', question: 'Với điều chế 8-PSK, băng thông tối thiểu để truyền một luồng E1 (2048 kbps) là bao nhiêu?', options: { A: '2048 kHz', B: '1024 kHz', C: '682.67 kHz', D: '4096 kHz' }, answer: 'C', note: 'Mỗi symbol 8-PSK mang 3 bit. Tốc độ baud = 2048/3 = 682.67 kbaud. BW_min = Tốc độ baud.' },
-        { id: 171, type: 'mc', question: 'Băng thông cực tiểu của tín hiệu 4-PSK tốc độ 400 b/s là:', options: { A: '400 Hz', B: '100 Hz', C: '200 Hz', D: '800 Hz' }, answer: 'C', note: 'Mỗi symbol 4-PSK mang 2 bit. Tốc độ baud = 400/2 = 200 baud. BW_min = Tốc độ baud.' },
-        { id: 172, type: 'mc', question: 'Băng thông cực tiểu của tín hiệu 8-PSK tốc độ 1200 b/s là:', options: { A: '1200 Hz', B: '600 Hz', C: '400 Hz', D: '2400 Hz' }, answer: 'C', note: 'Mỗi symbol 8-PSK mang 3 bit. Tốc độ baud = 1200/3 = 400 baud. BW_min = Tốc độ baud.' },
-        { id: 173, type: 'mc', question: 'Hệ thống thông tin chuyển tiếp vi ba số thường là hệ thống vô tuyến:', options: { A: 'Tầm nhìn thẳng (LOS)', B: 'Không tầm nhìn thẳng (NLOS)', C: 'Truyền sóng đất', D: 'Truyền sóng trời' }, answer: 'A' },
-        { id: 174, type: 'mc', question: 'Hệ thống truy nhập vô tuyến cố định như WiMAX thường hoạt động ở chế độ:', options: { A: 'Tầm nhìn thẳng (LOS)', B: 'Không tầm nhìn thẳng (NLOS)', C: 'Chỉ sóng đất', D: 'Chỉ sóng trời' }, answer: 'B' },
-        { id: 175, type: 'mc', question: 'Các tham số nào đặc trưng cho một nguồn tin?', options: { A: 'Các ký hiệu nguồn, tốc độ ký hiệu, xác suất xuất hiện', B: 'Chỉ có tốc độ bit', C: 'Chỉ có băng thông', D: 'Chỉ có công suất' }, answer: 'A' },
-        { id: 176, type: 'mc', question: 'Mã hiệu (code) là một tập hợp hữu hạn các ký hiệu và một:', options: { A: 'Phép ánh xạ', B: 'Phép cộng', C: 'Phép nhân', D: 'Hàm logarit' }, answer: 'A' },
-        { id: 177, type: 'mc', question: 'Trình tự các khối cơ bản trong một hệ thống truyền dẫn vô tuyến số là:', options: { A: 'Nguồn tin -> Điều chế -> Mã hóa -> Kênh', B: 'Nguồn tin -> Mã hóa -> Điều chế -> Kênh', C: 'Nguồn tin -> Kênh -> Mã hóa -> Điều chế', D: 'Điều chế -> Mã hóa -> Nguồn tin -> Kênh' }, answer: 'B' },
-        { id: 178, type: 'mc', question: 'Kiến trúc TDD (Time Division Duplex) phân chia kênh truyền theo:', options: { A: 'Tần số', B: 'Mã', C: 'Thời gian', D: 'Không gian' }, answer: 'C' },
-        { id: 179, type: 'mc', question: 'Phổ tần số SHF thường được dùng cho ứng dụng nào?', options: { A: 'Phát thanh AM', B: 'Radar và thông tin vệ tinh', C: 'Đồng hồ nguyên tử', D: 'Truyền hình mặt đất' }, answer: 'B' },
-        { id: 180, type: 'mc', question: 'Các phổ tần nào sau đây ít được dùng trong hệ thống vô tuyến số thông thường?', options: { A: 'VHF và UHF', B: 'SHF và EHF', C: 'ELF và VF', D: 'HF và MF' }, answer: 'C' },
-        { id: 181, type: 'mc', question: 'Hiện tượng nhiễu xạ xảy ra mạnh nhất khi kích thước vật cản:', options: { A: 'Rất lớn so với bước sóng', B: 'Xấp xỉ bằng bước sóng', C: 'Rất nhỏ so với bước sóng', D: 'Không phụ thuộc vào bước sóng' }, answer: 'B' },
-        { id: 182, type: 'mc', question: 'Nguyên lý của phân tập không gian là nếu fading xảy ra ở một anten thì:', options: { A: 'Cũng sẽ xảy ra ở anten còn lại', B: 'Ít có khả năng xảy ra đồng thời ở anten còn lại', C: 'Sẽ làm hỏng cả hai anten', D: 'Sẽ tăng công suất ở anten còn lại' }, answer: 'B' },
-        { id: 183, type: 'mc', question: 'Nguyên lý của phân tập tần số là nếu fading xảy ra ở một tần số thì:', options: { A: 'Cũng sẽ xảy ra ở tần số khác', B: 'Ít có khả năng xảy ra đồng thời ở tần số khác (đủ xa)', C: 'Sẽ làm nhiễu tất cả các tần số', D: 'Sẽ chuyển sang phân tập không gian' }, answer: 'B' },
-        { id: 184, type: 'mc', question: 'Fading lựa chọn tần số ảnh hưởng đến các thành phần tần số trong kênh:', options: { A: 'Một cách đồng đều', B: 'Không đồng đều', C: 'Chỉ thành phần tần số cao', D: 'Chỉ thành phần tần số thấp' }, answer: 'B' },
-        { id: 185, type: 'mc', question: 'Fading nhanh gây ra bởi hiệu ứng nào?', options: { A: 'Hiệu ứng Doppler', B: 'Hiệu ứng che khuất (shadowing)', C: 'Hiệu ứng đa đường', D: 'Hiệu ứng ống dẫn' }, answer: 'A' },
-        { id: 186, type: 'mc', question: 'Hệ thống LMDS (Local Multipoint Distribution Service) hoạt động ở dải tần:', options: { A: 'Rất thấp (VLF)', B: 'Cao (HF)', C: 'Rất cao (VHF/UHF)', D: 'Siêu cao (SHF), thường trên 20 GHz' }, answer: 'D' },
+    // --- DATA SECTION ---
+    const allQuestions = [
+        // Bộ đề 1 (72 câu)
+        { id: 101, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc Gaussian", C: "Bộ lọc sắc nét", D: "Bộ lọc thông thấp" }, answer: "C" },
+        { id: 102, question: "Bộ lọc nào được sử dụng để tìm điểm sáng nhất trong ảnh?", options: { A: "Bộ lọc trung bình", B: "Không đáp án nào đúng", C: "Bộ lọc cực đại", D: "Bộ lọc trung vị" }, answer: "C" },
+        { id: 103, question: "Trong kỹ thuật lọc ảnh, thuật ngữ nào được sử dụng để mô tả phép nhân các điểm ảnh với các hệ số khác nhau trong ma trận lọc?", options: { A: "Lọc trung bình trong miền không gian", B: "Lọc trung bình có trọng số", C: "Không đáp án nào đúng", D: "Lọc trung bình bình phương" }, answer: "B" },
+        { id: 104, question: "Đầu ra của bộ lọc làm trơn ảnh, tuyến tính trong miền không gian là", options: { A: "Giá trị trung vị của các điểm ảnh", B: "Giá trị trung bình của các điểm ảnh", C: "Giá trị lớn nhất của các điểm ảnh", D: "Giá trị nhỏ nhất của các điểm ảnh" }, answer: "B" },
+        { id: 105, question: "Phần tử cấu trúc SE chạy dịch chuyển trên của ảnh", options: { A: "từng cột", B: "từng đường biên", C: "từng điểm ảnh", D: "từng hàng" }, answer: "C" },
+        { id: 106, question: "Trong toán tử hình thái, SE là viết tắt của cụm từ nào Sau đây?", options: { A: "Structuring elements", B: "Software engineer", C: "Structure eliminate", D: "Software engineering" }, answer: "A" },
+        { id: 107, question: "Đáp ứng ra của bộ lọc làm trơn, tuyến tính trong miền không gian là", options: { A: "Không đáp án nào đúng", B: "Tổng các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", C: "Tích các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", D: "Giá trị trung bình của các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc" }, answer: "D" },
+        { id: 108, question: "Phần tử cấu trúc còn được gọi là", options: { A: "nhiễu (noise)", B: "ảnh con (Sub-image)", C: "các điểm ảnh (pixel)", D: "các đường thẳng (lines)" }, answer: "B" },
+        { id: 109, question: "Sự thay đổi cường độ sáng có thể được phát hiện thông qua", options: { A: "phép tích phân", B: "phép toán đạo hàm", C: "phép trừ", D: "phép cộng" }, answer: "B" },
+        { id: 110, question: "Bộ lọc thông cao được Sử dụng để", options: { A: "làm Sắc nét ảnh", B: "thay đổi kích thước ảnh", C: "làm mờ ảnh", D: "tăng cường độ tương phản của ảnh" }, answer: "A" },
+        { id: 111, question: "Hai toán tử hình thái cơ bản là", options: { A: "phép giãn nở", B: "lý thuyết tập hơn", C: "phép xói mòn", D: "phép xói mòn và giãn nở" }, answer: "D" },
+        { id: 112, question: "Trong xử lý ảnh, biến đổi Fourier biến đổi ảnh từ miền không gian sang", options: { A: "miền tần Số", B: "miền không gian", C: "miền Fourier", D: "miền thời gian" }, answer: "A" },
+        { id: 113, question: "Bộ lọc nào sau đây được coi như là một dạng của bộ lọc thông thấp?", options: { A: "Tất cả các đáp án đều đúng", B: "Bộ lọc Butterworth", C: "Bộ lọc Gaussian", D: "Bộ lọc lý tưởng" }, answer: "A" },
+        { id: 114, question: "Bộ lọc làm trơn ảnh được sử dụng để", options: { A: "Không đáp án nào đúng", B: "loại bỏ nhiễu và làm mờ ảnh", C: "loại bỏ nhiễu", D: "làm mờ ảnh" }, answer: "B" },
+        { id: 115, question: "Toán tử nào thực hiện phép xói mòn trước và giãn nở sau?", options: { A: "Phép dịch", B: "Phép mở", C: "Phép đóng", D: "Phép làm mờ ảnh" }, answer: "B" },
+        { id: 116, question: "Nếu hình bên trái tương ứng với tần số cắt Do = 15 thì tần số cắt của bộ lọc tương ứng với hình bên phải là bao nhiêu?", options: { A: "Do = 10", B: "Do = 20", C: "Do = 15", D: "Do = 5" }, answer: "D" },
+        { id: 117, question: "Trong phép xói mòn, các chi tiết nhỏ hơn phần tử cấu trúc SE Sẽ được", options: { A: "nén", B: "dịch", C: "phản xạ", D: "lọc" }, answer: "D" },
+        { id: 118, question: "Thuật ngữ nào không liên quan đến bộ lọc trong miền không gian", options: { A: "cửa sổ trượt (sliding window)", B: "Hàm mật độ xác suất (PDF)", C: "kernel", D: "mặt nạ không gian (spatial mask)" }, answer: "B" },
+        { id: 119, question: "Bộ lọc được biểu diễn bởi phương trình: g(x,y) = f(x,y) - ∇²f(x,y) là bộ lọc gì?", options: { A: "Lọc thông thấp", B: "Lọc trung bình", C: "Lọc trung vị", D: "Lọc sắc nét" }, answer: "D" },
+        { id: 120, question: "Phép tích chập trong miền không gian được biến đổi thành phép nhân trong miền", options: { A: "thời gian", B: "tần số", C: "không gian", D: "Không đáp án nào đúng" }, answer: "B" },
+        { id: 121, question: "Nếu f(x, y) là cường độ sáng của điểm ảnh tại tọa độ (x, y). Đạo hàm bậc nhất theo phương x được tính như sau:", options: { A: "f(x-1,y) + f(x,y)", B: "f(x+1,y) - f(x,y)", C: "f(x-1,y) - f(x+1,y)", D: "f(x,y) - f(x+1,y)" }, answer: "B" },
+        { id: 122, question: "Trong bài toán phát hiện biên, chúng ta thường sử dụng", options: { A: "đạo hàm bậc ba", B: "đạo hàm bậc nhất", C: "đạo hàm bậc hai", D: "đạo hàm bậc nhất và bậc hai" }, answer: "D" },
+        { id: 123, question: "Phương trình H(u,v) = {1 if D(u,v)<=D0; 0 if D(u,v)>D0} biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông cao lý tưởng", B: "Bộ lọc thông thấp lý tưởng", C: "Bộ lọc thông thấp Butterworth", D: "Bộ lọc thông thấp Gauss" }, answer: "B" },
+        { id: 124, question: "Mục tiêu cơ bản của kỹ thuật làm sắc nét ảnh là:", options: { A: "tăng độ sáng của ảnh", B: "giảm độ sáng của ảnh", C: "làm nổi bật các chi tiết trong ảnh", D: "làm nhòe ảnh (blurr)" }, answer: "C" },
+        { id: 125, question: "Bình phương của độ lệch chuẩn được gọi là gì?", options: { A: "Phương Sai", B: "Không đáp án nào đúng", C: "Lũy thừa", D: "Nhiễu" }, answer: "A" },
+        { id: 126, question: "Bộ lọc thực hiện thay thế giá trị cường độ Sáng của một điểm ảnh bởi giá trị cường độ sáng của điểm ảnh ở vị trí chính giữa của dãy điểm ảnh tương ứng với mặt nạ lọc, được gọi là", options: { A: "bộ lọc trung vị", B: "bộ lọc trung bình hình học", C: "bộ lọc trung bình không gian", D: "bộ lọc trung bình Số học" }, answer: "A" },
+        { id: 127, question: "Biên được sinh ra bởi đạo hàm bậc nhất có độ dày như thế nào so với khi sử dụng đạo hàm bậc hai?", options: { A: "Độc lập với nhau", B: "Bằng nhau", C: "Dày hơn", D: "Mảnh hơn" }, answer: "C" },
+        { id: 128, question: "Bộ lọc Sobel thường không hoạt động tốt cho bài toán phát hiện", options: { A: "đường chéo", B: "đường biên", C: "đường thẳng đứng", D: "đường nằm ngang" }, answer: "A" },
+        { id: 129, question: "Toán tử giãn nở được Sử dụng để", options: { A: "nén ảnh", B: "mở rộng ảnh", C: "giải nén ảnh", D: "dịch ảnh" }, answer: "B" },
+        { id: 130, question: "Bộ lọc thông cao cho qua__", options: { A: "tất cả các thành phần", B: "các thành phần có cường độ sáng cao", C: "các thành phần có cường độ sáng thấp", D: "các thành phần có cường độ sáng trung bình" }, answer: "B" },
+        { id: 131, question: "Biểu thức H(u,v) = e^(-D²(u,v)/2D₀²) biểu diễn hàm truyền đạt của bộ lọc thông thấp nào?", options: { A: "Bộ lọc Butterworth", B: "Bộ lọc Gauss", C: "Không đáp án nào đúng", D: "Bộ lọc lý tưởng" }, answer: "B" },
+        { id: 132, question: "Biểu thức H(u,v) = 1 / (1 + (D(u,v)/D₀)²ⁿ) biểu diễn hàm truyền đạt của bộ lọc thông thấp nào?", options: { A: "Bộ lọc Gauss", B: "Bộ lọc Butterworth", C: "Không đáp án nào đúng", D: "Bộ lọc lý tưởng" }, answer: "B" },
+        { id: 133, question: "Giá trị trung bình của các điểm ảnh trong vùng không gian tương ứng với mặt nạ lọc là kết quả đầu ra của bộ lọc", options: { A: "Bộ lọc trung bình", B: "Cả ba đáp án còn lại đều đúng", C: "Bộ lọc thông thấp", D: "Bộ lọc làm trơn ảnh" }, answer: "B" },
+        { id: 134, question: "Bộ lọc thay thế giá trị cường độ sáng của điểm ảnh bởi giá trị lớn nhất trong dãy điểm ảnh tương ứng với mặt nạ, được gọi là", options: { A: "bộ lọc trung bình", B: "bộ lọc cực tiểu", C: "bộ lọc trung vị", D: "bộ lọc cực đại" }, answer: "D" },
+        { id: 135, question: "Ảnh biên độ Gradient được sử dụng trong bài toán", options: { A: "phát hiện biên", B: "phát hiện đường", C: "phát hiện vùng", D: "phát hiện điểm" }, answer: "A" },
+        { id: 136, question: "Trong các phép toán tử hình thái, phần tử cấu trúc SE được coi như", options: { A: "mặt nạ tích chập", B: "mặt nạ tương quan", C: "bộ lọc thông thấp", D: "bộ lọc thông cao" }, answer: "A" },
+        { id: 137, question: "Toán tử nào thực hiện phép giãn nở trước và phép xói mòn Sau?", options: { A: "Phép làm mờ ảnh", B: "Phép đóng", C: "Phép dịch", D: "Phép mở" }, answer: "B" },
+        { id: 138, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc thông thấp", C: "Bộ lọc Gaussian", D: "Bộ lọc sắc nét" }, answer: "D" },
+        { id: 139, question: "Với toán tử xói mòn, các đường bao của ảnh được", options: { A: "làm mờ", B: "co lại", C: "mở rộng", D: "Sắc nét" }, answer: "B" },
+        { id: 140, question: "Bộ lọc trung bình được sử dụng trong các trường hợp nào sau đây?", options: { A: "Loại bỏ các chi tiết không liên quan trong ảnh", B: "Tất cả các đáp án đều đúng", C: "Loại bỏ nhiễu", D: "Làm mịn các đường biên bị lỗi" }, answer: "B" },
+        { id: 141, question: "Hình vẽ sau (hình tròn đen trên nền trắng) biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông dải", C: "Bộ lọc chặn dải", D: "Bộ lọc thông cao" }, answer: "D" },
+        { id: 142, question: "Phép đóng được biểu diễn bởi biểu thức nào Sau đây?", options: { A: "A ∘ B", B: "A - B", C: "A × B", D: "A . B" }, answer: "D" },
+        { id: 143, question: "Nhiễu Gauss được hiểu là", options: { A: "nhiễu đen", B: "nhiễu đỏ", C: "nhiễu có phân bố chuẩn", D: "nhiễu trắng" }, answer: "C" },
+        { id: 144, question: "Kết quả đầu ra của bộ lọc trung vị khi áp dụng vào ma trận ảnh [[15, 22, 35], [40, 45, 21], [1, 9, 26]] là bao nhiêu?", options: { A: "9", B: "45", C: "22", D: "35" }, answer: "C" },
+        { id: 145, question: "Ma trận mặt nạ được biểu diễn dưới đây (1/9 * [[1,1,1],[1,1,1],[1,1,1]]) thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc sắc nét trong miền tần số", C: "Bộ lọc trung bình", D: "Bộ lọc trung vị" }, answer: "C" },
+        { id: 146, question: "Cơ Sở của các phép toán hình thái học là", options: { A: "lý thuyết đồ thị", B: "lý thuyết bản đồ", C: "Sơ đồ logic", D: "lý thuyết tập hợp" }, answer: "D" },
+        { id: 147, question: "Phần tử cấu trúc thường là các mảng", options: { A: "hình vuông", B: "hình chữ nhật", C: "hình tròn", D: "hình tam giác" }, answer: "A" },
+        { id: 148, question: "Biểu thức nào sau đây biểu diễn toán tử Laplacian?", options: { A: "∇²f = f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-8f(x,y)", B: "∇²f = f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)+4f(x,y)", C: "∇²f = f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-f(x,y)", D: "∇²f = f(x-1,y)+f(x+1,y)+f(x,y-1)+f(x,y+1)-4f(x,y)" }, answer: "D" },
+        { id: 149, question: "Bộ lọc thông thấp trong miền tần Số được Sử dụng để", options: { A: "tăng cường độ tương phản (contraSt)", B: "làm mờ ảnh (blurring)", C: "thay đổi kích thước ảnh (reSizing)", D: "Sắc nét ảnh (Sharpening)" }, answer: "B" },
+        { id: 150, question: "Với phép toán giãn nở, đường biên của ảnh Sẽ", options: { A: "Không đáp án nào đúng", B: "mảnh hơn", C: "Sắc nét hơn", D: "dày hơn" }, answer: "D" },
+        { id: 151, question: "Nếu hình bên trái tương ứng với bộ lọc có kích thước ma trận lọc là k_size = 9 thì hình bên phải là kết quả đầu ra của bộ lọc có kích thước là bao nhiêu?", options: { A: "5", B: "7", C: "9", D: "15" }, answer: "D" },
+        { id: 152, question: "Các tập hợp trong hình thái học được đề cập đến như là _____trong ảnh", options: { A: "các khung hình", B: "các đối tượng", C: "các điểm ảnh", D: "các tọa độ" }, answer: "B" },
+        { id: 153, question: "Bộ lọc làm trơn ảnh còn được gọi là bộ lọc", options: { A: "trung vị", B: "trung bình", C: "thông cao", D: "sắc nét" }, answer: "B" },
+        { id: 154, question: "Trong miền không gian, phép toán nào sau đây được thực hiện để làm sắc nét ảnh?", options: { A: "trung vị", B: "vi phân", C: "trung bình", D: "tích phân" }, answer: "B" },
+        { id: 155, question: "Phép toán liên quan đến kỹ thuật lọc tuyến tính trong miền không gian là", options: { A: "hàm tương quan", B: "tích chập", C: "cân bằng mức xám", D: "hàm tương quan và tích chập" }, answer: "D" },
+        { id: 156, question: "Phép đóng thường được Sử dụng với mục đích", options: { A: "giải nén ảnh", B: "loại bỏ nhiễu", C: "nén ảnh", D: "làm đầy lỗ trống" }, answer: "D" },
+        { id: 157, question: "Hình vẽ sau (hình tròn trắng trên nền đen) biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông dải", B: "Bộ lọc chặn dải", C: "Bộ lọc thông thấp", D: "Bộ lọc thông cao" }, answer: "C" },
+        { id: 158, question: "Trong kỹ thuật xử lý ảnh, đạo hàm bậc hai của hàm một chiều f(x) được định nghĩa như sau:", options: { A: "∂²f/∂x² = f(x+1) - f(x)", B: "∂²f/∂x² = f(x+1) + f(x)", C: "∂²f/∂x² = f(x+1) + f(x-1) - 2f(x)", D: "∂²f/∂x² = f(x+1) + f(x-1) - 4f(x)" }, answer: "C" },
+        { id: 159, question: "FFT là viết tắt của", options: { A: "Frequence Fast Transform", B: "Fast Frequency Transform", C: "Frequence Fourier Transform", D: "Fast Fourier Transform" }, answer: "D" },
+        { id: 160, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[-1,-1,-1],[-1,9,-1],[-1,-1,-1]]) là bộ lọc nào?", options: { A: "Bộ lọc Gaussian", B: "Bộ lọc sắc nét", C: "Bộ lọc trung bình", D: "Bộ lọc thông thấp" }, answer: "B" },
+        { id: 161, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0,-1,0],[-1,4,-1],[0,-1,0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc sắc nét", C: "Bộ lọc Gaussian", D: "Bộ lọc thông thấp" }, answer: "B" },
+        { id: 162, question: "Phần tử cấu trúc có gốc tại vị trí", options: { A: "tâm", B: "trên cùng bên trái", C: "trên cùng bên phải", D: "dưới cùng bên trái" }, answer: "A" },
+        { id: 163, question: "Đạo hàm bậc hai còn được gọi là", options: { A: "Canny", B: "Gaussian", C: "Laplacian", D: "Không đáp án nào đúng" }, answer: "C" },
+        { id: 164, question: "Phép xói mòn thường được Sử dụng để", options: { A: "loại bỏ các đường thẳng", B: "làm mờ ảnh", C: "làm Sắc nét ảnh", D: "Sinh ra các đường thẳng" }, answer: "A" },
+        { id: 165, question: "Phép mở được biểu diễn bởi biểu thức nào Sau đây?", options: { A: "A ∘ B", B: "A + B", C: "A - B", D: "A × B" }, answer: "A" },
+        { id: 166, question: "Ma trận mặt nạ được biểu diễn dưới đây (1/16 * [[1,2,1],[2,4,2],[1,2,1]]) thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc trung bình", D: "Bộ lọc sắc nét trong miền tần số" }, answer: "C" },
+        { id: 167, question: "Phép xói mòn liên quan đến", options: { A: "phản xạ", B: "giải nén", C: "lọc", D: "nén" }, answer: "D" },
+        { id: 168, question: "Kết quả đầu ra của bộ lọc trung vị khi áp dụng vào ma trận ảnh [[10,20,20],[20,15,20],[20,25,100]] là bao nhiêu?", options: { A: "20", B: "25", C: "100", D: "15" }, answer: "A" },
+        { id: 169, question: "Kết quả của phép phản xạ của tập B được định nghĩa bởi công thức Sau:", options: { A: "{w|w=-(-b)}", B: "{w|w=b}", C: "{w|w=-b}", D: "{w=-b}" }, answer: "C" },
+        { id: 170, question: "Nhược điểm của bộ lọc làm trơn ảnh là", options: { A: "Loại bỏ sự thay đổi đột ngột", B: "làm mờ các điểm ảnh bên trong", C: "Làm sắc nét ảnh", D: "làm mờ biên ảnh" }, answer: "D" },
+        { id: 171, question: "Bộ lọc nào phù hợp cho việc loại bỏ nhiễu muối tiêu?", options: { A: "Bộ lọc trung vị", B: "Bộ lọc", C: "Không đáp án nào đúng", D: "Bộ lọc trung bình" }, answer: "A" },
+        { id: 172, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" },
+        // Bộ đề 2 (81 câu)
+        { id: 201, question: "Kỹ thuật nào được đề cập đến trong xử lý ảnh số?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi ảnh", C: "Phân tích ảnh", D: "Tất cả các câu trả lời đều đúng" }, answer: "D" },
+        { id: 202, question: "Phát biểu nào sau đây mô tả độ sâu của điểm ảnh?", options: { A: "Số đơn vị (unit) được sử dụng để biểu diễn một điểm ảnh trong không gian RGB", B: "Số mm được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", C: "Số byte được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", D: "Số bit được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB" }, answer: "D" },
+        { id: 203, question: "Đâu là bước đầu tiên và quan trọng nhất trong kỹ thuật xử lý ảnh số?", options: { A: "Thu nhận ảnh", B: "Phân vùng ảnh", C: "Nâng cao chất lượng ảnh", D: "Khôi phục ảnh" }, answer: "A" },
+        { id: 204, question: "Ảnh số được coi là một hàm phụ thuộc vào tọa độ không gian f(x,y) biểu diễn:", options: { A: "chiều cao của ảnh", B: "chiều rộng của ảnh", C: "cường độ sáng của ảnh", D: "độ phân giải của ảnh" }, answer: "C" },
+        { id: 205, question: "Điểm ảnh là:", options: { A: "một phần tử của ảnh số", B: "một phần tử của ảnh tương tự", C: "một cụm các phần tử của ảnh số", D: "một cụm các phần tử của ảnh tương tự" }, answer: "A" },
+        { id: 206, question: "Ảnh có độ phân giải Full HD có kích thước:", options: { A: "512x512", B: "256x256", C: "1920x1080", D: "1080x1080" }, answer: "C" },
+        { id: 207, question: "Mỗi điểm ảnh được tạo nên bởi ba màu cơ bản nào sau đây?", options: { A: "Đỏ, xanh da trời, vàng", B: "Đỏ, xanh lá, xanh da trời", C: "Đỏ, trắng, xanh da trời", D: "Xanh da trời, đen, đỏ" }, answer: "B" },
+        { id: 208, question: "Giá trị của mỗi thành phần màu trong điểm ảnh nằm trong khoảng:", options: { A: "[0, 100]", B: "[0, 255]", C: "[1, 100]", D: "[1, 256]" }, answer: "B" },
+        { id: 209, question: "Một điểm ảnh có giá trị (R,G,B)=(0,255,0), điểm ảnh đó có màu gì?", options: { A: "Màu đỏ", B: "Màu xanh lá", C: "Màu vàng", D: "Màu xanh da trời" }, answer: "B" },
+        { id: 210, question: "Phổ điện từ của ánh sáng nhìn thấy nằm trong khoảng:", options: { A: "400-700nm", B: "600-900nm", C: "400-700pm", D: "600-900pm" }, answer: "A" },
+        { id: 211, question: "Hàm nào sau đây biểu diễn biến đổi logarit trong xử lý ảnh?", options: { A: "g(x,y)=c+log[1+f(x,y)]", B: "g(x,y)=c/log[1+f(x,y)]", C: "g(x,y)=c-log[1+f(x,y)]", D: "g(x,y)=c*log[1+f(x,y)]" }, answer: "D" },
+        { id: 212, question: "Bộ lọc làm mịn (smooth) được sử dụng để giảm nhiễu và làm mờ biên ảnh.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
+        { id: 213, question: "Thuộc tính nào trong không gian màu HSV đặc trưng cho màu gốc (pure color) của điểm ảnh?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Cường độ sáng (Intensity)" }, answer: "B" },
+        { id: 214, question: "Bốn lân cận theo phương ngang và phương thẳng đứng của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y+1); (x+1,y-1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "D" },
+        { id: 215, question: "Bốn lân cận theo hai đường chéo của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y-1); (x+1,y+1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "A" },
+        { id: 216, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh mức xám (gray-scale)?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A" },
+        { id: 217, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh màu?", options: { A: "8 bit", B: "2 bit", C: "24 bit", D: "4 bit" }, answer: "C" },
+        { id: 218, question: "Trong ảnh nhị phân, cần bao nhiêu bit để biểu diễn một điểm ảnh?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A", note: "Lưu ý: Về lý thuyết, ảnh nhị phân chỉ cần 1 bit. Tuy nhiên, trong các lựa chọn được đưa ra, 8 bit là phương án lưu trữ phổ biến nhất trong thực tế." },
+        { id: 219, question: "Trong bước nào sau đây, ảnh được chia thành các vùng nhỏ hơn?", options: { A: "Nâng cao chất lượng ảnh", B: "Thu nhận ảnh", C: "Phân vùng ảnh", D: "Biến đổi Wavelet" }, answer: "C" },
+        { id: 220, question: "Tham số nào trong không gian màu HSV thể hiện sự pha loãng màu gốc (pure color) bởi ánh sáng trắng?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Không đáp án nào đúng" }, answer: "A" },
+        { id: 221, question: "Trong một hệ thống xử lý ảnh, bước nào được thực hiện ngay trước bước xử lý ảnh màu?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi Wavelet và xử lý đa phân giải", C: "Khôi phục ảnh", D: "Thu nhận ảnh" }, answer: "D" },
+        { id: 222, question: "Mô hình màu RGB có thể biểu diễn:", options: { A: "hơn 16 triệu màu", B: "hơn 20 triệu màu", C: "hơn 36 triệu màu", D: "hơn 10 triệu màu" }, answer: "A" },
+        { id: 223, question: "Công thức nào biểu diễn phép biến đổi từ ảnh màu sang ảnh mức xám?", options: { A: "Gray = 0.2989*R + 0.5870*G + 0.1140*B", B: "Gray = 0.2989*B + 0.5870*G + 0.1140*R", C: "Gray = 0.3989*R + 0.4870*G + 0.1140*B", D: "Gray = 0.2989*R + 0.1140*G + 0.5870*B" }, answer: "A" },
+        { id: 224, question: "Lược đồ mức xám h(rk) được định nghĩa như sau (trong đó rk và nk tương ứng là mức xám thứ k và số lượng điểm ảnh có mức xám rk):", options: { A: "h(rk) = nk", B: "h(rk) = nk/rk", C: "h(rk) = nk*rk", D: "h(rk) = rk/nk" }, answer: "A" },
+        { id: 225, question: "Lược đồ mức xám được chuẩn hóa theo biểu thức nào sau đây? (nk là số điểm ảnh có mức xám rk và n là tổng số điểm ảnh)", options: { A: "p(rk) = nk/n", B: "p(rk) = nk*n", C: "p(rk) = nk+n", D: "p(rk) = n-nk" }, answer: "A" },
+        { id: 226, question: "Tổng các giá trị thành phần của lược đồ mức xám chuẩn hóa bằng:", options: { A: "1", B: "-1", C: "0", D: "100" }, answer: "A" },
+        { id: 227, question: "Biểu thức nào biểu diễn phép biến đổi sinh ra ảnh âm bản?", options: { A: "g(x,y) = L-1-f(x,y)", B: "g(x,y) = L-1+f(x,y)", C: "g(x,y) = c*log[1+f(x,y)]", D: "g(x,y) = c*f(x,y)ᵞ" }, answer: "A" },
+        { id: 228, question: "Trong công thức của phép biến đổi sinh ra ảnh âm bản, giá trị của tham số L là:", options: { A: "255", B: "256", C: "512", D: "128" }, answer: "B" },
+        { id: 229, question: "Công thức nào biểu diễn phép biến đổi hiệu chuẩn Gamma (Gamma Correction)?", options: { A: "g(x,y) = c*f(x,y)ᵞ", B: "g(x,y) = c+f(x,y)ᵞ", C: "g(x,y) = c/f(x,y)ᵞ", D: "g(x,y) = c-f(x,y)ᵞ" }, answer: "A" },
+        { id: 230, question: "Mục đích chính của kỹ thuật tăng cường độ tương phản là:", options: { A: "làm ảnh sắc nét, rõ ràng hơn", B: "loại bỏ nhiễu", C: "làm ảnh bị mờ", D: "Không đáp án nào đúng" }, answer: "A" },
+        { id: 231, question: "Cho hình vẽ mô tả kỹ thuật tăng cường độ tương phản. Hàm nào sau đây biểu diễn phép biến đổi đó?", options: { A: "T(r)={β(r-a)+sa, γ(r-b)+sb}", B: "T(r)={SH, SL}", C: "T(r)={SH, r}", D: "T(r)={SH, αr}" }, answer: "A", note: "Lưu ý: Câu hỏi này có các lựa chọn không đầy đủ, A là lựa chọn gần đúng nhất về mặt cấu trúc." },
+        { id: 232, question: "Đầu ra của bộ lọc làm trơn ảnh, tuyến tính trong miền không gian là:", options: { A: "Giá trị trung vị của các điểm ảnh", B: "Giá trị lớn nhất của các điểm ảnh", C: "Giá trị nhỏ nhất của các điểm ảnh", D: "Giá trị trung bình của các điểm ảnh" }, answer: "D" },
+        { id: 233, question: "Nhược điểm của bộ lọc làm trơn ảnh là:", options: { A: "làm mờ biên ảnh", B: "làm mờ các điểm ảnh bên trong", C: "Loại bỏ sự thay đổi đột ngột", D: "Làm sắc nét ảnh" }, answer: "A" },
+        { id: 234, question: "Ma trận mặt nạ 1/16 * [[1,2,1],[2,4,2],[1,2,1]] thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
+        { id: 235, question: "Ma trận mặt nạ 1/9 * [[1,1,1],[1,1,1],[1,1,1]] thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
+        { id: 236, question: "Nếu hình bên trái (mờ hơn) tương ứng với bộ lọc có kích thước 9 thì hình bên phải (nét hơn) có kích thước là bao nhiêu?", options: { A: "5", B: "7", C: "9", D: "15" }, answer: "A" },
+        { id: 237, question: "Mục tiêu cơ bản của kỹ thuật làm sắc nét ảnh là:", options: { A: "làm nhòe ảnh (blurr)", B: "làm nổi bật các chi tiết trong ảnh", C: "tăng độ sáng của ảnh", D: "giảm độ sáng của ảnh" }, answer: "B" },
+        { id: 238, question: "Trong miền không gian, phép toán nào sau đây được thực hiện để làm sắc nét ảnh?", options: { A: "tích phân", B: "vi phân", C: "trung bình", D: "trung vị" }, answer: "B" },
+        { id: 239, question: "Ảnh vi phân làm nổi bật sự thay đổi đột ngột của cường độ sáng và không chú ý tới các điểm ảnh mà tại đó cường độ sáng thay đổi chậm.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
+        { id: 240, question: "Đạo hàm bậc nhất của f(x,y) theo phương x được tính như sau:", options: { A: "f(x+1,y)-f(x,y)", B: "f(x,y)-f(x+1,y)", C: "f(x-1,y)-f(x+1,y)", D: "f(x-1,y)+f(x,y)" }, answer: "A" },
+        { id: 241, question: "Biên được sinh ra bởi đạo hàm bậc nhất có độ dày như thế nào so với khi sử dụng đạo hàm bậc hai?", options: { A: "Mảnh hơn", B: "Dày hơn", C: "Bằng nhau", D: "Độc lập với nhau" }, answer: "B" },
+        { id: 242, question: "Đạo hàm bậc hai của hàm một chiều f(x) được định nghĩa như sau:", options: { A: "∂²f/∂x² = f(x+1) - f(x)", B: "∂²f/∂x² = f(x+1) + f(x-1) - 2f(x)", C: "∂²f/∂x² = f(x+1) + f(x)", D: "∂²f/∂x² = f(x+1) + f(x-1) - 4f(x)" }, answer: "B" },
+        { id: 243, question: "Đạo hàm bậc hai còn được gọi là:", options: { A: "Gaussian", B: "Laplacian", C: "Canny", D: "Không đáp án nào đúng" }, answer: "B" },
+        { id: 244, question: "Bộ lọc làm trơn ảnh được sử dụng để:", options: { A: "làm mờ ảnh", B: "loại bỏ nhiễu", C: "loại bỏ nhiễu và làm mờ ảnh", D: "Không đáp án nào đúng" }, answer: "B" },
+        { id: 245, question: "Đáp ứng ra của bộ lọc làm trơn, tuyến tính trong miền không gian là:", options: { A: "Tổng các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", B: "Tích các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", C: "Giá trị trung bình của các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", D: "Không đáp án nào đúng" }, answer: "A" },
+        { id: 246, question: "Giá trị trung bình của các điểm ảnh trong vùng không gian tương ứng với mặt nạ lọc là kết quả đầu ra của bộ lọc:", options: { A: "Bộ lọc trung bình", B: "Bộ lọc làm trơn ảnh", C: "Bộ lọc thông thấp", D: "Cả ba đáp án còn lại đều đúng" }, answer: "D" },
+        { id: 247, question: "Biểu thức nào sau đây biểu diễn toán tử Laplacian?", options: { A: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 4f(x,y)", B: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - f(x,y)", C: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 8f(x,y)", D: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) + 4f(x,y)" }, answer: "A" },
+        { id: 248, question: "Ma trận lọc [[0,1,0],[1,-4,1],[0,1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+        { id: 249, question: "Ma trận lọc [[0,-1,0],[-1,4,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+        { id: 250, question: "Bộ lọc được biểu diễn bởi phương trình g(x,y) = f(x,y) - ∇²f(x,y) là bộ lọc gì?", options: { A: "Lọc trung bình", B: "Lọc trung vị", C: "Lọc sắc nét", D: "Lọc thông thấp" }, answer: "C" },
+        { id: 251, question: "Ma trận lọc [[0,-1,0],[-1,5,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+        { id: 252, question: "Ma trận lọc [[-1,-1,-1],[-1,9,-1],[-1,-1,-1]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
+        { id: 253, question: "Hình vẽ một hình tròn trắng ở trung tâm trên nền đen trong miền tần số biểu diễn bộ lọc nào?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "A" },
+        { id: 254, question: "Hình vẽ một hình tròn đen ở trung tâm trên nền trắng trong miền tần số biểu diễn bộ lọc nào?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "B" },
+        { id: 255, question: "Phương trình D(u,v) = [(u-M/2)² + (v-N/2)²]¹/² biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông thấp lý tưởng", B: "Bộ lọc thông cao lý tưởng", C: "Bộ lọc thông thấp Butterworth", D: "Bộ lọc thông thấp Gauss" }, answer: "D", note: "Lưu ý: Câu hỏi này không chính xác. Đây là công thức tính khoảng cách, không phải là một bộ lọc hoàn chỉnh." },
+        { id: 256, question: "Phép toán logic nào cho ra kết quả là một mẫu bàn cờ (checkerboard) từ hai ảnh vuông?", options: { A: "AND", B: "OR", C: "XOR", D: "Không có đáp án nào đúng" }, answer: "C" },
+        { id: 257, question: "Theo toán tử tập hợp, kết quả của phép toán Giao {A} ∩ {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "A" },
+        { id: 258, question: "Theo toán tử tập hợp, kết quả của phép toán Hợp {A} U {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "C" },
+        { id: 259, question: "Theo toán tử tập hợp, kết quả của phép toán Hiệu {A} - {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "B" },
+        { id: 260, question: "Bộ lọc Sobel không tốt cho việc phát hiện nào sau đây?", options: { A: "đường ngang", B: "đường thẳng đứng", C: "đường chéo", D: "các cạnh" }, answer: "C" },
+        { id: 261, question: "Trung vị của dãy: {15, 22, 35, 40, 45, 21, 1, 9, 26, 29, 19} là:", options: { A: "21", B: "45", C: "1", D: "22" }, answer: "D" },
+        { id: 262, question: "Biến đổi Hough của đường thẳng đi qua 3 điểm thẳng hàng tại x=0.5 là:", options: { A: "Điểm X(ρ, θ) = X(1, pi/2)", B: "Điểm X(ρ, θ) = X(0.5, pi/2)", C: "Điểm X(ρ, θ) = X(0.5, pi)", D: "Điểm X(ρ, θ) = X(0.5, 0)" }, answer: "D" },
+        { id: 263, question: "Cách nào sau đây là dùng để lưu hình ảnh bằng OpenCV?", options: { A: "cv2.imwrite(filename, image)", B: "cv2.save(filename, image)", C: "cv2.write(filename, image)", D: "cv2.imsave(filename, image)" }, answer: "A" },
+        { id: 264, question: "Đoạn mã d = img.shape trả về giá trị gì?", options: { A: "Kích thước của hình ảnh", B: "Phạm vi giá trị pixel trong hình ảnh", C: "Số pixel trong ảnh", D: "Lỗi cú pháp" }, answer: "A" },
+        { id: 265, question: "Hàm được sử dụng để đọc video từ webcam là gì?", options: { A: "cv2.VideoCapture(0)", B: "cv2.VideoCapture('video.mp4')", C: "cv2.VideoCapture('image.jpg')", D: "cv2.VideoCapture('webcam_location')" }, answer: "A" },
+        { id: 266, question: "Đoạn chương trình đọc video dùng `while True` sẽ lỗi khi kết thúc vì:", options: { A: "Lỗi hàm read()", B: "Lỗi hàm imshow()", C: "Không có điều kiện thoát vòng lặp", D: "Lỗi giải phóng video" }, answer: "C", note: "Vòng lặp không có điều kiện thoát, khiến `frame` trở thành `None` và `imshow` báo lỗi." },
+        { id: 267, question: "Hàm trong OpenCV-Python cho phép đọc hình ảnh từ một nguồn là gì?", options: { A: "cv2.imshow('Label', 'some_sources')", B: "cv2.VideoCapture('some_sources')", C: "cv2.imread('some_sources')", D: "cv2.imread()" }, answer: "C" },
+        { id: 268, question: "Ảnh có chiều rộng 700, cao 550, 3 kênh sẽ có dạng mảng NumPy là:", options: { A: "(550, 700, 3)", B: "(3, 550, 700)", C: "(700, 550, 3)", D: "(3, 700, 550)" }, answer: "A" },
+        { id: 269, question: "OpenCV lưu trữ các pixel RGB theo thứ tự nào?", options: { A: "GBR", B: "RGB", C: "BRG", D: "BGR" }, answer: "D" },
+        { id: 270, question: "Để trích xuất vùng chữ nhật từ x=9, y=47 đến x=96, y=96. Dòng mã chính xác là:", options: { A: "Crop = image[9:97, 47:96]", B: "Crop = image[47:96, 9:97]", C: "Crop = image[47:97, 9:97]", D: "Crop = image[97:96, 9:47]" }, answer: "C" },
+        { id: 271, question: "Đoạn code `img1 = 255 - img` thực hiện nhiệm vụ gì?", options: { A: "Chuyển ảnh màu RGB sang ảnh mức xám", B: "Chuyển ảnh màu RGB sang ảnh âm bản.", C: "Chuyển ảnh màu RGB sang ảnh trắng đen", D: "Chuyển ảnh mức xám sang ảnh trắng đen." }, answer: "B" },
+        { id: 272, question: "Hình ảnh biên (edge image) là kết quả của việc áp dụng bộ lọc gì?", options: { A: "Lọc thông thấp", B: "Lọc thông cao", C: "Lọc thông dải", D: "Lọc trung bình" }, answer: "B" },
+        { id: 273, question: "Đoạn chương trình thêm nhiễu 's&p' và sau đó dùng `cv2.medianBlur` có mục đích lọc nhiễu bằng bộ lọc gì?", options: { A: "Lọc thông thấp", B: "Lọc thông cao", C: "Lọc thông dải", D: "Lọc trung bình" }, answer: "D", note: "Lưu ý: Không có đáp án chính xác. Code dùng 'Bộ lọc trung vị' (Median Filter)." },
+        { id: 274, question: "Hàm OpenCV nào sau đây có thể được sử dụng để tạo ngưỡng cho một hình ảnh?", options: { A: "cv2.threshold()", B: "cv2.thresh()", C: "cv2.Thresh()", D: "cv2.threshold()" }, answer: "A" },
+        { id: 275, question: "Phương án nào mô tả đúng dòng lệnh `cv2.waitKey(0)`?", options: { A: "cv2.waitKey(0) cho phép người dùng xem hình ảnh cho đến khi nhấn bất kỳ phím nào.", B: "cv2.waitKey(0) cho phép người dùng xem hình ảnh trong 500 mili giây.", C: "cv2.waitKey(0) đóng hình ảnh ngay sau khi được hiển thị.", D: "Cả A và B." }, answer: "A" },
+        { id: 276, question: "Đoạn chương trình `if cv2.waitKey(1) & 0xFF == ord('q'): break` sẽ kết thúc khi nào?", options: { A: "Nếu bạn nhấn phím ‘q’ và đợi 1 phút", B: "Nếu bạn nhấn phím ‘q’", C: "Nếu bạn nhấn phím bất kỳ", D: "Chương trình chờ 1 giây rồi kết thúc" }, answer: "B" },
+        { id: 277, question: "Tham số `img` trong hàm `cv2.Canny(img,...)` là gì?", options: { A: "Ảnh màu RGB", B: "Ảnh nhị phân", C: "Ảnh mức xám" }, answer: "C" },
+        { id: 278, question: "Để khởi tạo ma trận bộ lọc trung bình 3x3, ta cần thực hiện lệnh như thế nào?", options: { A: "H = np.ones((3,3), np.float32)/9", B: "H = np.ones((3,3), np.int32)/9", C: "H = np.zeros((3,3), np.float32)/9", D: "H = np.ones((3,3), np.int)/9" }, answer: "A" },
+        { id: 279, question: "Đoạn chương trình `img = cv2.imread('hinhanh')` bị lỗi có thể do:", options: { A: "Lỗi cv2.waitKey(0)", B: "Lỗi cv2.imread", C: "Lỗi 'hinhanh' không xác định", D: "Lỗi cv2.imshow" }, answer: "C" },
+        { id: 280, question: "Đoạn chương trình vẽ các hình nhưng không nhìn thấy hình tròn, tại sao?", options: { A: "Không nhìn thấy đường thẳng trong ảnh.", B: "Không nhìn thấy hình tròn trong ảnh.", C: "Không nhìn thấy hình chữ nhật trong ảnh.", D: "Không nhìn thấy tất cả." }, answer: "B", note: "Phân tích code: Nền xanh (255,0,0), hình tròn cũng màu xanh (255,0,0)." },
+        { id: 281, question: "Đoạn chương trình vẽ các hình nhưng không nhìn thấy hình chữ nhật, tại sao?", options: { A: "Không nhìn thấy đường thẳng trong ảnh.", B: "Không nhìn thấy hình tròn trong ảnh.", C: "Không nhìn thấy hình chữ nhật trong ảnh.", D: "Không nhìn thấy tất cả." }, answer: "C", note: "Phân tích code: Nền đỏ (0,0,255), hình chữ nhật cũng màu đỏ (0,0,255)." }
     ];
 
-    // --- SCRIPT SECTION ---
+    const uniqueQuestions = new Map();
+    allQuestions.forEach(q => {
+        const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
+        if (!uniqueQuestions.has(trimmedQuestion)) {
+            uniqueQuestions.set(trimmedQuestion, q);
+        }
+    });
+
+    const quizData = Array.from(uniqueQuestions.values());
+    quizData.forEach((q, index) => {
+        q.id = index + 1;
+    });
+
     const quizForm = document.getElementById('quiz-form');
-    const resultsContainer = document.getElementById('results');
+    const timerDisplay = document.getElementById('timer-display');
+    const setupContainer = document.getElementById('setup-container');
+    const quizContainer = document.getElementById('quiz-container');
+    const startButton = document.getElementById('start-button');
+    const shuffleButton = document.getElementById('shuffle-button');
+    const submitButton = document.getElementById('submit-button');
+    const finalResultScreen = document.getElementById('final-result-screen');
+    
     let score = 0;
-    const totalQuestions = quizData.filter(q => q.answer).length; // Count only valid questions
-    const scoredQuestions = []; 
+    let timerInterval;
+    const incorrectlyAttemptedQuestions = []; 
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    shuffleButton.addEventListener('click', () => {
+        shuffleArray(quizData);
+        shuffleButton.textContent = 'Đã xáo trộn!';
+        shuffleButton.classList.add('shuffled');
+        shuffleButton.disabled = true;
+    });
+
+    startButton.addEventListener('click', () => {
+        setupContainer.style.display = 'none';
+        quizContainer.style.display = 'block';
+        submitButton.style.display = 'block';
+        
+        const selectedTimeInput = document.querySelector('input[name="time"]:checked');
+        const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 20;
+        startTimer(durationInMinutes);
+
+        renderQuiz();
+    });
+
+    submitButton.addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn nộp bài không?')) {
+            endQuiz();
+        }
+    });
 
     function renderQuiz() {
         let html = '';
-        quizData.forEach((q) => {
-            html += `<div class="question-block" id="q-block-${q.id}">`;
-            html += `<p class="question-text">${q.id}. ${q.question}</p>`;
-            
-            if (q.type === 'mc' && q.options && Object.keys(q.options).length > 0 && q.answer) {
-                html += `<fieldset id="fs-${q.id}">`;
-                html += `<div class="options-container">`;
-                for (const key in q.options) {
-                    html += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}"><label for="q${q.id}_${key}">${key}. ${q.options[key]}</label></div>`;
+        quizData.forEach((q, index) => {
+            const correctAnswerText = q.options[q.answer];
+            let optionsArray = Object.keys(q.options).map(key => ({ key, text: q.options[key] }));
+            shuffleArray(optionsArray);
+
+            const shuffledOptions = {};
+            let newAnswerKey = '';
+            const newKeys = ['A', 'B', 'C', 'D', 'E'];
+
+            optionsArray.forEach((option, i) => {
+                const currentKey = newKeys[i];
+                shuffledOptions[currentKey] = option.text;
+                if (option.text === correctAnswerText) {
+                    newAnswerKey = currentKey;
                 }
-                html += `</div>`;
-                html += `</fieldset>`;
-            } else {
-                 html += `<p><em>(Câu hỏi này không có dữ liệu hoặc định dạng không hợp lệ)</em></p>`;
+            });
+            
+            q.shuffledAnswer = newAnswerKey;
+
+            html += `<div class="question-block" id="q-block-${q.id}">`;
+            html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
+            
+            html += `<fieldset id="fs-${q.id}">`;
+            html += `<div class="options-container">`;
+            for (const key in shuffledOptions) {
+                html += `<div><input type="radio" name="q${q.id}" id="q${q.id}_${key}" value="${key}"><label for="q${q.id}_${key}">${key}. ${shuffledOptions[key]}</label></div>`;
             }
-            html += `<div class="correct-answer" id="ca-${q.id}"></div>`;
+            html += `</div>`;
+            html += `</fieldset>`;
             html += `</div>`;
         });
         quizForm.innerHTML = html;
-        resultsContainer.innerHTML = `Điểm số: 0 / ${totalQuestions}`;
     }
 
     function handleAnswerSelection(event) {
@@ -349,44 +455,87 @@
         const userAnswer = selectedRadio.value;
         
         const questionData = quizData.find(q => q.id === questionId);
-        if (!questionData) return;
+        if (!questionData || questionData.answeredCorrectly) {
+            return;
+        }
 
         const block = document.getElementById(`q-block-${questionId}`);
-        const correctAnswerEl = document.getElementById(`ca-${questionId}`);
-        const fieldset = document.getElementById(`fs-${questionId}`);
-        
-        const isCorrect = userAnswer === questionData.answer;
+        block.classList.remove('correct', 'incorrect');
+        Array.from(block.querySelectorAll('.options-container div')).forEach(div => {
+            div.classList.remove('incorrect-option');
+        });
+
+        const isCorrect = userAnswer === questionData.shuffledAnswer;
 
         if (isCorrect) {
-            block.classList.remove('incorrect');
             block.classList.add('correct');
-            
-            if (!scoredQuestions.includes(questionId)) {
+            document.getElementById(`fs-${questionId}`).disabled = true;
+            questionData.answeredCorrectly = true;
+
+            if (!incorrectlyAttemptedQuestions.includes(questionId)) {
                 score++;
-                resultsContainer.innerHTML = `Điểm số: ${score} / ${totalQuestions}`;
-                scoredQuestions.push(questionId);
             }
-
-            let correctAnswerText = `Đáp án đúng: <strong>${questionData.answer}. ${questionData.options[questionData.answer]}</strong>`;
-            let noteText = questionData.note ? `<br><span class="note">${questionData.note}</span>` : '';
-            
-            correctAnswerEl.innerHTML = `${correctAnswerText} ${noteText}`;
-            correctAnswerEl.classList.add('visible');
-            fieldset.disabled = true;
-
         } else {
             block.classList.add('incorrect');
-            if (!scoredQuestions.includes(questionId)) {
-                scoredQuestions.push(questionId);
+            selectedRadio.parentElement.classList.add('incorrect-option');
+
+            if (!incorrectlyAttemptedQuestions.includes(questionId)) {
+                incorrectlyAttemptedQuestions.push(questionId);
             }
         }
     }
 
-    // --- INITIALIZATION ---
-    renderQuiz();
-    quizForm.addEventListener('change', handleAnswerSelection);
+    function startTimer(minutes) {
+        let duration = minutes * 60;
+        timerInterval = setInterval(() => {
+            const mins = Math.floor(duration / 60);
+            let secs = duration % 60;
+            secs = secs < 10 ? '0' + secs : secs;
 
+            timerDisplay.textContent = `${mins}:${secs}`;
+            
+            if (duration < 60 && !timerDisplay.classList.contains('ending')) {
+                timerDisplay.classList.add('ending');
+            }
+
+            if (--duration < 0) {
+                endQuiz(true);
+            }
+        }, 1000);
+    }
+
+    function endQuiz(isTimeOut = false) {
+        clearInterval(timerInterval);
+        if (isTimeOut) {
+            timerDisplay.textContent = "HẾT GIỜ!";
+            alert("Đã hết giờ làm bài!");
+        }
+        
+        quizContainer.style.display = 'none';
+        submitButton.style.display = 'none';
+
+        const totalQuestions = quizData.length;
+        document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
+        finalResultScreen.style.display = 'block';
+
+        let countdown = 5;
+        const redirectMessage = document.getElementById('redirect-message');
+        redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
+    }
+
+    quizForm.addEventListener('click', handleAnswerSelection);
     </script>
-
 </body>
 </html>
