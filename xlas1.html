@@ -23,12 +23,11 @@
         }
 
         body {
-            /* ** Thay đổi ở đây: Đổi font chữ ** */
             font-family: Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--bg-color);
-            padding-top: 90px;
+            padding-top: 80px; /* Khoảng đệm cho header cố định */
         }
 
         #main-container {
@@ -37,9 +36,12 @@
             background-color: var(--container-bg-color);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 30px;
         }
         
+        #content-padding {
+             padding: 30px;
+        }
+
         h1, h2 {
             text-align: center;
             color: #0056b3;
@@ -127,9 +129,8 @@
             margin-bottom: 25px;
             padding: 25px;
             border-radius: 12px;
-            /* ** Thay đổi ở đây: Loại bỏ khung viền ** */
             background-color: #ffffff;
-             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.15em; }
 
@@ -166,23 +167,15 @@
             border-color: var(--correct-color);
         }
         
-        /* Tối ưu cho điện thoại */
         @media (max-width: 768px) {
-            body { padding: 10px; padding-top: 80px; }
-            #main-container { margin: 10px; padding: 15px; }
-            h1 { font-size: 1.8em; }
+            body { padding: 0; padding-top: 70px; }
+            #main-container { margin: 0; border-radius: 0; border-left: none; border-right: none;}
+            #content-padding { padding: 15px; }
+            h1 { font-size: 1.5em; }
             #sticky-header { padding: 10px 15px; }
             #timer-display { font-size: 1.5em; }
-            /* ** Thay đổi ở đây: Sửa lỗi không hiện tên trên điện thoại ** */
-            #user-credit {
-                /* Bỏ display:none để tên luôn hiển thị */
-                position: static; /* Bỏ position absolute để nằm cùng hàng */
-                margin-right: auto; /* Đẩy timer ra xa */
-            }
-            #sticky-header {
-                 justify-content: flex-start; /* Căn lề từ trái qua */
-                 gap: 15px;
-            }
+            #user-credit {  margin-right: auto; }
+            #sticky-header { justify-content: flex-start; gap: 15px; }
         }
     </style>
 </head>
@@ -195,31 +188,33 @@
     <button id="submit-button" class="modern-button">Nộp</button>
 
     <div id="main-container">
-        <div id="setup-container">
-            <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
-            <h2>Thiết lập bài làm</h2>
-            
-            <div id="time-selection">
-                <h4>Chọn thời gian làm bài:</h4>
-                <div><input type="radio" name="time" value="20" id="t20" checked><label for="t20">20 phút</label></div>
-                <div><input type="radio" name="time" value="30" id="t30"><label for="t30">30 phút</label></div>
-                <div><input type="radio" name="time" value="40" id="t40"><label for="t40">40 phút</label></div>
-                <div><input type="radio" name="time" value="50" id="t50"><label for="t50">50 phút</label></div>
+        <div id="content-padding">
+            <div id="setup-container">
+                <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
+                <h2>Thiết lập bài làm</h2>
+                
+                <div id="time-selection">
+                    <h4>Chọn thời gian làm bài:</h4>
+                    <div><input type="radio" name="time" value="20" id="t20" checked><label for="t20">20 phút</label></div>
+                    <div><input type="radio" name="time" value="30" id="t30"><label for="t30">30 phút</label></div>
+                    <div><input type="radio" name="time" value="40" id="t40"><label for="t40">40 phút</label></div>
+                    <div><input type="radio" name="time" value="50" id="t50"><label for="t50">50 phút</label></div>
+                </div>
+
+                <p>Nhấn "Xáo trộn câu hỏi" nếu bạn muốn thay đổi thứ tự. <br> Sẵn sàng để bắt đầu?</p>
+                <button id="shuffle-button" class="modern-button">Xáo trộn câu hỏi</button>
+                <button id="start-button" class="modern-button">Bắt đầu</button>
             </div>
 
-            <p>Nhấn "Xáo trộn câu hỏi" nếu bạn muốn thay đổi thứ tự. <br> Sẵn sàng để bắt đầu?</p>
-            <button id="shuffle-button" class="modern-button">Xáo trộn câu hỏi</button>
-            <button id="start-button" class="modern-button">Bắt đầu</button>
-        </div>
+            <div id="quiz-container">
+                <form id="quiz-form"></form>
+            </div>
 
-        <div id="quiz-container">
-            <form id="quiz-form"></form>
-        </div>
-
-        <div id="final-result-screen" style="display: none;">
-            <h2>Kết quả bài làm</h2>
-            <p id="final-score-text"></p>
-            <p id="redirect-message"></p>
+            <div id="final-result-screen" style="display: none;">
+                <h2>Kết quả bài làm</h2>
+                <p id="final-score-text"></p>
+                <p id="redirect-message"></p>
+            </div>
         </div>
     </div>
 
@@ -309,7 +304,9 @@
         shuffleButton: document.getElementById('shuffle-button'),
         submitButton: document.getElementById('submit-button'),
         finalResultScreen: document.getElementById('final-result-screen'),
-        stickyHeader: document.getElementById('sticky-header')
+        stickyHeader: document.getElementById('sticky-header'),
+        mainContainer: document.getElementById('main-container'),
+        contentPadding: document.getElementById('content-padding')
     };
     
     let score = 0;
@@ -347,7 +344,6 @@
 
     script_elements.startButton.addEventListener('click', () => {
         script_elements.setupContainer.style.display = 'none';
-        script_elements.mainContainer.style.padding = '0 0 30px 0'; // Xóa padding trên để header dính sát
         script_elements.quizContainer.style.display = 'block';
         script_elements.stickyHeader.style.display = 'flex';
         script_elements.submitButton.style.display = 'block';
@@ -367,9 +363,6 @@
 
     function renderQuiz() {
         let html = '';
-        const quizContent = document.createElement('div');
-        quizContent.style.padding = '0 30px'; // Thêm padding lại cho phần câu hỏi
-
         quizData.forEach((q, index) => {
             const correctAnswerText = q.options[q.answer];
             let optionsArray = Object.keys(q.options).map(key => ({ key, text: q.options[key] }));
@@ -389,31 +382,28 @@
             
             q.shuffledAnswer = newAnswerKey;
 
-            let questionHTML = `<div class="question-block" id="q-block-${q.id}">`;
-            questionHTML += `<p class="question-text">${index + 1}. ${q.question}</p>`;
+            html += `<div class="question-block" id="q-block-${q.id}">`;
+            html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
             
             if (q.image) {
-                questionHTML += `<div style="text-align: center; margin-bottom: 15px;">
+                html += `<div style="text-align: center; margin-bottom: 15px;">
                             <img src="${q.image}" alt="Hình ảnh cho câu hỏi ${index + 1}" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
                          </div>`;
             }
 
-            questionHTML += `<fieldset id="fs-${q.id}">`;
-            questionHTML += `<div class="options-container">`;
+            html += `<fieldset id="fs-${q.id}">`;
+            html += `<div class="options-container">`;
             for (const key in shuffledOptions) {
-                questionHTML += `<div>
+                html += `<div>
                             <label>
                                 <input type="radio" name="q${q.id}" value="${key}">
                                 <span>${key}. ${shuffledOptions[key]}</span>
                             </label>
                          </div>`;
             }
-            questionHTML += `</div></fieldset></div>`;
-            html += questionHTML;
+            html += `</div></fieldset></div>`;
         });
-        quizContent.innerHTML = html;
-        script_elements.quizForm.innerHTML = ''; // Xóa nội dung cũ
-        script_elements.quizForm.appendChild(quizContent);
+        script_elements.quizForm.innerHTML = html;
     }
 
     function handleAnswerSelection(event) {
@@ -481,9 +471,9 @@
             alert("Đã hết giờ làm bài!");
         }
         
-        script_elements.mainContainer.innerHTML = '';
-        script_elements.mainContainer.appendChild(script_elements.finalResultScreen);
-        script_elements.mainContainer.style.padding = '30px'; // Khôi phục padding cho màn hình kết quả
+        script_elements.stickyHeader.style.display = 'none';
+        script_elements.quizContainer.style.display = 'none';
+        script_elements.submitButton.style.display = 'none';
 
         const totalQuestions = quizData.length;
         document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
@@ -506,7 +496,6 @@
         }, 5000);
     }
     
-    // Khởi chạy
     prepareQuestions();
     script_elements.quizForm.addEventListener('click', handleAnswerSelection);
     </script>
