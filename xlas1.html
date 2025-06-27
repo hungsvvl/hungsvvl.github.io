@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* =================================
-           GIAO DIỆN LIGHT MODE & RESPONSIVE
-        ================================= */
-
         :root {
             --primary-color: #007bff;
             --correct-color: #28a745;
@@ -31,18 +23,18 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            /* ** Thay đổi ở đây: Đổi font chữ ** */
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--bg-color);
-            padding-top: 90px; /* ** SỬA LỖI Ở ĐÂY: Thêm khoảng đệm cho header cố định ** */
+            padding-top: 90px;
         }
 
         #main-container {
             max-width: 900px;
             margin: 20px auto;
             background-color: var(--container-bg-color);
-            border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 30px;
@@ -55,7 +47,6 @@
         h1 { margin-bottom: 10px; }
         h2 { margin-bottom: 20px; color: var(--text-color)}
 
-        /* --- Màn hình Cài đặt & Kết quả --- */
         #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
@@ -90,7 +81,7 @@
             position: fixed;
             right: 20px;
             bottom: 20px;
-            top: auto; /* Ghi đè style cũ */
+            top: auto;
             transform: none;
             z-index: 200;
             background-color: var(--incorrect-color);
@@ -102,11 +93,9 @@
             font-size: 1em;
         }
         
-        /* --- Màn hình Quiz --- */
         #quiz-container { display: none; }
         
         #sticky-header {
-            /* ** SỬA LỖI Ở ĐÂY: Dùng position:fixed ** */
             position: fixed;
             top: 0;
             left: 0;
@@ -136,10 +125,11 @@
         
         .question-block {
             margin-bottom: 25px;
-            background: #fff;
             padding: 25px;
             border-radius: 12px;
-            border: 1px solid var(--border-color);
+            /* ** Thay đổi ở đây: Loại bỏ khung viền ** */
+            background-color: #ffffff;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.15em; }
 
@@ -169,6 +159,7 @@
              background-color: #fbebed;
         }
         
+        fieldset { border: none; padding: 0; margin: 0; }
         fieldset:disabled label { cursor: not-allowed; opacity: 0.8; }
         fieldset:disabled label:hover { border-color: transparent; }
         fieldset:disabled .correct-selection label, fieldset:disabled .correct-selection label:hover {
@@ -182,9 +173,17 @@
             h1 { font-size: 1.8em; }
             #sticky-header { padding: 10px 15px; }
             #timer-display { font-size: 1.5em; }
-            #user-credit { display: none; } /* Ẩn tên để tiết kiệm không gian */
+            /* ** Thay đổi ở đây: Sửa lỗi không hiện tên trên điện thoại ** */
+            #user-credit {
+                /* Bỏ display:none để tên luôn hiển thị */
+                position: static; /* Bỏ position absolute để nằm cùng hàng */
+                margin-right: auto; /* Đẩy timer ra xa */
+            }
+            #sticky-header {
+                 justify-content: flex-start; /* Căn lề từ trái qua */
+                 gap: 15px;
+            }
         }
-
     </style>
 </head>
 <body>
@@ -298,7 +297,7 @@
         { id: 169, question: "Kết quả của phép phản xạ của tập B được định nghĩa bởi công thức Sau:", options: { A: "{w|w=-(-b)}", B: "{w|w=b}", C: "{w|w=-b}", D: "{w=-b}" }, answer: "C" },
         { id: 170, question: "Nhược điểm của bộ lọc làm trơn ảnh là", options: { A: "Loại bỏ sự thay đổi đột ngột", B: "làm mờ các điểm ảnh bên trong", C: "Làm sắc nét ảnh", D: "làm mờ biên ảnh" }, answer: "D" },
         { id: 171, question: "Bộ lọc nào phù hợp cho việc loại bỏ nhiễu muối tiêu?", options: { A: "Bộ lọc trung vị", B: "Bộ lọc", C: "Không đáp án nào đúng", D: "Bộ lọc trung bình" }, answer: "A" },
-        { id: 172, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" }
+        { id: 172, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" },
     ];
 
     const script_elements = {
@@ -348,6 +347,7 @@
 
     script_elements.startButton.addEventListener('click', () => {
         script_elements.setupContainer.style.display = 'none';
+        script_elements.mainContainer.style.padding = '0 0 30px 0'; // Xóa padding trên để header dính sát
         script_elements.quizContainer.style.display = 'block';
         script_elements.stickyHeader.style.display = 'flex';
         script_elements.submitButton.style.display = 'block';
@@ -367,6 +367,9 @@
 
     function renderQuiz() {
         let html = '';
+        const quizContent = document.createElement('div');
+        quizContent.style.padding = '0 30px'; // Thêm padding lại cho phần câu hỏi
+
         quizData.forEach((q, index) => {
             const correctAnswerText = q.options[q.answer];
             let optionsArray = Object.keys(q.options).map(key => ({ key, text: q.options[key] }));
@@ -386,30 +389,31 @@
             
             q.shuffledAnswer = newAnswerKey;
 
-            html += `<div class="question-block" id="q-block-${q.id}">`;
-            html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
+            let questionHTML = `<div class="question-block" id="q-block-${q.id}">`;
+            questionHTML += `<p class="question-text">${index + 1}. ${q.question}</p>`;
             
             if (q.image) {
-                html += `<div style="text-align: center; margin-bottom: 15px;">
+                questionHTML += `<div style="text-align: center; margin-bottom: 15px;">
                             <img src="${q.image}" alt="Hình ảnh cho câu hỏi ${index + 1}" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
                          </div>`;
             }
 
-            html += `<fieldset id="fs-${q.id}">`;
-            html += `<div class="options-container">`;
+            questionHTML += `<fieldset id="fs-${q.id}">`;
+            questionHTML += `<div class="options-container">`;
             for (const key in shuffledOptions) {
-                html += `<div>
+                questionHTML += `<div>
                             <label>
                                 <input type="radio" name="q${q.id}" value="${key}">
                                 <span>${key}. ${shuffledOptions[key]}</span>
                             </label>
                          </div>`;
             }
-            html += `</div>`;
-            html += `</fieldset>`;
-            html += `</div>`;
+            questionHTML += `</div></fieldset></div>`;
+            html += questionHTML;
         });
-        script_elements.quizForm.innerHTML = html;
+        quizContent.innerHTML = html;
+        script_elements.quizForm.innerHTML = ''; // Xóa nội dung cũ
+        script_elements.quizForm.appendChild(quizContent);
     }
 
     function handleAnswerSelection(event) {
@@ -479,6 +483,7 @@
         
         script_elements.mainContainer.innerHTML = '';
         script_elements.mainContainer.appendChild(script_elements.finalResultScreen);
+        script_elements.mainContainer.style.padding = '30px'; // Khôi phục padding cho màn hình kết quả
 
         const totalQuestions = quizData.length;
         document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
