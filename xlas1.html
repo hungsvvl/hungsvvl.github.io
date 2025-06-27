@@ -10,16 +10,18 @@
     
     <style>
         /* =================================
-           GIAO DIỆN HIỆN ĐẠI MỚI
+           GIAO DIỆN LIGHT MODE & RESPONSIVE
         ================================= */
 
         :root {
-            --primary-color: #8a2be2;
+            --primary-color: #007bff;
             --correct-color: #28a745;
             --incorrect-color: #dc3545;
-            --text-color: #f0f2f5;
-            --bg-glass: rgba(255, 255, 255, 0.15);
-            --border-glass: rgba(255, 255, 255, 0.2);
+            --text-color: #212529;
+            --light-text-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --container-bg-color: #ffffff;
+            --border-color: #dee2e6;
         }
 
         * {
@@ -30,181 +32,168 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            line-height: 1.7;
+            line-height: 1.6;
             color: var(--text-color);
-            padding: 20px;
-        }
-
-        .background-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #2c3e50, #4ca1af, #8a2be2, #4a00e0);
-            background-size: 400% 400%;
-            animation: gradientAnimation 20s ease infinite;
-            z-index: -1;
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            background-color: var(--bg-color);
+            padding-top: 90px; /* ** SỬA LỖI Ở ĐÂY: Thêm khoảng đệm cho header cố định ** */
         }
 
         #main-container {
             max-width: 900px;
-            margin: auto;
-            background: var(--bg-glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            background-color: var(--container-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 30px;
         }
         
         h1, h2 {
             text-align: center;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            color: #0056b3;
         }
+        h1 { margin-bottom: 10px; }
+        h2 { margin-bottom: 20px; color: var(--text-color)}
 
         /* --- Màn hình Cài đặt & Kết quả --- */
         #setup-container, #final-result-screen {
             text-align: center;
             padding: 40px 0;
         }
-        #final-result-screen h2 { font-size: 2.2em; }
-        #final-score-text { font-size: 1.6em; font-weight: 600; color: #fff; margin: 20px 0; }
-        #redirect-message { font-size: 1em; color: #eee; }
+        #final-result-screen h2 { font-size: 2em; }
+        #final-score-text { font-size: 1.5em; font-weight: 600; color: var(--correct-color); margin: 20px 0; }
+        #redirect-message { font-size: 1em; color: var(--light-text-color); }
         
         #time-selection {
             margin: 20px 0; display: flex; justify-content: center;
             align-items: center; flex-wrap: wrap; gap: 15px;
         }
         #time-selection h4 { width: 100%; margin-bottom: 10px; font-weight: 500; }
-        #time-selection label { cursor: pointer; padding: 5px 10px; }
+        #time-selection label { cursor: pointer; padding: 5px 10px; color: var(--text-color) }
 
         .modern-button {
             font-size: 1.1em; padding: 12px 24px; margin: 10px;
-            cursor: pointer; border-radius: 50px; border: none;
+            cursor: pointer; border-radius: 8px; border: none;
             font-weight: 600; color: white;
-            background: linear-gradient(45deg, var(--primary-color), #4a00e0);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .modern-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
-        #shuffle-button.shuffled {
-            background: linear-gradient(45deg, #28a745, #218838);
-        }
+        #start-button { background-color: var(--primary-color); }
+        #shuffle-button { background-color: #6c757d; }
+        #shuffle-button.shuffled { background-color: var(--correct-color); }
+        
         #submit-button {
-            position: fixed; right: 20px; top: 50%;
-            transform: translateY(-50%); z-index: 200;
-            background: linear-gradient(45deg, #e22b5d, #dc3545);
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            top: auto; /* Ghi đè style cũ */
+            transform: none;
+            z-index: 200;
+            background-color: var(--incorrect-color);
             display: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            font-size: 1em;
         }
-
+        
         /* --- Màn hình Quiz --- */
         #quiz-container { display: none; }
         
         #sticky-header {
-            position: sticky;
+            /* ** SỬA LỖI Ở ĐÂY: Dùng position:fixed ** */
+            position: fixed;
             top: 0;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px 30px;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 15px 20px;
             z-index: 100;
-            margin: -30px -30px 20px -30px;
-            border-bottom: 1px solid var(--border-glass);
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            position: relative;
         }
         
         #user-credit {
-            position: absolute; left: 30px; font-weight: 500;
-            color: #eee; font-size: 0.9em;
+            font-weight: 600;
+            color: var(--light-text-color);
         }
 
         #timer-display {
-            text-align: center; font-size: 2em; font-weight: 700;
-            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
         }
-        #timer-display.ending { color: #ffdddd; }
+        #timer-display.ending { color: var(--incorrect-color); }
         
         .question-block {
             margin-bottom: 25px;
-            background: rgba(0,0,0,0.1);
-            border: 1px solid var(--border-glass);
+            background: #fff;
             padding: 25px;
             border-radius: 12px;
+            border: 1px solid var(--border-color);
         }
-        .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.2em; }
+        .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.15em; }
 
-        /* Custom Radio Buttons */
         .options-container label {
             display: block;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-color);
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-            border: 2px solid transparent;
+            border: 2px solid var(--bg-color);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        .options-container input[type="radio"] {
-            display: none;
-        }
-        .options-container label:hover {
-            border-color: var(--border-glass);
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .options-container input[type="radio"]:checked + span {
-            font-weight: 600;
-        }
+        .options-container input[type="radio"] { display: none; }
+        .options-container label:hover { border-color: var(--primary-color); }
         
         .question-block.correct .options-container .correct-selection label {
             border-color: var(--correct-color);
-            background: rgba(40, 167, 69, 0.3);
+            background-color: #e9f7ef;
+            color: #1d643b;
+            font-weight: 600;
         }
-        .question-block.correct .options-container .correct-selection span::before {
-            content: '✔ ';
-            color: var(--correct-color);
-        }
+        .question-block.correct .options-container .correct-selection span::before { content: '✔ '; }
         
         .question-block.incorrect .options-container div.incorrect-option label {
              border-color: var(--incorrect-color);
-             background: rgba(220, 53, 69, 0.3);
-        }
-        .question-block.incorrect .options-container div.incorrect-option span::before {
-             content: '✖ ';
-             color: var(--incorrect-color);
+             background-color: #fbebed;
         }
         
-        fieldset:disabled label {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        fieldset:disabled label:hover {
-            border-color: transparent;
-            background: rgba(255, 255, 255, 0.1);
-        }
+        fieldset:disabled label { cursor: not-allowed; opacity: 0.8; }
+        fieldset:disabled label:hover { border-color: transparent; }
         fieldset:disabled .correct-selection label, fieldset:disabled .correct-selection label:hover {
-            background: rgba(40, 167, 69, 0.5);
             border-color: var(--correct-color);
         }
+        
+        /* Tối ưu cho điện thoại */
+        @media (max-width: 768px) {
+            body { padding: 10px; padding-top: 80px; }
+            #main-container { margin: 10px; padding: 15px; }
+            h1 { font-size: 1.8em; }
+            #sticky-header { padding: 10px 15px; }
+            #timer-display { font-size: 1.5em; }
+            #user-credit { display: none; } /* Ẩn tên để tiết kiệm không gian */
+        }
+
     </style>
 </head>
 <body>
-    <div class="background-gradient"></div>
-    <button id="submit-button" class="modern-button">Nộp bài</button>
+    <div id="sticky-header" style="display:none;">
+        <span id="user-credit">Hung</span>
+        <div id="timer-display"></div>
+    </div>
+
+    <button id="submit-button" class="modern-button">Nộp</button>
 
     <div id="main-container">
         <div id="setup-container">
@@ -225,10 +214,6 @@
         </div>
 
         <div id="quiz-container">
-            <div id="sticky-header">
-                <span id="user-credit">Hung</span>
-                <div id="timer-display"></div>
-            </div>
             <form id="quiz-form"></form>
         </div>
 
@@ -241,7 +226,7 @@
 
     <script>
     const allQuestions = [
-        // Bộ đề 1 (72 câu)
+        // Dán toàn bộ câu hỏi của bạn vào đây
         { id: 101, question: "Ma trận lọc được biểu diễn như hình (Ma trận: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]) là bộ lọc nào?", options: { A: "Bộ lọc trung bình", B: "Bộ lọc Gaussian", C: "Bộ lọc sắc nét", D: "Bộ lọc thông thấp" }, answer: "C" },
         { id: 102, question: "Bộ lọc nào được sử dụng để tìm điểm sáng nhất trong ảnh?", options: { A: "Bộ lọc trung bình", B: "Không đáp án nào đúng", C: "Bộ lọc cực đại", D: "Bộ lọc trung vị" }, answer: "C" },
         { id: 103, question: "Trong kỹ thuật lọc ảnh, thuật ngữ nào được sử dụng để mô tả phép nhân các điểm ảnh với các hệ số khác nhau trong ma trận lọc?", options: { A: "Lọc trung bình trong miền không gian", B: "Lọc trung bình có trọng số", C: "Không đáp án nào đúng", D: "Lọc trung bình bình phương" }, answer: "B" },
@@ -313,116 +298,24 @@
         { id: 169, question: "Kết quả của phép phản xạ của tập B được định nghĩa bởi công thức Sau:", options: { A: "{w|w=-(-b)}", B: "{w|w=b}", C: "{w|w=-b}", D: "{w=-b}" }, answer: "C" },
         { id: 170, question: "Nhược điểm của bộ lọc làm trơn ảnh là", options: { A: "Loại bỏ sự thay đổi đột ngột", B: "làm mờ các điểm ảnh bên trong", C: "Làm sắc nét ảnh", D: "làm mờ biên ảnh" }, answer: "D" },
         { id: 171, question: "Bộ lọc nào phù hợp cho việc loại bỏ nhiễu muối tiêu?", options: { A: "Bộ lọc trung vị", B: "Bộ lọc", C: "Không đáp án nào đúng", D: "Bộ lọc trung bình" }, answer: "A" },
-        { id: 172, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" },
-        // Bộ đề 2 (81 câu)
-        { id: 201, question: "Kỹ thuật nào được đề cập đến trong xử lý ảnh số?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi ảnh", C: "Phân tích ảnh", D: "Tất cả các câu trả lời đều đúng" }, answer: "D" },
-        { id: 202, question: "Phát biểu nào sau đây mô tả độ sâu của điểm ảnh?", options: { A: "Số đơn vị (unit) được sử dụng để biểu diễn một điểm ảnh trong không gian RGB", B: "Số mm được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", C: "Số byte được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB", D: "Số bit được sử dụng để biểu diễn một điểm ảnh trong không gian màu RGB" }, answer: "D" },
-        { id: 203, question: "Đâu là bước đầu tiên và quan trọng nhất trong kỹ thuật xử lý ảnh số?", options: { A: "Thu nhận ảnh", B: "Phân vùng ảnh", C: "Nâng cao chất lượng ảnh", D: "Khôi phục ảnh" }, answer: "A" },
-        { id: 204, question: "Ảnh số được coi là một hàm phụ thuộc vào tọa độ không gian f(x,y) biểu diễn:", options: { A: "chiều cao của ảnh", B: "chiều rộng của ảnh", C: "cường độ sáng của ảnh", D: "độ phân giải của ảnh" }, answer: "C" },
-        { id: 205, question: "Điểm ảnh là:", options: { A: "một phần tử của ảnh số", B: "một phần tử của ảnh tương tự", C: "một cụm các phần tử của ảnh số", D: "một cụm các phần tử của ảnh tương tự" }, answer: "A" },
-        { id: 206, question: "Ảnh có độ phân giải Full HD có kích thước:", options: { A: "512x512", B: "256x256", C: "1920x1080", D: "1080x1080" }, answer: "C" },
-        { id: 207, question: "Mỗi điểm ảnh được tạo nên bởi ba màu cơ bản nào sau đây?", options: { A: "Đỏ, xanh da trời, vàng", B: "Đỏ, xanh lá, xanh da trời", C: "Đỏ, trắng, xanh da trời", D: "Xanh da trời, đen, đỏ" }, answer: "B" },
-        { id: 208, question: "Giá trị của mỗi thành phần màu trong điểm ảnh nằm trong khoảng:", options: { A: "[0, 100]", B: "[0, 255]", C: "[1, 100]", D: "[1, 256]" }, answer: "B" },
-        { id: 209, question: "Một điểm ảnh có giá trị (R,G,B)=(0,255,0), điểm ảnh đó có màu gì?", options: { A: "Màu đỏ", B: "Màu xanh lá", C: "Màu vàng", D: "Màu xanh da trời" }, answer: "B" },
-        { id: 210, question: "Phổ điện từ của ánh sáng nhìn thấy nằm trong khoảng:", options: { A: "400-700nm", B: "600-900nm", C: "400-700pm", D: "600-900pm" }, answer: "A" },
-        { id: 211, question: "Hàm nào sau đây biểu diễn biến đổi logarit trong xử lý ảnh?", options: { A: "g(x,y)=c+log[1+f(x,y)]", B: "g(x,y)=c/log[1+f(x,y)]", C: "g(x,y)=c-log[1+f(x,y)]", D: "g(x,y)=c*log[1+f(x,y)]" }, answer: "D" },
-        { id: 212, question: "Bộ lọc làm mịn (smooth) được sử dụng để giảm nhiễu và làm mờ biên ảnh.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
-        { id: 213, question: "Thuộc tính nào trong không gian màu HSV đặc trưng cho màu gốc (pure color) của điểm ảnh?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Cường độ sáng (Intensity)" }, answer: "B" },
-        { id: 214, question: "Bốn lân cận theo phương ngang và phương thẳng đứng của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y+1); (x+1,y-1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "D" },
-        { id: 215, question: "Bốn lân cận theo hai đường chéo của điểm ảnh (x, y) có tọa độ là:", options: { A: "(x+1,y+1); (x-1,y-1); (x+1,y-1); (x-1,y+1)", B: "(x+1,y); (x-1,y+1); (x-1,y-1); (x,y-1)", C: "(x,y+1); (x-1,y-1); (x+1,y-1); (x+1,y+1)", D: "(x+1,y); (x-1,y); (x,y+1); (x,y-1)" }, answer: "A" },
-        { id: 216, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh mức xám (gray-scale)?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A" },
-        { id: 217, question: "Cần bao nhiêu bit để biểu diễn một điểm ảnh trong ảnh màu?", options: { A: "8 bit", B: "2 bit", C: "24 bit", D: "4 bit" }, answer: "C" },
-        { id: 218, question: "Trong ảnh nhị phân, cần bao nhiêu bit để biểu diễn một điểm ảnh?", options: { A: "8 bit", B: "4 bit", C: "2 bit", D: "24 bit" }, answer: "A", note: "Lưu ý: Về lý thuyết, ảnh nhị phân chỉ cần 1 bit. Tuy nhiên, trong các lựa chọn được đưa ra, 8 bit là phương án lưu trữ phổ biến nhất trong thực tế." },
-        { id: 219, question: "Trong bước nào sau đây, ảnh được chia thành các vùng nhỏ hơn?", options: { A: "Nâng cao chất lượng ảnh", B: "Thu nhận ảnh", C: "Phân vùng ảnh", D: "Biến đổi Wavelet" }, answer: "C" },
-        { id: 220, question: "Tham số nào trong không gian màu HSV thể hiện sự pha loãng màu gốc (pure color) bởi ánh sáng trắng?", options: { A: "Độ bão hòa (Saturation)", B: "Sắc độ (Hue)", C: "Độ sáng (Value)", D: "Không đáp án nào đúng" }, answer: "A" },
-        { id: 221, question: "Trong một hệ thống xử lý ảnh, bước nào được thực hiện ngay trước bước xử lý ảnh màu?", options: { A: "Nâng cao chất lượng ảnh", B: "Biến đổi Wavelet và xử lý đa phân giải", C: "Khôi phục ảnh", D: "Thu nhận ảnh" }, answer: "D" },
-        { id: 222, question: "Mô hình màu RGB có thể biểu diễn:", options: { A: "hơn 16 triệu màu", B: "hơn 20 triệu màu", C: "hơn 36 triệu màu", D: "hơn 10 triệu màu" }, answer: "A" },
-        { id: 223, question: "Công thức nào biểu diễn phép biến đổi từ ảnh màu sang ảnh mức xám?", options: { A: "Gray = 0.2989*R + 0.5870*G + 0.1140*B", B: "Gray = 0.2989*B + 0.5870*G + 0.1140*R", C: "Gray = 0.3989*R + 0.4870*G + 0.1140*B", D: "Gray = 0.2989*R + 0.1140*G + 0.5870*B" }, answer: "A" },
-        { id: 224, question: "Lược đồ mức xám h(rk) được định nghĩa như sau (trong đó rk và nk tương ứng là mức xám thứ k và số lượng điểm ảnh có mức xám rk):", options: { A: "h(rk) = nk", B: "h(rk) = nk/rk", C: "h(rk) = nk*rk", D: "h(rk) = rk/nk" }, answer: "A" },
-        { id: 225, question: "Lược đồ mức xám được chuẩn hóa theo biểu thức nào sau đây? (nk là số điểm ảnh có mức xám rk và n là tổng số điểm ảnh)", options: { A: "p(rk) = nk/n", B: "p(rk) = nk*n", C: "p(rk) = nk+n", D: "p(rk) = n-nk" }, answer: "A" },
-        { id: 226, question: "Tổng các giá trị thành phần của lược đồ mức xám chuẩn hóa bằng:", options: { A: "1", B: "-1", C: "0", D: "100" }, answer: "A" },
-        { id: 227, question: "Biểu thức nào biểu diễn phép biến đổi sinh ra ảnh âm bản?", options: { A: "g(x,y) = L-1-f(x,y)", B: "g(x,y) = L-1+f(x,y)", C: "g(x,y) = c*log[1+f(x,y)]", D: "g(x,y) = c*f(x,y)ᵞ" }, answer: "A" },
-        { id: 228, question: "Trong công thức của phép biến đổi sinh ra ảnh âm bản, giá trị của tham số L là:", options: { A: "255", B: "256", C: "512", D: "128" }, answer: "B" },
-        { id: 229, question: "Công thức nào biểu diễn phép biến đổi hiệu chuẩn Gamma (Gamma Correction)?", options: { A: "g(x,y) = c*f(x,y)ᵞ", B: "g(x,y) = c+f(x,y)ᵞ", C: "g(x,y) = c/f(x,y)ᵞ", D: "g(x,y) = c-f(x,y)ᵞ" }, answer: "A" },
-        { id: 230, question: "Mục đích chính của kỹ thuật tăng cường độ tương phản là:", options: { A: "làm ảnh sắc nét, rõ ràng hơn", B: "loại bỏ nhiễu", C: "làm ảnh bị mờ", D: "Không đáp án nào đúng" }, answer: "A" },
-        { id: 231, question: "Cho hình vẽ mô tả kỹ thuật tăng cường độ tương phản. Hàm nào sau đây biểu diễn phép biến đổi đó?", options: { A: "T(r)={β(r-a)+sa, γ(r-b)+sb}", B: "T(r)={SH, SL}", C: "T(r)={SH, r}", D: "T(r)={SH, αr}" }, answer: "A", note: "Lưu ý: Câu hỏi này có các lựa chọn không đầy đủ, A là lựa chọn gần đúng nhất về mặt cấu trúc." },
-        { id: 232, question: "Đầu ra của bộ lọc làm trơn ảnh, tuyến tính trong miền không gian là:", options: { A: "Giá trị trung vị của các điểm ảnh", B: "Giá trị lớn nhất của các điểm ảnh", C: "Giá trị nhỏ nhất của các điểm ảnh", D: "Giá trị trung bình của các điểm ảnh" }, answer: "D" },
-        { id: 233, question: "Nhược điểm của bộ lọc làm trơn ảnh là:", options: { A: "làm mờ biên ảnh", B: "làm mờ các điểm ảnh bên trong", C: "Loại bỏ sự thay đổi đột ngột", D: "Làm sắc nét ảnh" }, answer: "A" },
-        { id: 234, question: "Ma trận mặt nạ 1/16 * [[1,2,1],[2,4,2],[1,2,1]] thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
-        { id: 235, question: "Ma trận mặt nạ 1/9 * [[1,1,1],[1,1,1],[1,1,1]] thuộc loại bộ lọc nào?", options: { A: "Bộ lọc sắc nét trong miền không gian", B: "Bộ lọc trung vị", C: "Bộ lọc sắc nét trong miền tần số", D: "Bộ lọc trung bình" }, answer: "D" },
-        { id: 236, question: "Nếu hình bên trái (mờ hơn) tương ứng với bộ lọc có kích thước 9 thì hình bên phải (nét hơn) có kích thước là bao nhiêu?", options: { A: "5", B: "7", C: "9", D: "15" }, answer: "A" },
-        { id: 237, question: "Mục tiêu cơ bản của kỹ thuật làm sắc nét ảnh là:", options: { A: "làm nhòe ảnh (blurr)", B: "làm nổi bật các chi tiết trong ảnh", C: "tăng độ sáng của ảnh", D: "giảm độ sáng của ảnh" }, answer: "B" },
-        { id: 238, question: "Trong miền không gian, phép toán nào sau đây được thực hiện để làm sắc nét ảnh?", options: { A: "tích phân", B: "vi phân", C: "trung bình", D: "trung vị" }, answer: "B" },
-        { id: 239, question: "Ảnh vi phân làm nổi bật sự thay đổi đột ngột của cường độ sáng và không chú ý tới các điểm ảnh mà tại đó cường độ sáng thay đổi chậm.", options: { A: "Đúng", B: "Sai" }, answer: "A" },
-        { id: 240, question: "Đạo hàm bậc nhất của f(x,y) theo phương x được tính như sau:", options: { A: "f(x+1,y)-f(x,y)", B: "f(x,y)-f(x+1,y)", C: "f(x-1,y)-f(x+1,y)", D: "f(x-1,y)+f(x,y)" }, answer: "A" },
-        { id: 241, question: "Biên được sinh ra bởi đạo hàm bậc nhất có độ dày như thế nào so với khi sử dụng đạo hàm bậc hai?", options: { A: "Mảnh hơn", B: "Dày hơn", C: "Bằng nhau", D: "Độc lập với nhau" }, answer: "B" },
-        { id: 242, question: "Đạo hàm bậc hai của hàm một chiều f(x) được định nghĩa như sau:", options: { A: "∂²f/∂x² = f(x+1) - f(x)", B: "∂²f/∂x² = f(x+1) + f(x-1) - 2f(x)", C: "∂²f/∂x² = f(x+1) + f(x)", D: "∂²f/∂x² = f(x+1) + f(x-1) - 4f(x)" }, answer: "B" },
-        { id: 243, question: "Đạo hàm bậc hai còn được gọi là:", options: { A: "Gaussian", B: "Laplacian", C: "Canny", D: "Không đáp án nào đúng" }, answer: "B" },
-        { id: 244, question: "Bộ lọc làm trơn ảnh được sử dụng để:", options: { A: "làm mờ ảnh", B: "loại bỏ nhiễu", C: "loại bỏ nhiễu và làm mờ ảnh", D: "Không đáp án nào đúng" }, answer: "B" },
-        { id: 245, question: "Đáp ứng ra của bộ lọc làm trơn, tuyến tính trong miền không gian là:", options: { A: "Tổng các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", B: "Tích các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", C: "Giá trị trung bình của các điểm ảnh nằm trong vùng không gian tương ứng với mặt nạ lọc", D: "Không đáp án nào đúng" }, answer: "A" },
-        { id: 246, question: "Giá trị trung bình của các điểm ảnh trong vùng không gian tương ứng với mặt nạ lọc là kết quả đầu ra của bộ lọc:", options: { A: "Bộ lọc trung bình", B: "Bộ lọc làm trơn ảnh", C: "Bộ lọc thông thấp", D: "Cả ba đáp án còn lại đều đúng" }, answer: "D" },
-        { id: 247, question: "Biểu thức nào sau đây biểu diễn toán tử Laplacian?", options: { A: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 4f(x,y)", B: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - f(x,y)", C: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) - 8f(x,y)", D: "∇²f = f(x-1,y) + f(x+1,y) + f(x,y-1) + f(x,y+1) + 4f(x,y)" }, answer: "A" },
-        { id: 248, question: "Ma trận lọc [[0,1,0],[1,-4,1],[0,1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
-        { id: 249, question: "Ma trận lọc [[0,-1,0],[-1,4,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
-        { id: 250, question: "Bộ lọc được biểu diễn bởi phương trình g(x,y) = f(x,y) - ∇²f(x,y) là bộ lọc gì?", options: { A: "Lọc trung bình", B: "Lọc trung vị", C: "Lọc sắc nét", D: "Lọc thông thấp" }, answer: "C" },
-        { id: 251, question: "Ma trận lọc [[0,-1,0],[-1,5,-1],[0,-1,0]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
-        { id: 252, question: "Ma trận lọc [[-1,-1,-1],[-1,9,-1],[-1,-1,-1]] là bộ lọc nào?", options: { A: "Bộ lọc sắc nét", B: "Bộ lọc thông thấp", C: "Bộ lọc trung bình", D: "Bộ lọc Gaussian" }, answer: "A" },
-        { id: 253, question: "Hình vẽ một hình tròn trắng ở trung tâm trên nền đen trong miền tần số biểu diễn bộ lọc nào?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "A" },
-        { id: 254, question: "Hình vẽ một hình tròn đen ở trung tâm trên nền trắng trong miền tần số biểu diễn bộ lọc nào?", options: { A: "Bộ lọc thông thấp", B: "Bộ lọc thông cao" }, answer: "B" },
-        { id: 255, question: "Phương trình D(u,v) = [(u-M/2)² + (v-N/2)²]¹/² biểu diễn bộ lọc nào trong miền tần số?", options: { A: "Bộ lọc thông thấp lý tưởng", B: "Bộ lọc thông cao lý tưởng", C: "Bộ lọc thông thấp Butterworth", D: "Bộ lọc thông thấp Gauss" }, answer: "D", note: "Lưu ý: Câu hỏi này không chính xác. Đây là công thức tính khoảng cách, không phải là một bộ lọc hoàn chỉnh." },
-        { id: 256, question: "Phép toán logic nào cho ra kết quả là một mẫu bàn cờ (checkerboard) từ hai ảnh vuông?", options: { A: "AND", B: "OR", C: "XOR", D: "Không có đáp án nào đúng" }, answer: "C" },
-        { id: 257, question: "Theo toán tử tập hợp, kết quả của phép toán Giao {A} ∩ {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "A" },
-        { id: 258, question: "Theo toán tử tập hợp, kết quả của phép toán Hợp {A} U {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "C" },
-        { id: 259, question: "Theo toán tử tập hợp, kết quả của phép toán Hiệu {A} - {B} là hình nào?", options: { A: "Hình (1)", B: "Hình (2)", C: "Hình (3)", D: "Hình (4)" }, answer: "B" },
-        { id: 260, question: "Bộ lọc Sobel không tốt cho việc phát hiện nào sau đây?", options: { A: "đường ngang", B: "đường thẳng đứng", C: "đường chéo", D: "các cạnh" }, answer: "C" },
-        { id: 261, question: "Trung vị của dãy: {15, 22, 35, 40, 45, 21, 1, 9, 26, 29, 19} là:", options: { A: "21", B: "45", C: "1", D: "22" }, answer: "D" },
-        { id: 262, question: "Biến đổi Hough của đường thẳng đi qua 3 điểm thẳng hàng tại x=0.5 là:", options: { A: "Điểm X(ρ, θ) = X(1, pi/2)", B: "Điểm X(ρ, θ) = X(0.5, pi/2)", C: "Điểm X(ρ, θ) = X(0.5, pi)", D: "Điểm X(ρ, θ) = X(0.5, 0)" }, answer: "D" },
-        { id: 263, question: "Cách nào sau đây là dùng để lưu hình ảnh bằng OpenCV?", options: { A: "cv2.imwrite(filename, image)", B: "cv2.save(filename, image)", C: "cv2.write(filename, image)", D: "cv2.imsave(filename, image)" }, answer: "A" },
-        { id: 264, question: "Đoạn mã d = img.shape trả về giá trị gì?", options: { A: "Kích thước của hình ảnh", B: "Phạm vi giá trị pixel trong hình ảnh", C: "Số pixel trong ảnh", D: "Lỗi cú pháp" }, answer: "A" },
-        { id: 265, question: "Hàm được sử dụng để đọc video từ webcam là gì?", options: { A: "cv2.VideoCapture(0)", B: "cv2.VideoCapture('video.mp4')", C: "cv2.VideoCapture('image.jpg')", D: "cv2.VideoCapture('webcam_location')" }, answer: "A" },
-        { id: 266, question: "Đoạn chương trình đọc video dùng `while True` sẽ lỗi khi kết thúc vì:", options: { A: "Lỗi hàm read()", B: "Lỗi hàm imshow()", C: "Không có điều kiện thoát vòng lặp", D: "Lỗi giải phóng video" }, answer: "C", note: "Vòng lặp không có điều kiện thoát, khiến `frame` trở thành `None` và `imshow` báo lỗi." },
-        { id: 267, question: "Hàm trong OpenCV-Python cho phép đọc hình ảnh từ một nguồn là gì?", options: { A: "cv2.imshow('Label', 'some_sources')", B: "cv2.VideoCapture('some_sources')", C: "cv2.imread('some_sources')", D: "cv2.imread()" }, answer: "C" },
-        { id: 268, question: "Ảnh có chiều rộng 700, cao 550, 3 kênh sẽ có dạng mảng NumPy là:", options: { A: "(550, 700, 3)", B: "(3, 550, 700)", C: "(700, 550, 3)", D: "(3, 700, 550)" }, answer: "A" },
-        { id: 269, question: "OpenCV lưu trữ các pixel RGB theo thứ tự nào?", options: { A: "GBR", B: "RGB", C: "BRG", D: "BGR" }, answer: "D" },
-        { id: 270, question: "Để trích xuất vùng chữ nhật từ x=9, y=47 đến x=96, y=96. Dòng mã chính xác là:", options: { A: "Crop = image[9:97, 47:96]", B: "Crop = image[47:96, 9:97]", C: "Crop = image[47:97, 9:97]", D: "Crop = image[97:96, 9:47]" }, answer: "C" },
-        { id: 271, question: "Đoạn code `img1 = 255 - img` thực hiện nhiệm vụ gì?", options: { A: "Chuyển ảnh màu RGB sang ảnh mức xám", B: "Chuyển ảnh màu RGB sang ảnh âm bản.", C: "Chuyển ảnh màu RGB sang ảnh trắng đen", D: "Chuyển ảnh mức xám sang ảnh trắng đen." }, answer: "B" },
-        { id: 272, question: "Hình ảnh biên (edge image) là kết quả của việc áp dụng bộ lọc gì?", options: { A: "Lọc thông thấp", B: "Lọc thông cao", C: "Lọc thông dải", D: "Lọc trung bình" }, answer: "B" },
-        { id: 273, question: "Đoạn chương trình thêm nhiễu 's&p' và sau đó dùng `cv2.medianBlur` có mục đích lọc nhiễu bằng bộ lọc gì?", options: { A: "Lọc thông thấp", B: "Lọc thông cao", C: "Lọc thông dải", D: "Lọc trung bình" }, answer: "D", note: "Lưu ý: Không có đáp án chính xác. Code dùng 'Bộ lọc trung vị' (Median Filter)." },
-        { id: 274, question: "Hàm OpenCV nào sau đây có thể được sử dụng để tạo ngưỡng cho một hình ảnh?", options: { A: "cv2.threshold()", B: "cv2.thresh()", C: "cv2.Thresh()", D: "cv2.Threshold()" }, answer: "A" },
-        { id: 275, question: "Phương án nào mô tả đúng dòng lệnh `cv2.waitKey(0)`?", options: { A: "cv2.waitKey(0) cho phép người dùng xem hình ảnh cho đến khi nhấn bất kỳ phím nào.", B: "cv2.waitKey(0) cho phép người dùng xem hình ảnh trong 500 mili giây.", C: "cv2.waitKey(0) đóng hình ảnh ngay sau khi được hiển thị.", D: "Cả A và B." }, answer: "A" },
-        { id: 276, question: "Đoạn chương trình `if cv2.waitKey(1) & 0xFF == ord('q'): break` sẽ kết thúc khi nào?", options: { A: "Nếu bạn nhấn phím ‘q’ và đợi 1 phút", B: "Nếu bạn nhấn phím ‘q’", C: "Nếu bạn nhấn phím bất kỳ", D: "Chương trình chờ 1 giây rồi kết thúc" }, answer: "B" },
-        { id: 277, question: "Tham số `img` trong hàm `cv2.Canny(img,...)` là gì?", options: { A: "Ảnh màu RGB", B: "Ảnh nhị phân", C: "Ảnh mức xám" }, answer: "C" },
-        { id: 278, question: "Để khởi tạo ma trận bộ lọc trung bình 3x3, ta cần thực hiện lệnh như thế nào?", options: { A: "H = np.ones((3,3), np.float32)/9", B: "H = np.ones((3,3), np.int32)/9", C: "H = np.zeros((3,3), np.float32)/9", D: "H = np.ones((3,3), np.int)/9" }, answer: "A" },
-        { id: 279, question: "Đoạn chương trình `img = cv2.imread('hinhanh')` bị lỗi có thể do:", options: { A: "Lỗi cv2.waitKey(0)", B: "Lỗi cv2.imread", C: "Lỗi 'hinhanh' không xác định", D: "Lỗi cv2.imshow" }, answer: "C" },
-        { id: 280, question: "Đoạn chương trình vẽ các hình nhưng không nhìn thấy hình tròn, tại sao?", options: { A: "Không nhìn thấy đường thẳng trong ảnh.", B: "Không nhìn thấy hình tròn trong ảnh.", C: "Không nhìn thấy hình chữ nhật trong ảnh.", D: "Không nhìn thấy tất cả." }, answer: "B", note: "Phân tích code: Nền xanh (255,0,0), hình tròn cũng màu xanh (255,0,0)." },
-        { id: 281, question: "Đoạn chương trình vẽ các hình nhưng không nhìn thấy hình chữ nhật, tại sao?", options: { A: "Không nhìn thấy đường thẳng trong ảnh.", B: "Không nhìn thấy hình tròn trong ảnh.", C: "Không nhìn thấy hình chữ nhật trong ảnh.", D: "Không nhìn thấy tất cả." }, answer: "C", note: "Phân tích code: Nền đỏ (0,0,255), hình chữ nhật cũng màu đỏ (0,0,255)." }
+        { id: 172, question: "Ảnh lưu trữ thông tin về sự thay đổi cường độ sáng của các điểm ảnh lân cận, được gọi là gì?", options: { A: "ảnh nhị phân", B: "ảnh đạo hàm", C: "ảnh sắc nét", D: "ảnh mờ" }, answer: "B" }
     ];
 
-     const uniqueQuestions = new Map();
-    allQuestions.forEach(q => {
-        const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
-        if (!uniqueQuestions.has(trimmedQuestion)) {
-            uniqueQuestions.set(trimmedQuestion, q);
-        }
-    });
-
-    const quizData = Array.from(uniqueQuestions.values());
-    quizData.forEach((q, index) => {
-        q.id = index + 1;
-    });
-
-    const quizForm = document.getElementById('quiz-form');
-    const timerDisplay = document.getElementById('timer-display');
-    const setupContainer = document.getElementById('setup-container');
-    const quizContainer = document.getElementById('quiz-container');
-    const startButton = document.getElementById('start-button');
-    const shuffleButton = document.getElementById('shuffle-button');
-    const submitButton = document.getElementById('submit-button');
-    const finalResultScreen = document.getElementById('final-result-screen');
-    const mainContainer = document.getElementById('main-container');
+    const script_elements = {
+        quizForm: document.getElementById('quiz-form'),
+        timerDisplay: document.getElementById('timer-display'),
+        setupContainer: document.getElementById('setup-container'),
+        quizContainer: document.getElementById('quiz-container'),
+        startButton: document.getElementById('start-button'),
+        shuffleButton: document.getElementById('shuffle-button'),
+        submitButton: document.getElementById('submit-button'),
+        finalResultScreen: document.getElementById('final-result-screen'),
+        stickyHeader: document.getElementById('sticky-header')
+    };
     
     let score = 0;
     let timerInterval;
+    let quizData = [];
     const incorrectlyAttemptedQuestions = []; 
 
     function shuffleArray(array) {
@@ -431,18 +324,33 @@
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
+    
+    function prepareQuestions() {
+        const uniqueQuestions = new Map();
+        allQuestions.forEach(q => {
+            const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
+            if (!uniqueQuestions.has(trimmedQuestion)) {
+                uniqueQuestions.set(trimmedQuestion, q);
+            }
+        });
+        quizData = Array.from(uniqueQuestions.values());
+        quizData.forEach((q, index) => {
+            q.id = index + 1;
+        });
+    }
 
-    shuffleButton.addEventListener('click', () => {
+    script_elements.shuffleButton.addEventListener('click', () => {
         shuffleArray(quizData);
-        shuffleButton.textContent = 'Đã xáo trộn!';
-        shuffleButton.classList.add('shuffled');
-        shuffleButton.disabled = true;
+        script_elements.shuffleButton.textContent = 'Đã xáo trộn!';
+        script_elements.shuffleButton.classList.add('shuffled');
+        script_elements.shuffleButton.disabled = true;
     });
 
-    startButton.addEventListener('click', () => {
-        setupContainer.style.display = 'none';
-        quizContainer.style.display = 'block';
-        submitButton.style.display = 'block';
+    script_elements.startButton.addEventListener('click', () => {
+        script_elements.setupContainer.style.display = 'none';
+        script_elements.quizContainer.style.display = 'block';
+        script_elements.stickyHeader.style.display = 'flex';
+        script_elements.submitButton.style.display = 'block';
         
         const selectedTimeInput = document.querySelector('input[name="time"]:checked');
         const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 20;
@@ -451,7 +359,7 @@
         renderQuiz();
     });
 
-    submitButton.addEventListener('click', () => {
+    script_elements.submitButton.addEventListener('click', () => {
         if (confirm('Bạn có chắc chắn muốn nộp bài không?')) {
             endQuiz();
         }
@@ -501,7 +409,7 @@
             html += `</fieldset>`;
             html += `</div>`;
         });
-        quizForm.innerHTML = html;
+        script_elements.quizForm.innerHTML = html;
     }
 
     function handleAnswerSelection(event) {
@@ -551,10 +459,10 @@
             let secs = duration % 60;
             secs = secs < 10 ? '0' + secs : secs;
 
-            timerDisplay.textContent = `${mins}:${secs}`;
+            script_elements.timerDisplay.textContent = `${mins}:${secs}`;
             
-            if (duration < 60 && !timerDisplay.classList.contains('ending')) {
-                timerDisplay.classList.add('ending');
+            if (duration < 60 && !script_elements.timerDisplay.classList.contains('ending')) {
+                script_elements.timerDisplay.classList.add('ending');
             }
 
             if (--duration < 0) {
@@ -569,12 +477,12 @@
             alert("Đã hết giờ làm bài!");
         }
         
-        mainContainer.innerHTML = '';
-        mainContainer.appendChild(finalResultScreen);
+        script_elements.mainContainer.innerHTML = '';
+        script_elements.mainContainer.appendChild(script_elements.finalResultScreen);
 
         const totalQuestions = quizData.length;
         document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
-        finalResultScreen.style.display = 'block';
+        script_elements.finalResultScreen.style.display = 'block';
 
         let countdown = 5;
         const redirectMessage = document.getElementById('redirect-message');
@@ -592,8 +500,10 @@
             location.reload();
         }, 5000);
     }
-
-    quizForm.addEventListener('click', handleAnswerSelection);
+    
+    // Khởi chạy
+    prepareQuestions();
+    script_elements.quizForm.addEventListener('click', handleAnswerSelection);
     </script>
 </body>
 </html>
