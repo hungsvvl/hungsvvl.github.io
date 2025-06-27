@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
+    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh (Ôn tập)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -80,8 +80,9 @@
              display: none; /* Hide by default */
         }
         
+        /* ** SỬA LỖI Ở ĐÂY ** */
         #sticky-header {
-            position: sticky;
+            position: sticky; /* Chỉ giữ lại thuộc tính này */
             top: 0;
             background-color: white;
             padding-top: 15px;
@@ -91,13 +92,12 @@
             margin: -30px -30px 20px -30px;
             padding-left: 30px;
             padding-right: 30px;
-            position: relative; 
         }
         
         #user-credit {
             position: absolute;
             left: 30px;
-            top: 25px;
+            top: 25px; 
             font-weight: bold;
             color: #6c757d;
             font-size: 0.9em;
@@ -354,6 +354,11 @@
 
     shuffleButton.addEventListener('click', () => {
         shuffleArray(quizData);
+        // Đánh số lại ID để đảm bảo tính duy nhất và không bị trùng lặp sau khi xáo trộn
+        quizData.forEach((q, index) => {
+            q.originalIdForMapping = q.id; // Giữ lại id gốc nếu cần
+            q.id = index + 1; // Gán id mới tuần tự
+        });
         shuffleButton.textContent = 'Đã xáo trộn!';
         shuffleButton.classList.add('shuffled');
         shuffleButton.disabled = true;
