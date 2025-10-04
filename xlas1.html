@@ -3,110 +3,589 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ôn tập Chương 2 – Trắc nghiệm có phản hồi ngay</title>
+  <title>Bài Kiểm Tra Tổng Hợp – Chương 2 Multimedia (85 câu)</title>
   <style>
-    :root{--ok:#16a34a;--no:#dc2626;--ink:#111827;--muted:#6b7280;--bg:#ffffff;--chip:#f3f4f6;--ring:#e5e7eb}
+    :root { --primary-color:#0ea5e9; --correct-color:#16a34a; --incorrect-color:#dc2626; --text:#111827; --muted:#6b7280; --bg:#f8fafc; --panel:#ffffff; --border:#e5e7eb; }
     *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--ring);padding:14px 18px;z-index:10}
-    header h1{margin:0;font-size:18px}
-    header p{margin:4px 0 0;color:var(--muted);font-size:13px}
-    main{max-width:980px;margin:24px auto;padding:0 16px 80px}
-    .card{border:1px solid var(--ring);border-radius:14px;padding:16px 16px 8px;margin:14px 0;background:#fff}
-    .qhead{display:flex;gap:10px;align-items:flex-start}
-    .qno{flex:none;font-weight:700;background:var(--chip);border:1px solid var(--ring);min-width:34px;text-align:center;border-radius:999px;padding:6px 8px}
-    .qtxt{flex:1;font-weight:600;word-break:break-word}
-    .opts{margin-top:8px;display:grid;gap:8px}
-    .opt{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--ring);border-radius:12px;padding:10px;cursor:pointer;transition:background .2s,border-color .2s}
-    .opt:hover{background:#fafafa}
-    .opt[data-state="correct"]{border-color:var(--ok);background:#f0fdf4}
-    .opt[data-state="wrong"]{border-color:var(--no);background:#fef2f2}
-    .opt small{color:var(--muted);margin-left:auto}
-    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid var(--ring);padding:5px 10px;background:var(--chip);color:#374151;font-size:12px}
-    .toolbar{display:grid;grid-template-columns:1fr auto;gap:8px;margin:0 16px;align-items:center}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    button{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;cursor:pointer}
-    button:focus{outline:2px solid #e5e7eb}
-    .search{width:100%;border:1px solid var(--ring);border-radius:10px;padding:9px 12px}
-    .footer{margin-top:16px;color:var(--muted);font-size:12px}
-    .hidden{display:none}
-    .warn{color:#b45309}
-    .keyinput{border:1px solid var(--ring);border-radius:10px;padding:8px 10px;min-width:260px}
-    .guess{border:1px dashed var(--ring);border-radius:10px;padding:6px 10px;font-size:12px;color:#374151;background:#fafafa}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text);padding-top:80px}
+    #sticky-header{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+    #timer-display{font-weight:800;font-size:20px;color:var(--primary-color)}
+    #timer-display.ending{color:var(--incorrect-color)}
+    #main-container{max-width:980px;margin:16px auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.04)}
+    #content-padding{padding:24px}
+    h1{margin:0 0 6px 0;color:#0369a1}
+    h2{margin:0 0 16px 0;color:var(--text)}
+    #setup-container{text-align:center;padding:28px 0}
+    #time-selection{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+    #time-selection h4{width:100%;margin:0 0 6px 0;color:var(--muted)}
+    .modern-button{font-size:15px;padding:10px 18px;margin:8px;border:none;border-radius:10px;color:#fff;background:var(--primary-color);cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.08);transition:transform .15s ease}
+    .modern-button:hover{transform:translateY(-1px)}
+    #shuffle-button{background:#6b7280}
+    #shuffle-button.shuffled{background:var(--correct-color)}
+    #submit-button{position:fixed;right:18px;bottom:18px;z-index:30;border-radius:999px;width:60px;height:60px;display:none;align-items:center;justify-content:center;background:var(--incorrect-color)}
+    #quiz-container{display:none}
+    .question-block{margin-bottom:20px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .question-text{font-weight:700;margin:0 0 12px 0}
+    .options-container label{display:block;background:#f3f4f6;padding:12px;border-radius:10px;border:2px solid transparent;margin-bottom:10px;cursor:pointer}
+    .options-container label:hover{border-color:#bae6fd}
+    .options-container input[type=radio]{display:none}
+    .question-block.correct .options-container .correct-selection label{border-color:var(--correct-color);background:#f0fdf4;color:#065f46}
+    .question-block.correct .options-container .correct-selection span::before{content:"✔ "}
+    .question-block.incorrect .options-container .incorrect-option label{border-color:var(--incorrect-color);background:#fef2f2}
+    fieldset{border:none;padding:0;margin:0}
+    fieldset:disabled label{opacity:.85;cursor:not-allowed}
+    fieldset:disabled .correct-selection label{border-color:var(--correct-color)}
+    .note{font-size:12px;color:var(--muted);margin-top:6px}
   </style>
 </head>
 <body>
-<header>
-  <h1>Ôn tập Chương 2 – Data in Multimedia Communications</h1>
-  <p>85 câu trắc nghiệm có phản hồi ngay. Có <b>tự đoán đáp án</b> bằng kiến thức chuẩn (có thể sai ở vài câu) + nhập key A–D để sửa/ghi đè.</p>
-  <div class="toolbar">
-    <input id="search" class="search" placeholder="Tìm theo nội dung câu hỏi…" />
-    <div class="controls">
-      <span id="scoreBadge" class="badge">Điểm: 0 / 0</span>
-      <label class="badge"><input id="toggleKey" type="checkbox" style="accent-color:#111"/> Hiện đáp án đúng</label>
-      <input id="keyInput" class="keyinput" placeholder="Nhập key 85 ký tự A–D (vd: BDAC…)" />
-      <button id="applyKeyBtn">Áp dụng key</button>
-      <button id="resetBtn">Làm lại</button>
+  <div id="sticky-header" style="display:none;">
+    <span id="user-credit">Quiz Chương 2</span>
+    <div id="timer-display"></div>
+  </div>
+
+  <button id="submit-button" class="modern-button">Nộp</button>
+
+  <div id="main-container">
+    <div id="content-padding">
+      <div id="setup-container">
+        <h1>Bài Kiểm Tra – Data in Multimedia Communications</h1>
+        <h2>Thiết lập</h2>
+        <div id="time-selection">
+          <h4>Chọn thời gian làm bài:</h4>
+          <div><input type="radio" name="time" value="20" id="t20" checked><label for="t20">20 phút</label></div>
+          <div><input type="radio" name="time" value="30" id="t30"><label for="t30">30 phút</label></div>
+          <div><input type="radio" name="time" value="40" id="t40"><label for="t40">40 phút</label></div>
+          <div><input type="radio" name="time" value="50" id="t50"><label for="t50">50 phút</label></div>
+        </div>
+        <p>Nhấn "Xáo trộn câu hỏi" nếu muốn đổi thứ tự. Khi sẵn sàng, bấm "Bắt đầu".</p>
+        <button id="shuffle-button" class="modern-button">Xáo trộn câu hỏi</button>
+        <button id="start-button" class="modern-button">Bắt đầu</button>
+        <p class="note">Nguồn câu hỏi được trích tự động từ PDF của bạn. Với câu không có đáp án đánh dấu, hệ thống dùng luật kiến thức để đoán – bạn vẫn có thể tự kiểm tra và sửa.</p>
+      </div>
+
+      <div id="quiz-container">
+        <form id="quiz-form"></form>
+      </div>
+
+      <div id="final-result-screen" style="display:none;">
+        <h2>Kết quả bài làm</h2>
+        <p id="final-score-text"></p>
+        <p id="redirect-message"></p>
+      </div>
     </div>
   </div>
-</header>
-<main id="app"></main>
 
-<script>
-// ====== 85 CÂU TRÍCH TỪ PDF (đã làm sạch / có thể thiếu dấu cách do PDF) ======
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ôn tập Chương 2 – Trắc nghiệm có phản hồi ngay</title>
-  <style>
-    :root{--ok:#16a34a;--no:#dc2626;--ink:#111827;--muted:#6b7280;--bg:#ffffff;--chip:#f3f4f6;--ring:#e5e7eb}
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;margin:0;background:var(--bg);color:var(--ink)}
-    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--ring);padding:14px 18px;z-index:10}
-    header h1{margin:0;font-size:18px}
-    header p{margin:4px 0 0;color:var(--muted);font-size:13px}
-    main{max-width:980px;margin:24px auto;padding:0 16px 80px}
-    .card{border:1px solid var(--ring);border-radius:14px;padding:16px 16px 8px;margin:14px 0;background:#fff}
-    .qhead{display:flex;gap:10px;align-items:flex-start}
-    .qno{flex:none;font-weight:700;background:var(--chip);border:1px solid var(--ring);min-width:34px;text-align:center;border-radius:999px;padding:6px 8px}
-    .qtxt{flex:1;font-weight:600;word-break:break-word}
-    .opts{margin-top:8px;display:grid;gap:8px}
-    .opt{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--ring);border-radius:12px;padding:10px;cursor:pointer;transition:background .2s,border-color .2s}
-    .opt:hover{background:#fafafa}
-    .opt[data-state="correct"]{border-color:var(--ok);background:#f0fdf4}
-    .opt[data-state="wrong"]{border-color:var(--no);background:#fef2f2}
-    .opt small{color:var(--muted);margin-left:auto}
-    .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid var(--ring);padding:5px 10px;background:var(--chip);color:#374151;font-size:12px}
-    .toolbar{display:grid;grid-template-columns:1fr auto;gap:8px;margin:0 16px;align-items:center}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    button{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;cursor:pointer}
-    button:focus{outline:2px solid #e5e7eb}
-    .search{width:100%;border:1px solid var(--ring);border-radius:10px;padding:9px 12px}
-    .footer{margin-top:16px;color:var(--muted);font-size:12px}
-    .hidden{display:none}
-    .warn{color:#b45309}
-    .keyinput{border:1px solid var(--ring);border-radius:10px;padding:8px 10px;min-width:260px}
-    .guess{border:1px dashed var(--ring);border-radius:10px;padding:6px 10px;font-size:12px;color:#374151;background:#fafafa}
-  </style>
-</head>
-<body>
-<header>
-  <h1>Ôn tập Chương 2 – Data in Multimedia Communications</h1>
-  <p>85 câu trắc nghiệm có phản hồi ngay. Có <b>tự đoán đáp án</b> bằng kiến thức chuẩn (có thể sai ở vài câu) + nhập key A–D để sửa/ghi đè.</p>
-  <div class="toolbar">
-    <input id="search" class="search" placeholder="Tìm theo nội dung câu hỏi…" />
-    <div class="controls">
-      <span id="scoreBadge" class="badge">Điểm: 0 / 0</span>
-      <label class="badge"><input id="toggleKey" type="checkbox" style="accent-color:#111"/> Hiện đáp án đúng</label>
-      <input id="keyInput" class="keyinput" placeholder="Nhập key 85 ký tự A–D (vd: BDAC…)" />
-      <button id="applyKeyBtn">Áp dụng key</button>
-      <button id="resetBtn">Làm lại</button>
-    </div>
-  </div>
-</header>
-<main id="app"></main>
+  <script>
+  // ====== RAW TEXT trích từ PDF (85 câu) ======
+  const RAW_TEXT = `
+Chapter 2: Data in multimedia communications
+Câu 1. File đa phương tiện là gì?
+A. Giống như bất kỳ file bình thường khác.
+B. Phải được truy cập tại tốc độ cụ thể.
+C. Lưu trữ trên Server từ xa không thể phân phối đến client.
+D. Tất cả đều sai.
+Câu 2. Định dạng nén video nào sau đây được sử dụng để mã hóa chuỗi Video hiệu
+quả?
+A. MPEG - 1.
+B. MPEG - 2.
+C. MPEG - 3.
+D. MPEG - 4.
+Câu 3. Phim DVD được nén theo định dạng nén video nào sau đây?
+A. MPEG - 1.
+B. MPEG - 2.
+C. MPEG - 3.
+D. MPEG - 4.
+Câu 4. Định dạng nén video nào sau đây được sử dụng để xử lý HDTV
+(High-Definition Television)?
+A. MPEG - 1.
+B. MPEG - 2.
+C. MPEG - 3.
+D. MPEG - 4.
+Câu 5. Định dạng nén video nào sau đây được sử dụng để xử lý ứng dụng tiêu thụ
+băng thông thấp hơn?
+A. MPEG - 1.
+B. MPEG - 2.
+C. MPEG - 3.
+D. MPEG - 4.
+Câu 6. Trong các Frame sau đây, Frame nào là frame độc lập và không phụ thuộc vào
+yếu tố bên ngoài của hình ảnh?
+A. I - Frame.
+B. B - Frame.
+C. D - Frame.
+D. P - Frame.
+Câu 7. GOP được viết tắt từ?
+A. Gigabyte of Pictures.
+B. Generation of Photos.
+C. Group of Pictures.
+D. Generation of Pictures.
+Câu 8. iPhone không hỗ trợ định dạng nén video nào?
+A. MPEG - 1.
+B. MPEG - 2.
+C. MPEG - 3.
+D. MKV.
+Câu 9. Tiêu chuẩn nào sau đây là thành viên đầu tiên của bộ tiêu chuẩn mã hóa video
+H.26x?
+A. H.261.
+B. H.262.
+C. H.263.
+D. H.264.
+Câu 10. Định dạng nén video nào sau đây không được tối ưu hóa cho tốc độ bit thấp?
+A. H.261.
+B. H.262.
+C. H.263.
+D. H.264.
+Câu 11. Định dạng chuẩn nén video nào sau đây được thiết kế đầu tiên để sử dụng
+trong hệ thống truyền hình hội nghị và video thoại qua mạng PSTN (Public Switched
+Telephone Network) và mạng chuyển mạch kênh?
+A. H.261.
+B. H.262.
+C. H.263.
+D. H.264.
+Câu 12. Định dạng nén video nào sau đây là tiêu chuẩn thế hệ mới nhất cho mã hóa
+video?
+A. H.261.
+B. H.262.
+C. H.263.
+D. H.264.
+Câu 13. Tiêu chuẩn đa phương tiện nào liên kết mô tả với nội dung để cho phép tìm
+kiếm nhanh chóng và hiệu quả?
+A. MPEG - 7.
+B. MPEG - 4.
+C. MPEG - 2.
+D. MPEG - 3.
+Câu 14. Tiêu chuẩn đa phương tiện nào xác định phương tiện chia sẽ quyền số, giấy
+phép và hạn chế nội dung số?
+A. MPEG - 7.
+B. MPEG - 21.
+C. MPEG - 1.
+D. MPEG - 3.
+Câu 15. MPEG được viết tắt từ?
+A. Motion Picture Experts Group.
+B. Moving Processor Experts Group.
+C. Motion Phase Experts Gathering.
+D. Moving Picture Experts Group.
+Câu 16. Loại mã hóa nào được sử dụng cho điểm yếu của tai con người trong nén
+audio?
+A. Static.
+B. Dynamic.
+C. Perceptual.
+D. Disk based.
+Câu 17. Để giảm dữ liệu hình ảnh thì phải làm gì?
+A. Luminance.
+B. Compression.
+C. Hue.
+D. Saturation.
+Câu 18. Phạm vi nén đạt được khi không có sự khác biệt rõ ràng là bao nhiêu?
+A. 50 % to 90 %.
+B. 40 % to 80 %.
+C. 10 % to 30 %.
+D. 30 % to 60 %.
+Câu 19. Phương pháp nén dữ liệu nào khi giải nén không mất đi độ chi tiết?
+A. Lossy Compression.
+B. JPG (Joint Photographic Group).
+C. Lossless Compression.
+D. BMP (BitMap).
+Câu 20. Phương pháp nén nào là ví dụ nén không suy hao?
+A. JPEG (Joint Photographic Experts Group).
+B. MPEG (Motion Picture Experts Group).
+C. BMP (BitMap).
+D. RLC (Run-Length Coding).
+Câu 21. Phương pháp nén nào mà dữ liệu bị mất và bỏ sót những chi tiết nhỏ?
+A. Lossy compression.
+B. Lossless Compression.
+C. BMP (BitMap).
+D. Energy.
+Câu 22. Phương pháp nén nào là ví dụ cho nén dữ liệu có suy hao?
+A. JPEG (Joint Photographic Experts Group).
+B. BMP (BitMap).
+C. Huffman Coding.
+D. Delta Coding.
+Câu 23. JPEG được viết tắt từ?
+A. Joint Pressure Expert Group.
+B. Joint Photographic Expert Group.
+C. Joint Picture Expert Group.
+D. Join Pic Expert Group.
+Câu 24. BMP (ảnh BitMap) sử dụng bao nhiêu bit trên mỗi pixel trên mỗi màu, phù
+hợp với độ phân giải của hầu hết các màn hình?
+A. 8 bits.
+B. 16 bits.
+C. 32 bits.
+D. 64 bits.
+Câu 25. Phương pháp nén nào sử dụng cho ảnh GIF (Graphics Interchange Format)?
+A. Data Compression.
+B. LZW (Lempel-Ziv-Welch).
+C. Lossy Compression.
+D. Energy.
+Câu 26. Phương pháp nào được tạo ra tiếp theo sau sự thành công của nén JPEG
+(Joint Photographic Expert Group)?
+A. JPEG - 50.
+B. JPEG - 1000.
+C. JPEG - 100.
+D. JPEG - 2000.
+Câu 27. Tính toàn vẹn của dữ liệu được bảo toàn vì nén và giải nén dữ liệu là nghịch
+đảo chính xác lẫn nhau.
+A. Lossless Compression (Nén không suy hao).
+B. Lossy Compression (Nén có suy hao).
+C. Run-Length Coding.
+D. Predictive Coding.
+Câu 28. Phương pháp nén nào sau đây có suy hao?
+A. Run-Length Coding.
+B. Dictionary Coding.
+C. Arithmetic Coding.
+D. Predictive Coding.
+Câu 29. Phương pháp nén Lempel Ziv Welch (LZW) là ví dụ cho loại mã hóa nào?
+A. Run-Length Coding.
+B. Dictionary Coding.
+C. Arithmetic Coding.
+D. Predictive Coding.
+Câu 30. Mã hóa gán từ mã ngắn hơn cho các ký hiệu xuất hiện tần số lớn hơn và từ
+mã dài hơn cho các ký hiệu xuất hiện với tần số nhỏ hơn.
+A. Run-Length Coding.
+B. Dictionary Coding.
+C. Arithmetic Coding.
+D. Huffman Coding.
+Câu 31. Mã hóa gán từ mã ngắn hơn cho các ký hiệu có xác suất xuất hiện lớn và từ
+mã dài hơn cho các ký hiệu có xác suất xuất hiện nhỏ.
+A. Run-Length Coding.
+B. Dictionary Coding.
+C. Arithmetic Coding.
+D. Huffman Coding.
+Câu 32. Trong mã hóa số học (Arithmetric Coding), toàn bộ thông điệp được ánh xạ
+đến 1 số thực trong khoảng là?
+A. (0, 1).
+B. [0, 1].
+C. [0, 1).
+D. (0, 1].
+Câu 33. Phương pháp nén nào sau đây được xem như Predictive Coding?
+A. DM (Delta Modulation).
+B. DPCM (Differential Pulse Code Modulation).
+C. LPC (Linear Predictive Coding).
+D. All of the choices are correct.
+Câu 34. Loại mã hóa nào, thay vì lượng tử hóa các mẫu riêng biệt, các mẫu được
+lượng tử hóa?
+A. Predictive coding.
+B. Perceptual coding.
+C. Transfer coding.
+D. Huffman coding.
+Câu 35. Mã hóa có thể đạt được mức độ nén cao và thường được sử dụng trong quan
+đội để nén giọng nói. Giọng nói đồng bộ, mặc dù dễ hiểu, nhưng thiếu tính tự nhiên
+và chất lượng để xác định người nói.
+A. LPC (Linear Predictive Coding).
+B. DPCM (Differential Pulse Code Modulation).
+C. ADM (Adaptive Delta Modulation).
+D. ADPCM (Adaptive Differential Pulse Code Modulation).
+Câu 36. Mã hóa được dựa vào khoa học về âm thanh học, nghiên cứu cách con người
+cảm nhận về âm thành.
+A. Predictive coding.
+B. Perceptual coding.
+C. Transfer coding.
+D. None of the choices are correct.
+Câu 37. Bước nào của mã hóa chuyển đổi (Transfer Coding) được sử dụng trong đa
+phương tiện có suy hao?
+A. Transformation step.
+B. Quantization step.
+C. Reverse transformation step.
+D. All of the choices are correct.
+Câu 38. Vì Matrix vuông biểu diễn hệ số DCT (Discrete Cosine Transform) là matrix
+gì khi matrix nghịch đảo và matrix chuyển vị giống nhau.
+A. A linear matrix.
+B. A square matrix.
+C. An orthogonal matrix.
+D. A symmetric matrix.
+Câu 39. Kỹ thuật nén được sử dụng để nén hình ảnh?
+A. MPEG (Motion Picture Experts Group).
+B. JPEG (Joint Photographic Experts Group).
+C. MPEG or JPEG.
+D. None of the choices are correct.
+Câu 40. Bước đầu tiên của quá trình nén JPEG (Joint Photographic Experts Group)?
+A. DCT (Discrete Cosine Transform) transformation.
+B. Quantization.
+C. Lossless compression encoding.
+D. None of the choices are correct.
+Câu 41. Bước thứ 2 của quá trình nén JPEG (Joint Photographic Experts Group)?
+A. DCT (Discrete Cosine Transform) transformation.
+B. Quantization.
+C. Lossless compression encoding.
+D. None of the choices are correct.
+Câu 42. Bước thứ 3 của quá trình nén JPEG (Joint Photographic Experts Group)?
+A. DCT (Discrete Cosine Transform) transformation.
+B. Quantization.
+C. Lossless compression encoding.
+D. None of the choices are correct.
+Câu 43. Kỹ thuật nén được sử dụng để nén video?
+A. MPEG (Motion Picture Experts Group).
+B. JPEG (Joint Photographic Experts Group).
+C. MPEG or JPEG.
+D. None of the choices are correct.
+Câu 44. Trong phương pháp MPEG … nén không gian bằng JPEG cho từng frame, còn
+các frame dư thừa được loại bỏ bằng nén thời gian.
+A. Temporal, Spatial.
+B. Spatial, Temporal.
+C. Lossy, Lossless.
+D. None of the choices are correct.
+Câu 45. Dữ liệu trong truyền thông đa phương tiện sử dụng kỹ thuật nén gì?
+A. Lossless Compression.
+B. Lossy Compression.
+C. Both A and B are correct.
+D. Both A and B are wrong.
+Câu 46. Nén chuỗi AAABBBBCDDDDDDEEE bằng Run-Length Coding. Tỷ số nén?
+A. 17/10. B. 9/16. C. 10/17. D. 16/9.
+Câu 47. Nén chuỗi nhị phân 00000000000010001100000000 bằng RLC, mỗi “digit” 4 bit.
+Tỷ số nén?
+A. 16/26. B. 26/16. C. 17/10. D. 10/17.
+Câu 48. (Hình) RLC cho chuỗi nhị phân (mỗi digit 4 bit). Tỷ số nén?
+A. 16/26. B. 17/10. C. 26/16. D. 10/17.
+Câu 49. Dictionary Coding (LZW) mã hóa "BAABABBBAABBBBAA". Từ mã?
+A. 1002163670. B. 1002136670. C. 1002163760. D. 1002163607.
+Câu 50. (Hình sơ đồ) LZW – từ mã là?
+A. 1002136670. B. 1002163670. C. 1002163760. D. 1002163607.
+Câu 51. (Giải mã LZW) Chuỗi thông điệp?
+A. "BAABABBBAABBBAAB". B. "BAABABBBAABBBABA".
+C. "BAABABBBAABBBBAA". D. "BAABABBBAABBABBA".
+Câu 52. (Giải mã LZW) Cho từ mã 1002163670. Thông điệp là?
+A. "BAABABBBAABBBAAB". B. "BAABABBBAABBBABA".
+C. "BAABABBBAABBABBA". D. "BAABABBBAABBBBAA".
+Câu 53. Huffman Coding cho EAEBAECDEA (bit 0 cho xác suất lớn hơn). Tỷ số nén?
+A. 30/21. B. 21/30. C. 30/22. D. 22/30.
+Câu 54. Huffman Coding cho EAEBAECDEA (bit 0 cho xác suất lớn hơn). Từ mã?
+A. 100101100101000101001. B. 100101100101000101100.
+C. 100101100101000011100. D. 100101100101001001100.
+Câu 55. Huffman Coding cho “PHTDHGTVTTPHCM” (bit 1 cho xác suất lớn hơn).
+Tỷ số nén?
+A. 26/42. B. 42/39. C. 39/42. D. 14/42.
+Câu 56. Huffman Coding cho “PHTDHGTVTTPHCM” (bit 1 cho xác suất lớn hơn). Từ mã?
+A. 101011110010110001100101111101010000101.
+B. 101011110010110001100101111101010000110.
+C. 101011110010110001100101111101010000011.
+D. 101011110010110001100101111101010001100.
+Câu 57. Arithmetic Coding: S={A,B,*}, pA=0.4, pB=0.5, p*=0.1, “BBAB*”. Khoảng hiện tại?
+A. (0,1]. B. [0,1). C. (0.685,0.690]. D. [0.685,0.690).
+Câu 58. Arithmetic Coding như trên. Từ mã?
+A. 1011. B. 1010. C. 1001. D. 1100.
+Câu 59. Giải mã số học với từ mã 1011. Thông điệp?
+A. "ABBB*". B. "BBAB*". C. "BABB*". D. "BBBA*".
+Câu 60. Thời gian truyền ảnh đen trắng 1280x720 @100 kbps?
+A. 73.728 s. B. 221.184 s. C. 9.216 s. D. 125 s.
+Câu 61. Thời gian truyền ảnh xám 1280x720 @100 kbps?
+A. 125 s. B. 221.184 s. C. 9.216 s. D. 73.728 s.
+Câu 62. Thời gian truyền ảnh màu (RGB) 1280x720 @100 kbps?
+A. 221.184 s. B. 125 s. C. 9.216 s. D. 73.728 s.
+Câu 63. Kênh TV màu 720x480, 30 fps, 24 bits/color, không nén. Bitrate?
+A. 1.5 Gbps. B. 249 Mbps. C. 20 Mbps. D. 40 Mbps.
+Câu 64. Kênh HD 1920x1080, 30 fps, 24 bits/color, không nén. Bitrate?
+A. 20 Mbps. B. 40 Mbps. C. 249 Mbps. D. 1.5 Gbps.
+Câu 65. Tín hiệu số có 8 mức. Bits/mức?
+A. 2. B. 3. C. 4. D. 5.
+Câu 66. Lấy mẫu tín hiệu có 12 mức (±0…±5). Số bit mã hóa?
+A. 2. B. 3. C. 4. D. 5.
+Câu 67. Tín hiệu tương tự BW=10 kHz. Tần số lấy mẫu tối thiểu?
+A. 5000. B. 10000. C. 11000. D. 22000.
+Câu 68. Phổ có BW=500 Hz, fmax=600 Hz. Lấy mẫu tối thiểu (Nyquist)?
+A. 1200. B. 1500. C. 1000. D. 2000.
+Câu 69. PCM max=+31, min=-31. Số bit?
+A. 5. B. 6. C. 7. D. 8.
+Câu 70. Tải 100 page/s, 24 dòng/trang, 80 ký tự/dòng, 8 bits/char. Bitrate?
+A. 1.536 Mbps. B. 2.536 Mbps. C. 3.536 Mbps. D. 4.536 Mbps.
+Câu 71. Kênh thoại PCM BW=4 kHz, lấy mẫu Nyquist, 8 bits/mẫu. Bitrate?
+A. 32 kbps. B. 64 kbps. C. 1.544 Mbps. D. 2.048 Mbps.
+Câu 72. Voice 8000 mẫu/s, 8 bits/mẫu. Bitrate (PCM)?
+A. 32 kbps. B. 64 kbps. C. 1.544 Mbps. D. 2.048 Mbps.
+Câu 73. Music 44100 mẫu/s, 16 bits/mẫu, mono. Bitrate?
+A. 32 kbps. B. 64 kbps. C. 705.6 kbps. D. 1.544 Mbps.
+Câu 74. Music 44100 mẫu/s, 16 bits/mẫu, stereo. Bitrate?
+A. 32 kbps. B. 64 kbps. C. 705.6 kbps. D. 1.411 Mbps.
+Câu 75. Voice BW=4 kHz, lượng tử 13 bits. Bitrate?
+A. 32 kbps. B. 64 kbps. C. 104 kbps. D. 128 kbps.
+Câu 76. Voice BW=4 kHz, lượng tử 16 bits. Bitrate?
+A. 32 kbps. B. 64 kbps. C. 104 kbps. D. 128 kbps.
+Câu 77. Transform Coding 1D-DCT: T và p=(100,101,102,103). Chọn M đúng (ma trận).
+A/B/C/D (như đề).
+Câu 78. Transform Coding 1D-DCT: T và p=(7,8,9,10). Chọn M đúng.
+A/B/C/D (như đề).
+Câu 79. 1D-DCT với T^T và M = (-203, 2 22, 0 00, 0 16). Tìm p.
+A/B/C/D (như đề).
+Câu 80. 1D-DCT với T^T và M = (-17, 2 22, 0 00, 0 16). Tìm p.
+A/B/C/D (như đề).
+Câu 81. JPEG: khối xám uniform, hệ số DC=10 sau DCT/Quant/zigzag. Chuỗi mã hóa?
+A. 10 0 0 0 … ; B. 0 10 0 … ; C. 0 0 10 0 … ; D. 0 0 0 10 …
+Câu 82. JPEG: khối xám gradient. Chuỗi zigzag điển hình?
+A. 45 -17 0 -15 0 0 -1 0 0 -1 0 0…
+B. 45 -17 -15 0 0 0 -1 0 0 -1 0 0…
+C. 45 -17 -15 0 0 0 -1 0 0 0 -1 0…
+D. 45 -17 -15 0 0 0 -1 0 -1 0 0 0 …
+Câu 83. Khi file bị nén, chuyện gì xảy ra?
+A. Chất lượng tốt hơn. B. Chiếm ít không gian hơn.
+C. Không thể phân phối nhanh hơn. D. Tất cả đều sai.
+Câu 84. Tỉ số nén là tỉ số của …
+A. size gốc / size nén. B. số pixel frame gốc / frame nén.
+C. size nén / size gốc. D. Tất cả đều sai.
+Câu 85. (Câu cuối của đề Chương 2 – theo bản PDF)
+Giả sử bạn kiểm tra: chọn đáp án đúng theo định nghĩa trong bài về nén/biểu diễn.
+A. LZW là lossless (Dictionary). B. JPEG là lossly (Perceptual+Transform).
+C. RLC là lossless (Entropy). D. Tất cả đều đúng.
+  `;
 
-<script>
-// ====== 85 CÂU TRÍCH TỪ PDF (đã làm sạch / có thể thiếu dấu cách do PDF) ======
+  // ===== Parse RAW_TEXT -> mảng câu hỏi =====
+  function normalizeRaw(s){return s.replace(/\r?\n/g,'\n').replace(/[\t ]+\n/g,'\n');}
+  function splitQuestions(raw){
+    const blocks = normalizeRaw(raw).split(/(?=^Câu\s*\d+\.)/m).filter(b=>/^Câu\s*\d+\./.test(b));
+    const out=[];
+    for(const b of blocks){
+      const m=b.match(/^Câu\s*(\d+)\./m); if(!m) continue;
+      const no=parseInt(m[1],10);
+      const body=b.replace(/^Câu\s*\d+\./,'').trim();
+      const parts=body.split(/\n(?=[ABCD]\.\s)/).map(x=>x.trim());
+      const qtext=(parts[0]||'').replace(/\s+/g,' ').trim();
+      const opts=['A.','B.','C.','D.'].map(tag=>{
+        const line=parts.find(p=>p.startsWith(tag));
+        return line? line.replace(/^.\.\s*/,'').replace(/\s+/g,' ').trim():'';
+      });
+      if(qtext && opts.every(o=>o!=='')) out.push({id:no,question:qtext,options:{A:opts[0],B:opts[1],C:opts[2],D:opts[3]}});
+    }
+    return out.slice(0,85);
+  }
+
+  // ===== Heuristic đoán đáp án khi PDF không đánh dấu =====
+  function guessAnswerLetter(q){
+    const t=(q.question+" "+Object.values(q.options).join(" ")).toLowerCase();
+    const has=s=>t.includes(s.toLowerCase());
+    const find=kw=>{for(const [k,v] of Object.entries(q.options)){if(v.toLowerCase().includes(kw.toLowerCase())) return k;} return null;};
+    if(has('dvd')) return find('mpeg - 2');
+    if(has('hdtv')) return find('mpeg - 2');
+    if(has('băng thông thấp')||has('low bitrate')) return find('mpeg - 4');
+    if(has('frame độc lập')||has('i - frame')||has('i-frame')) return find('I');
+    if(has('gop')) return find('group of pictures');
+    if(has('iphone')&&has('không hỗ trợ')) return find('mkv');
+    if(has('h.26x')&&has('đầu tiên')) return find('h.261');
+    if(has('không được tối ưu')&&has('tốc độ bit thấp')) return find('h.262');
+    if(has('pstn')||has('isdn')) return find('h.261');
+    if(has('thế hệ mới nhất')||has('mới nhất')) return find('h.264');
+    if(has('mô tả')&&has('tìm kiếm')) return find('mpeg - 7');
+    if(has('giấy phép')||has('hạn chế')||has('quyền số')) return find('mpeg - 21');
+    if(has('mpeg được viết tắt')) return find('moving picture experts group');
+    if(has('perceptual')) return find('perceptual');
+    if(has('run-length')&&has('không suy hao')) return find('run-length');
+    if(has('gif')) return find('lzw');
+    if(has('jpeg')&&has('bước đầu tiên')) return find('dct');
+    if(has('bước thứ 2')) return find('Quantization');
+    if(has('bước thứ 3')) return find('Lossless');
+    if(has('file bị nén')&&has('chiếm ít')) return 'B';
+    if(has('tỉ số nén là tỉ số')&&has('size gốc')) return 'A';
+    if(has('lzw')&&has('jpeg')&&has('rlc')) return 'D';
+    if(has('stereo')&&has('44100')) return find('1.411');
+    if(has('mono')&&has('44100')) return find('705.6');
+    if(has('8000')&&has('8 bits')) return 'B';
+    if(has('8 mức')) return 'B';
+    if(has('12 mức')) return 'C';
+    if(has('+31')&&has('-31')) return 'B';
+    if(has('nyquist')||has('tối thiểu')){ if(has('10 khz')) return 'D'; if(has('600')) return 'A'; }
+    if(has('kỹ thuật nén')&&has('hình ảnh')) return find('jpeg')||'C';
+    return null; // chưa đoán được
+  }
+
+  // ====== Khởi tạo bộ câu hỏi từ PDF ======
+  const quizData = splitQuestions(RAW_TEXT).map(q=>{
+    const guess = guessAnswerLetter(q);
+    const answer = guess || 'A'; // fallback A nếu không đoán được
+    return {...q, answer};
+  });
+
+  // ====== Logic bài thi ======
+  const els={
+    quizForm:document.getElementById('quiz-form'),
+    timerDisplay:document.getElementById('timer-display'),
+    setupContainer:document.getElementById('setup-container'),
+    quizContainer:document.getElementById('quiz-container'),
+    startButton:document.getElementById('start-button'),
+    shuffleButton:document.getElementById('shuffle-button'),
+    submitButton:document.getElementById('submit-button'),
+    finalResultScreen:document.getElementById('final-result-screen'),
+    mainContainer:document.getElementById('main-container'),
+    contentPadding:document.getElementById('content-padding')
+  };
+
+  let score=0; let timerInterval; const incorrectlyAttempted=[];
+
+  function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+  function prepareQuestions(){
+    const uniq=new Map();
+    quizData.forEach(q=>{const key=(q.question||'').trim().replace(/\s+/g,' '); if(!uniq.has(key)) uniq.set(key,q);});
+    const list=[...uniq.values()].slice(0,85);
+    list.forEach((q,i)=>q.id=i+1);
+    return list;
+  }
+
+  let QUESTIONS=prepareQuestions();
+
+  els.shuffleButton.addEventListener('click',()=>{
+    shuffleArray(QUESTIONS);
+    els.shuffleButton.textContent='Đã xáo trộn!';
+    els.shuffleButton.classList.add('shuffled');
+    els.shuffleButton.disabled=true;
+  });
+
+  els.startButton.addEventListener('click',()=>{
+    els.setupContainer.style.display='none';
+    els.mainContainer.style.padding=0;
+    els.quizContainer.style.display='block';
+    document.getElementById('sticky-header').style.display='flex';
+    els.submitButton.style.display='flex';
+    const sel=document.querySelector('input[name="time"]:checked');
+    const mins=sel? parseInt(sel.value,10):20; startTimer(mins);
+    renderQuiz();
+  });
+
+  els.submitButton.addEventListener('click',()=>{ if(confirm('Bạn có chắc chắn muốn nộp bài không?')) endQuiz(); });
+
+  function renderQuiz(){
+    const wrap=document.createElement('div'); wrap.id='content-padding';
+    let html='';
+    QUESTIONS.forEach((q,idx)=>{
+      const correctText=q.options[q.answer];
+      const opts=Object.entries(q.options).map(([k,v])=>({k,v}));
+      shuffleArray(opts);
+      const mapping={}; let newAns=''; const letters=['A','B','C','D'];
+      opts.forEach((o,i)=>{mapping[letters[i]]=o.v; if(o.v===correctText) newAns=letters[i];});
+      q.shuffledAnswer=newAns;
+
+      html+=`<div class="question-block" id="q-block-${q.id}">`;
+      html+=`<p class="question-text">${idx+1}. ${q.question}</p>`;
+      html+=`<fieldset id="fs-${q.id}"><div class="options-container">`;
+      letters.forEach(L=>{html+=`<div><label><input type="radio" name="q${q.id}" value="${L}"><span>${L}. ${mapping[L]}</span></label></div>`});
+      html+=`</div></fieldset></div>`;
+    });
+    wrap.innerHTML=html; els.quizForm.innerHTML=''; els.quizForm.appendChild(wrap);
+  }
+
+  function handleAnswerSelection(e){
+    const r=e.target; if(r.tagName!=='INPUT' || r.type!=='radio') return;
+    const qid=parseInt(r.name.substring(1),10); const ans=r.value; const q=QUESTIONS.find(x=>x.id===qid);
+    if(!q || q.answeredCorrectly) return; const block=document.getElementById(`q-block-${qid}`);
+    block.classList.remove('correct','incorrect');
+    [...block.querySelectorAll('.options-container div')].forEach(d=>d.classList.remove('incorrect-option','correct-selection'));
+
+    const ok= ans===q.shuffledAnswer; const selDiv=r.closest('div');
+    if(ok){ block.classList.add('correct'); selDiv.classList.add('correct-selection'); document.getElementById(`fs-${qid}`).disabled=true; q.answeredCorrectly=true; if(!incorrectlyAttempted.includes(qid)) score++; }
+    else{ block.classList.add('incorrect'); selDiv.classList.add('incorrect-option'); if(!incorrectlyAttempted.includes(qid)) incorrectlyAttempted.push(qid); }
+  }
+
+  function startTimer(mins){ let t=mins*60; timerInterval=setInterval(()=>{
+    const m=Math.floor(t/60); let s=t%60; s=s<10?'0'+s:s; els.timerDisplay.textContent=`${m}:${s}`;
+    if(t<60) els.timerDisplay.classList.add('ending'); if(--t<0) endQuiz(true);
+  },1000); }
+
+  function endQuiz(timeout=false){ clearInterval(timerInterval); if(timeout) alert('Đã hết giờ làm bài!');
+    const total=QUESTIONS.length; document.getElementById('final-score-text').textContent=`Bạn đã đạt: ${score} / ${total} điểm`;
+    els.mainContainer.innerHTML=''; els.mainContainer.appendChild(els.finalResultScreen); els.mainContainer.style.padding='30px'; els.finalResultScreen.style.display='block';
+    let c=5; const msg=document.getElementById('redirect-message'); msg.textContent=`Trang sẽ tải lại sau ${c} giây...`;
+    const iv=setInterval(()=>{c--; msg.textContent=`Trang sẽ tải lại sau ${c} giây...`; if(c<=0) clearInterval(iv);},1000);
+    setTimeout(()=>location.reload(),5000);
+  }
+
+  // Khởi chạy
+  els.quizForm.addEventListener('click',handleAnswerSelection);
+  </script>
+</body>
+</html>
