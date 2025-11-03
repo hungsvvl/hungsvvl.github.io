@@ -363,16 +363,13 @@
     }
     
     function prepareQuestions() {
-        const uniqueQuestions = new Map();
-        allQuestions.forEach(q => {
-            const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
-            if (!uniqueQuestions.has(trimmedQuestion)) {
-                uniqueQuestions.set(trimmedQuestion, q);
-            }
-        });
-        quizData = Array.from(uniqueQuestions.values());
+        // ***ĐÃ SỬA***: Bỏ qua việc lọc câu hỏi trùng lặp
+        // Gán trực tiếp tất cả 114 câu hỏi
+        quizData = allQuestions; 
+        
+        // Gán ID duy nhất cho mỗi câu hỏi dựa trên vị trí của nó
         quizData.forEach((q, index) => {
-            q.id = index + 1;
+            q.id = index + 1; 
         });
     }
 
@@ -424,6 +421,7 @@
             q.shuffledAnswer = newAnswerKey;
 
             html += `<div class="question-block" id="q-block-${q.id}">`;
+            // Sử dụng q.id (đã được đánh số lại từ 1 đến 114) để đặt tên cho radio button
             html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
             
             if (q.image) {
