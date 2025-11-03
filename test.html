@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Kiểm Tra Tổng Hợp - Xử Lý Ảnh</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --text-color: #212529;
+            --light-text-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --container-bg-color: #ffffff;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding-top: 80px; /* Khoảng đệm cho header cố định */
+        }
+
+        #main-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--container-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        #content-padding {
+             padding: 30px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+        h1 { margin-bottom: 10px; }
+        h2 { margin-bottom: 20px; color: var(--text-color)}
+
+        #setup-container, #final-result-screen {
+            text-align: center;
+            padding: 40px 0;
+        }
+        #final-result-screen h2 { font-size: 2em; }
+        #final-score-text { font-size: 1.5em; font-weight: 600; color: var(--correct-color); margin: 20px 0; }
+        #redirect-message { font-size: 1em; color: var(--light-text-color); }
+        
+        #time-selection {
+            margin: 20px 0; display: flex; justify-content: center;
+            align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        #time-selection h4 { width: 100%; margin-bottom: 10px; font-weight: 500; }
+        #time-selection label { cursor: pointer; padding: 5px 10px; color: var(--text-color) }
+
+        .modern-button {
+            font-size: 1.1em; padding: 12px 24px; margin: 10px;
+            cursor: pointer; border-radius: 8px; border: none;
+            font-weight: 600; color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .modern-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        #start-button { background-color: var(--primary-color); }
+        #shuffle-button { background-color: #6c757d; }
+        #shuffle-button.shuffled { background-color: var(--correct-color); }
+        
+        #submit-button {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            top: auto;
+            transform: none;
+            z-index: 200;
+            background-color: var(--incorrect-color);
+            display: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            font-size: 1em;
+        }
+        
+        #quiz-container { display: none; }
+        
+        #sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 15px 20px;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #user-credit {
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        #timer-display {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        #timer-display.ending { color: var(--incorrect-color); }
+        
+        .question-block {
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .question-text { font-weight: 600; margin-bottom: 20px; font-size: 1.15em; }
+
+        .options-container label {
+            display: block;
+            background: var(--bg-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--bg-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .options-container input[type="radio"] { display: none; }
+        .options-container label:hover { border-color: var(--primary-color); }
+        
+        .question-block.correct .options-container .correct-selection label {
+            border-color: var(--correct-color);
+            background-color: #e9f7ef;
+            color: #1d643b;
+            font-weight: 600;
+        }
+        .question-block.correct .options-container .correct-selection span::before { content: '✔ '; }
+        
+        .question-block.incorrect .options-container div.incorrect-option label {
+             border-color: var(--incorrect-color);
+             background-color: #fbebed;
+        }
+        
+        fieldset { border: none; padding: 0; margin: 0; }
+        fieldset:disabled label { cursor: not-allowed; opacity: 0.8; }
+        fieldset:disabled label:hover { border-color: transparent; }
+        fieldset:disabled .correct-selection label, fieldset:disabled .correct-selection label:hover {
+            border-color: var(--correct-color);
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 0; padding-top: 70px; }
+            #main-container { margin: 0; border-radius: 0; border-left: none; border-right: none;}
+            #content-padding { padding: 15px; }
+            h1 { font-size: 1.5em; }
+            #sticky-header { padding: 10px 15px; }
+            #timer-display { font-size: 1.5em; }
+            #user-credit {  margin-right: auto; }
+            #sticky-header { justify-content: flex-start; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="sticky-header" style="display:none;">
+        <span id="user-credit">Hung</span>
+        <div id="timer-display"></div>
+    </div>
+
+    <button id="submit-button" class="modern-button">Nộp</button>
+
+    <div id="main-container">
+        <div id="content-padding">
+            <div id="setup-container">
+                <h1>Bài Kiểm Tra Xử Lý Ảnh</h1>
+                <h2>Thiết lập bài làm</h2>
+                
+                <div id="time-selection">
+                    <h4>Chọn thời gian làm bài:</h4>
+                    <div><input type="radio" name="time" value="20" id="t20" checked><label for="t20">20 phút</label></div>
+                    <div><input type="radio" name="time" value="30" id="t30"><label for="t30">30 phút</label></div>
+                    <div><input type="radio" name="time" value="40" id="t40"><label for="t40">40 phút</label></div>
+                    <div><input type="radio" name="time" value="50" id="t50"><label for="t50">50 phút</label></div>
+                </div>
+
+                <p>Nhấn "Xáo trộn câu hỏi" nếu bạn muốn thay đổi thứ tự. <br> Sẵn sàng để bắt đầu?</p>
+                <button id="shuffle-button" class="modern-button">Xáo trộn câu hỏi</button>
+                <button id="start-button" class="modern-button">Bắt đầu</button>
+            </div>
+
+            <div id="quiz-container">
+                <form id="quiz-form"></form>
+            </div>
+
+            <div id="final-result-screen" style="display: none;">
+                <h2>Kết quả bài làm</h2>
+                <p id="final-score-text"></p>
+                <p id="redirect-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+   const allQuestions = [
+    { id: 1, question: "File đa phương tiện là gì?", options: { A: "Giống như bất kỳ file bình thường khác.", B: "Phải được truy cập tại tốc độ cụ thể.", C: "Lưu trữ trên Server từ xa không thể phân phối đến client.", D: "Tất cả đều sai." }, answer: "B" },
+    { id: 2, question: "Định dạng nén video nào sau đây được sử dụng để mã hóa chuỗi Video hiệu quả?", options: { A: "MPEG - 1.", B: "MPEG - 2.", C: "MPEG - 3.", D: "MPEG - 4." }, answer: "D" },
+    { id: 3, question: "Phim DVD được nén theo định dạng nén video nào sau đây?", options: { A: "MPEG - 1.", B: "MPEG - 2.", C: "MPEG - 3.", D: "MPEG - 4." }, answer: "D" },
+    { id: 4, question: "Định dạng nén video nào sau đây được sử dụng để xử lý HDTV (High-Definition Television)?", options: { A: "MPEG - 1.", B: "MPEG - 2.", C: "MPEG - 3.", D: "MPEG - 4." }, answer: "D" },
+    { id: 5, question: "Định dạng nén video nào sau đây được sử dụng để xử lý ứng dụng tiêu thụ băng thông thấp hơn?", options: { A: "MPEG - 1.", B: "MPEG - 2.", C: "MPEG - 3.", D: "MPEG - 4." }, answer: "D" },
+    { id: 6, question: "Trong các Frame sau đây, Frame nào là frame độc lập và không phụ thuộc vào yếu tố bên ngoài của hình ảnh?", options: { A: "I - Frame.", B: "B - Frame.", C: "D - Frame.", D: "P - Frame." }, answer: "A" },
+    { id: 7, question: "GOP được viết tắt từ?", options: { A: "Gigabyte of Pictures.", B: "Generation of Photos.", C: "Group of Pictures.", D: "Generation of Pictures." }, answer: "C" },
+    { id: 8, question: "iPhone không hỗ trợ định dạng nén video nào?", options: { A: "MPEG - 1.", B: "MPEG - 2.", C: "MPEG - 3.", D: "MKV." }, answer: "D" },
+    { id: 9, question: "Tiêu chuẩn nào sau đây là thành viên đầu tiên của bộ tiêu chuẩn mã hóa video H.26x?", options: { A: "H.261.", B: "H.262.", C: "H.263.", D: "H.264." }, answer: "D" },
+    { id: 10, question: "Định dạng nén video nào sau đây không được tối ưu hóa cho tốc độ bit thấp?", options: { A: "H.261.", B: "H.262.", C: "H.263.", D: "H.264." }, answer: "D" },
+    { id: 11, question: "Định dạng chuẩn nén video nào sau đây được thiết kế đầu tiên để sử dụng trong hệ thống truyền hình hội nghị và video thoại qua mạng PSTN (Public Switched Telephone Network) và mạng chuyển mạch kênh?", options: { A: "H.261.", B: "H.262.", C: "H.263.", D: "H.264." }, answer: "D" },
+    { id: 12, question: "Định dạng nén video nào sau đây là tiêu chuẩn thế hệ mới nhất cho mã hóa video?", options: { A: "H.261.", B: "H.262.", C: "H.263.", D: "H.264." }, answer: "D" },
+    { id: 13, question: "Tiêu chuẩn đa phương tiện nào liên kết mô tả với nội dung để cho phép tìm kiếm nhanh chóng và hiệu quả?", options: { A: "MPEG - 7.", B: "MPEG - 4.", C: "MPEG - 2.", D: "MPEG - 3." }, answer: "A" },
+    { id: 14, question: "Tiêu chuẩn đa phương tiện nào xác định phương tiện chia sẻ quyền số, giấy phép và hạn chế nội dung số?", options: { A: "MPEG - 7.", B: "MPEG - 21.", C: "MPEG - 1.", D: "MPEG - 3." }, answer: "B" },
+    { id: 15, question: "MPEG được viết tắt từ?", options: { A: "Motion Picture Experts Group.", B: "Moving Processor Experts Group.", C: "Motion Phase Experts Gathering.", D: "Moving Picture Experts Group." }, answer: "A" },
+    { id: 16, question: "Loại mã hóa nào được sử dụng cho điểm yếu của tai con người trong nén audio?", options: { A: "Static.", B: "Dynamic.", C: "Perpetual.", D: "Disk based." }, answer: "C" },
+    { id: 17, question: "Để giảm dữ liệu hình ảnh thì phải làm gì?", options: { A: "Luminance.", B: "Compression.", C: "Hue.", D: "Saturation." }, answer: "B" },
+    { id: 18, question: "Phạm vi nén đạt được khi không có sự khác biệt rõ ràng là bao nhiêu?", options: { A: "50 % to 90 %.", B: "40 % to 80 %.", C: "10 % to 30 %.", D: "30 % to 60 %." }, answer: "A" },
+    { id: 19, question: "Phương pháp nén dữ liệu nào khi giải nén không mất đi độ chi tiết?", options: { A: "Lossy Compression.", B: "JPG (Joint Photographic Group).", C: "Lossless Compression.", D: "BMP (BitMap)." }, answer: "C" },
+    { id: 20, question: "Phương pháp nén nào là ví dụ nén không suy hao?", options: { A: "JPEG (Joint Photographic Experts Group).", B: "MPEG (Motion Picture Experts Group).", C: "BMP (BitMap).", D: "RLC (Run-Length Coding)." }, answer: "D" },
+    { id: 21, question: "Phương pháp nén nào mà dữ liệu bị mất và bỏ sót những chi tiết nhỏ?", options: { A: "Lossy compression.", B: "Lossless Compression.", C: "BMP (BitMap).", D: "Energy." }, answer: "A" },
+    { id: 22, question: "Phương pháp nén nào là ví dụ cho nén dữ liệu có suy hao?", options: { A: "JPEG (Joint Photographic Experts Group).", B: "BMP (BitMap).", C: "Huffman Coding.", D: "Delta Coding." }, answer: "A" },
+    { id: 23, question: "JPEG được viết tắt từ?", options: { A: "Joint Pressure Expert Group.", B: "Joint Photographic Expert Group.", C: "Joint Picture Expert Group.", D: "Join Pic Expert Group." }, answer: "B" },
+    { id: 24, question: "BMP (ảnh BitMap) sử dụng bao nhiêu bit trên mỗi pixel trên mỗi màu, phù hợp với độ phân giải của hầu hết các màn hình?", options: { A: "8 bits.", B: "16 bits.", C: "32 bits.", D: "64 bits." }, answer: "A" },
+    { id: 25, question: "Phương pháp nén nào sử dụng cho ảnh GIF (Graphics Interchange Format)?", options: { A: "Data Compression.", B: "LZW (Lempel-Ziv-Welch).", C: "Lossy Compression.", D: "Energy." }, answer: "B" },
+    { id: 26, question: "Phương pháp nào được tạo ra tiếp theo sau sự thành công của nén JPEG (Joint Photographic Expert Group)?", options: { A: "JPEG - 50.", B: "JPEG - 1000.", C: "JPEG - 100.", D: "JPEG - 2000." }, answer: "D" },
+    { id: 27, question: "Tính toàn vẹn của dữ liệu được bảo toàn vì nén và giải nén dữ liệu là nghịch đảo chính xác lẫn nhau.", options: { A: "Lossless Compression (Nén không suy hao).", B: "Lossy Compression (Nén có suy hao).", C: "Run-Length Coding.", D: "Predictive Coding." }, answer: "D" },
+    { id: 28, question: "Phương pháp nén nào sau đây có suy hao?", options: { A: "Run-Length Coding.", B: "Dictionary Coding.", C: "Arithmetic Coding.", D: "Predictive Coding." }, answer: "D" },
+    { id: 29, question: "Phương pháp nén Lempel Ziv Welch (LZW) là ví dụ cho loại mã hóa nào?", options: { A: "Run-Length Coding.", B: "Dictionary Coding.", C: "Arithmetic Coding.", D: "Predictive Coding." }, answer: "D" },
+    { id: 30, question: "Mã hóa gán từ mã ngắn hơn cho các ký hiệu xuất hiện tần số lớn hơn và từ mã dài hơn cho các ký hiệu xuất hiện với tần số nhỏ hơn.", options: { A: "Run-Length Coding.", B: "Dictionary Coding.", C: "Arithmetic Coding.", D: "Huffman Coding." }, answer: "D" },
+    { id: 31, question: "Mã hóa gán từ mã ngắn hơn cho các ký hiệu có xác suất xuất hiện lớn và từ mã dài hơn cho các ký hiệu có xác suất xuất hiện nhỏ.", options: { A: "Run-Length Coding.", B: "Dictionary Coding.", C: "Arithmetic Coding.", D: "Huffman Coding." }, answer: "D" },
+    { id: 32, question: "Trong mã hóa số học (Arithmetic Coding), toàn bộ thông điệp được ánh xạ đến 1 số thực trong khoảng là?", options: { A: "(0, 1).", B: "[0, 1].", C: "[0, 1).", D: "(0, 1]." }, answer: "C" },
+    { id: 33, question: "Phương pháp nén nào sau đây được xem như Predictive Coding?", options: { A: "DM (Delta Modulation).", B: "DPCM (Differential Pulse Code Modulation).", C: "LPC (Linear Predictive Coding).", D: "All of the choices are correct." }, answer: "D" },
+    { id: 34, question: "Loại mã hóa nào, thay vì lượng tử hóa các mẫu riêng biệt, các mẫu được lượng tử hóa?", options: { A: "Predictive coding.", B: "Perceptual coding.", C: "Transfer coding.", D: "Huffman coding." }, answer: "C" },
+    { id: 35, question: "Mã hóa có thể đạt được mức độ nén cao và thường được sử dụng trong quân đội để nén giọng nói. Giọng nói đồng bộ, mặc dù dễ hiểu, nhưng thiếu tính tự nhiên và chất lượng để xác định người nói.", options: { A: "LPC (Linear Predictive Coding).", B: "DPCM (Differential Pulse Code Modulation).", C: "ADM (Adaptive Delta Modulation).", D: "ADPCM (Adaptive Differential Pulse Code Modulation)." }, answer: "A" },
+    { id: 36, question: "Mã hóa được dựa vào khoa học về âm thanh học, nghiên cứu cách con người cảm nhận về âm thanh.", options: { A: "Predictive coding.", B: "Perceptual coding.", C: "Transfer coding.", D: "None of the choices are correct." }, answer: "D" },
+    { id: 37, question: "Bước nào của mã hóa chuyển đổi (Transfer Coding) được sử dụng trong đa phương tiện có suy hao?", options: { A: "Transformation step.", B: "##Quantization step.", C: "Reverse transformation step.", D: "All of the choices are correct." }, answer: "B" },
+    { id: 38, question: "Vì ma trận vuông biểu diễn hệ số DCT (Discrete Cosine Transform) là ma trận gì khi ma trận nghịch đảo và ma trận chuyển vị giống nhau?", options: { A: "A linear matrix.", B: "A square matrix.", C: "An orthogonal matrix.", D: "A symmetric matrix." }, answer: "C" },
+    { id: 39, question: "Kỹ thuật nén được sử dụng để nén hình ảnh?", options: { A: "MPEG (Motion Picture Experts Group).", B: "JPEG (Joint Photographic Experts Group).", C: "MPEG or JPEG.", D: "None of the choices are correct." }, answer: "B" },
+    { id: 40, question: "Bước đầu tiên của quá trình nén JPEG (Joint Photographic Experts Group)?", options: { A: "DCT (Discrete Cosine Transform) transformation.", B: "##Quantization.", C: "Lossless compression encoding.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 41, question: "Bước thứ 2 của quá trình nén JPEG (Joint Photographic Experts Group)?", options: { A: "DCT (Discrete Cosine Transform) transformation.", B: "##Quantization.", C: "Lossless compression encoding.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 42, question: "Bước thứ 3 của quá trình nén JPEG (Joint Photographic Experts Group)?", options: { A: "DCT (Discrete Cosine Transform) transformation.", B: "##Quantization.", C: "Lossless compression encoding.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 43, question: "Kỹ thuật nén được sử dụng để nén video?", options: { A: "MPEG (Motion Picture Experts Group).", B: "JPEG (Joint Photographic Experts Group).", C: "MPEG or JPEG.", D: "None of the choices are correct." }, answer: "B" },
+    { id: 44, question: "Trong phương pháp MPEG (Motion Picture Experts Group), nén …… của mỗi frame được thực hiện bằng JPEG (Joint Photographic Experts Group), các frame dư thừa được loại bỏ trong suốt quá trình nén…… .", options: { A: "Nén thời gian (Temporal compression), Nén không gian (Spatial compression).", B: "Nén không gian (Spatial compression), Nén thời gian (Temporal compression).", C: "Nén suy hao (Lossy compression), Nén không suy hao (Lossless compression).", D: "None of the choices are correct." }, answer: "B" },
+    { id: 45, question: "Dữ liệu trong truyền thông đa phương tiện sử dụng kỹ thuật nén gì?", options: { A: "Lossless Compression.", B: "Lossy Compression.", C: "Both A and B are correct.", D: "Both A and B are wrong." }, answer: "C" },
+    { id: 46, question: "Giả sử, nén một chuỗi ký tự: AAABBBBCDDDDDDEEE sử dụng phương pháp mã hóa Run-Length Coding. Xác định tỷ số nén của chuỗi dữ liệu trên.", options: { A: "17/10.", B: "9/16.", C: "10/17.", D: "16/9." }, answer: "B" },
+    { id: 47, question: "Giả sử, nén dữ liệu dưới dạng chuỗi nhị phân sau: 00000000000010001100000000 sử dụng mã hóa Run-Length Coding. Biết rằng, dữ liệu nén có thể được mã hóa nhị phân sử dụng 4 bits/digit. Xác định tỷ số nén dữ liệu trên.", options: { A: "16/26.", B: "26/16.", C: "17/10.", D: "10/17." }, answer: "B" },
+    { id: 48, question: "Cho hình vẽ bên dưới thực hiện nén dữ liệu dạng chuỗi nhị phân sử dụng phương pháp mã hóa Run-Length Coding. Giả sử, dữ liệu nén có thể được mã hóa nhị phân sử dụng 4 bits/digit. Xác định tỷ số nén dữ liệu trên.", options: { A: "16/26.", B: "17/10.", C: "26/16.", D: "10/17." }, answer: null },
+    { id: 49, question: "Phương pháp mã hóa Dictionary Coding sử dụng kỹ thuật mã hóa LZW (Lempel Ziv Welch). Giả sử, mã hóa thông điệp dạng text với ký tự alphabet được tạo từ 2 ký tự A và B. Chuỗi ký tự text như sau: \"BAABABBBAABBBBAA\". Xác định dữ liệu mã hóa chuỗi ký tự trên.", options: { A: "1002163670.", B: "1002136670.", C: "1002163760.", D: "1002163607." }, answer: "A" },
+    { id: 50, question: "Cho sơ đồ khối mã hóa chuỗi ký tự dạng text như hình vẽ bên dưới. Xác định từ mã sử dụng mã hóa LZW (Lempel Ziv Welch).", options: { A: "1002136670.", B: "1002163670.", C: "1002163760.", D: "1002163607." }, answer: "B" },
+    { id: 51, question: "Cho sơ đồ khối giải mã LZW (Lempel Ziv Welch) như hình vẽ bên dưới. Xác định chuỗi thông điệp dạng text.", options: { A: "\"BAABABBBAABBBAAB\".", B: "\"BAABABBBAABBBABA\".", C: "\"BAABABBBAABBBBAA\".", D: "\"BAABABBBAABBABBA\"." }, answer: "C" },
+    { id: 52, question: "Trong phương pháp Dictionary Coding, cho từ mã 1002163670. Xác định thông điệp sử dụng kỹ thuật giải mã LZW (Lempel Ziv Welch).", options: { A: "\"BAABABBBAABBBAAB\".", B: "\"BAABABBBAABBBABA\".", C: "\"BAABABBBAABBABBA\".", D: "\"BAABABBBAABBBBAA\"." }, answer: "D" },
+    { id: 53, question: "Trong phương pháp Huffman Coding, cho chuỗi thông điệp: EAEBAECDEA. Giả sử, bit ‘0’ mã hóa cho ký tự hoặc nhóm ký tự có xác suất lớn hơn. Xác định tỷ số nén cho thông điệp trên.", options: { A: "30/21.", B: "21/30.", C: "30/22.", D: "22/30." }, answer: "A" },
+    { id: 54, question: "Trong phương pháp Huffman Coding, cho chuỗi thông điệp: EAEBAECDEA. Xác định từ mã được mã hóa theo Huffman Coding. Giả sử, bit ‘0’ mã hóa cho ký tự hoặc nhóm ký tự có xác suất lớn hơn.", options: { A: "100101100101000101001.", B: "100101100101000101100.", C: "100101100101000011100.", D: "100101100101001001100." }, answer: "B" },
+    { id: 55, question: "Trong phương pháp Huffman Coding, cho chuỗi thông điệp: PHTDHGTVTTPHCM. Giả sử, bit ‘1’ mã hóa cho ký tự hoặc nhóm ký tự có xác suất lớn hơn. Xác định tỷ số nén cho thông điệp trên.", options: { A: "26/42.", B: "42/39.", C: "39/42.", D: "14/42." }, answer: "B" },
+    { id: 56, question: "Trong phương pháp Huffman Coding, cho chuỗi thông điệp: PHTDHGTVTTPHCM. Xác định từ mã được mã hóa theo Huffman Coding. Giả sử, bit ‘1’ mã hóa cho ký tự hoặc nhóm ký tự có xác suất lớn hơn.", options: { A: "101011110010110001100101111101010000101.", B: "101011110010110001100101111101010000110.", C: "101011110010110001100101111101010000011.", D: "101011110010110001100101111101010001100." }, answer: "C" },
+    { id: 57, question: "Phương pháp Arithmetic Coding, giả sử rằng tập các ký hiệu là S = {A, B, *}, với dấu * là ký hiệu kết thúc, xác suất xuất hiện đối với mỗi ký hiệu là pA = 0.4, pB = 0.5 và p* = 0.1. Cho một thông điệp ngắn với các ký hiệu: \"BBAB*\". Xác định khoảng hiện tại của thông điệp ngắn trên.", options: { A: "(0, 1].", B: "[0, 1).", C: "(0.685, 0.690].", D: "[0.685, 0.690)." }, answer: "D" },
+    { id: 58, question: "Phương pháp Arithmetic Coding, giả sử rằng tập các ký hiệu là S = {A, B, *}, với dấu * là ký hiệu kết thúc, xác suất xuất hiện đối với mỗi ký hiệu là pA = 0.4, pB = 0.5 và p* = 0.1. Cho một thông điệp với các ký hiệu: \"BBAB*\". Xác định từ mã được mã hóa thông điệp trên.", options: { A: "1011.", B: "1010.", C: "1001.", D: "1100." }, answer: "A" },
+    { id: 59, question: "Cho sơ đồ khối bộ giải mã số học, có từ mã là 1011. Xác định thông điệp được giải mã sử dụng phương pháp Arithmetic Coding.", options: { A: "\"ABBB*\".", B: "\"BBAB*\".", C: "\"BABB*\".", D: "\"BBBA*\"." }, answer: "B" },
+    { id: 60, question: "Tính thời gian để truyền một hình ảnh trắng và đen có 1280 x 720 pixels sử dụng tốc độ truyền là 100 kbps.", options: { A: "73.728 s.", B: "221.184 s.", C: "9.216 s.", D: "125 s." }, answer: "C" },
+    { id: 61, question: "Tính thời gian để truyền một hình ảnh xám có 1280 x 720 pixels sử dụng tốc độ truyền là 100 kbps.", options: { A: "125 s.", B: "221.184 s.", C: "9.216 s.", D: "73.728 s." }, answer: "D" },
+    { id: 62, question: "Tính thời gian để truyền một hình ảnh màu (RGB) có 1280 x 720 pixels sử dụng tốc độ truyền là 100 kbps.", options: { A: "221.184 s.", B: "125 s.", C: "9.216 s.", D: "73.728 s." }, answer: "D" },
+    { id: 63, question: "Kênh truyền hình màu phát sóng có 720 x 480 pixels trên khung (Frame), 30 frames/s và 24 bits/color. Xác định tốc độ truyền của kênh truyền hình màu mà không sử dụng kỹ thuật nén.", options: { A: "1.5 Gbps.", B: "249 Mbps.", C: "20 Mbps.", D: "40 Mbps." }, answer: "B" },
+    { id: 64, question: "Kênh truyền hình HD phát sóng có 1920 x 1080 pixels/frame, 30 frames/s và 24 bits/color. Xác định tốc độ truyền của kênh truyền hình HD mà không sử dụng kỹ thuật nén.", options: { A: "20 Mbps.", B: "40 Mbps.", C: "249 Mbps.", D: "1.5 Gbps." }, answer: "D" },
+    { id: 65, question: "Truyền một tín hiệu số có 8 mức. Xác định số bit trên mỗi mức.", options: { A: "2 (bits).", B: "3 (bits).", C: "4 (bits).", D: "5 (bits)." }, answer: "D" },
+    { id: 66, question: "Lấy mẫu tín hiệu có 12 mức (0 ÷ +5 và 0 ÷ -5). Xác định số bit được mã hóa tín hiệu.", options: { A: "2 (bits).", B: "3 (bits).", C: "4 (bits).", D: "5 (bits)." }, answer: "C" },
+    { id: 67, question: "Một tín hiệu tương tự có băng thông 10 KHz (1 ÷ 11 KHz). Xác định tần số lấy mẫu tối thiểu của tín hiệu.", options: { A: "5000 samples/s.", B: "10000 samples/s.", C: "11000 samples/s.", D: "22000 samples/s." }, answer: "D" },
+    { id: 68, question: "Nếu phổ tần số của tín hiệu có băng thông là 500 Hz, tần số cao nhất là 600 Hz. Xác định tần số lấy mẫu tối thiểu theo định lý Nyquist.", options: { A: "1200 samples/s.", B: "1500 samples/s.", C: "1000 samples/s.", D: "2000 samples/s." }, answer: "A" },
+    { id: 69, question: "Nếu giá trị tối đa tín hiệu PCM (Pulse Code Modulation) là +31 và giá trị bé nhất là -31. Xác định số bit được mã hóa tín hiệu.", options: { A: "5 bits.", B: "6 bits.", C: "7 bits.", D: "8 bits." }, answer: "B" },
+    { id: 70, question: "Giả sử ta cần tải một tài liệu văn bản với tốc độ 100 page/s, một trang trung bình có 24 dòng và một dòng có 80 ký tự, mỗi ký tự mã hóa 8 bits. Xác định tốc độ bit (bit rate).", options: { A: "1.536 (Mbps).", B: "2.536 (Mbps).", C: "3.536 (Mbps).", D: "4.536 (Mbps)." }, answer: "A" },
+    { id: 71, question: "Kênh truyền thoại được số hóa (PCM - Pulse Code Modulation) có băng thông tín hiệu thoại 4 kHz. Lấy mẫu tín hiệu tại 2 tần số cao nhất, giả sử lấy mẫu tín hiệu 8 bits. Xác định tốc độ bit của tín hiệu thoại.", options: { A: "32 (kbps).", B: "64 (kbps).", C: "1.544 (Mbps).", D: "2.048 (Mbps)." }, answer: "B" },
+    { id: 72, question: "Tín hiệu voice được lấy mẫu tại tốc độ 8000 samples/s với 8 bits/sample. Xác định tốc độ bit để số hóa tín hiệu voice sử dụng kỹ thuật PCM (Pulse Code Modulation).", options: { A: "32 (kbps).", B: "64 (kbps).", C: "1.544 (Mbps).", D: "2.048 (Mbps)." }, answer: "B" },
+    { id: 73, question: "Âm nhạc (Music) được lấy mẫu tại 44100 samples/s với 16 bits/sample. Xác định tốc độ để số hóa âm nhạc monaural.", options: { A: "32 (kbps).", B: "64 (kbps).", C: "705.6 (kbps).", D: "1.544 (Mbps)." }, answer: "C" },
+    { id: 74, question: "Âm nhạc (Music) được lấy mẫu tại 44100 samples/s với 16 bits/sample. Xác định tốc độ để số hóa âm nhạc stereo.", options: { A: "32 (kbps).", B: "64 (kbps).", C: "705.6 (kbps).", D: "1.411 (Mbps)." }, answer: "D" },
+    { id: 75, question: "Tín hiệu giọng nói có phổ tần giới hạn với băng thông 4 kHz được lượng tử hóa 13 bits. Xác định tốc độ dữ liệu.", options: { A: "32 (kbps).", B: "64 (kbps).", C: "104 (kbps).", D: "128 (kbps)." }, answer: "C" },
+    { id: 76, question: "Tín hiệu giọng nói có phổ tần giới hạn với băng thông 4 kHz được lượng tử hóa 16 bits. Xác định tốc độ dữ liệu.", options: { A: "32 (kbps).", B: "64 (kbps).", C: "104 (kbps).", D: "128 (kbps)." }, answer: "D" },
+    { id: 77, question: "Phương pháp Transform Coding, phép biến đổi DCT (Discrete Cosine Transform) 1 chiều của ma trận vuông T (DCT coefficient) và nguồn dữ liệu p = (100, 101, 102, 103). Xác định ma trận M (ma trận biến đổi dữ liệu). Biết ma trận vuông T:", options: { A: "M = [ 203;  2.22;  0.00;  0.16 ].", B: "M = [ 0.16;  0.00;  2.22; 203 ].", C: "M = [ 0.00;  0.16;  2.22; 203 ].", D: "M = [ 203;  2.22;  0.16;  0.00 ]." }, answer: "D" },
+    { id: 78, question: "Phương pháp Transform Coding, phép biến đổi DCT (Discrete Cosine Transform) 1 chiều của ma trận vuông T (DCT coefficient) và nguồn dữ liệu p = (7, 8, 9, 10). Xác định ma trận M (ma trận biến đổi dữ liệu). Biết ma trận vuông T:", options: { A: "M = [  2.22;  0.16;  0.00; 17 ].", B: "M = [ 17;  2.22;  0.00;  0.16 ].", C: "M = [ 17;  0.00;  2.22;  0.16 ].", D: "M = [ 0.16;  0.00;  2.22; 17 ]." }, answer: "B" },
+    { id: 79, question: "Phương pháp Transform Coding, phép biến đổi DCT (Discrete Cosine Transform) 1 chiều của ma trận chuyển vị Tᵀ (DCT coefficient) và dữ liệu biến đổi M = (203, 2.22, 0.00, 0.16). Xác định ma trận p (ma trận nguồn dữ liệu). Biết ma trận chuyển vị Tᵀ:", options: { A: "p = [ 103; 103; 101; 100 ].", B: "p = [ 101; 102; 100; 103 ].", C: "p = [ 100; 101; 102; 103 ].", D: "p = [ 100; 103; 102; 101 ]." }, answer: "C" },
+    { id: 80, question: "Phương pháp Transform Coding, phép biến đổi DCT (Discrete Cosine Transform) 1 chiều của ma trận chuyển vị Tᵀ (DCT coefficient) và dữ liệu biến đổi M = (17, 2.22, 0.00, 0.16). Xác định ma trận p (ma trận nguồn dữ liệu). Biết ma trận chuyển vị Tᵀ (như trên).", options: { A: "p = [  7;  8; 10;  9 ].", B: "p = [  7; 10;  8;  9 ].", C: "p = [ 10;  9;  8;  7 ].", D: "p = [  7;  8;  9; 10 ]." }, answer: "D" },
+    { id: 81, question: "Để thực hiện ý tưởng về nén ảnh JPEG, sử dụng một khối ảnh xám có thang độ xám đồng nhất (Uniform Gray Scale), độ sâu bit đối với mỗi pixel là 20. Khối ảnh xám đã sử dụng một chương trình Java để biến đổi, lượng tử hóa và sắp xếp lại các giá trị theo chuỗi zigzag như hình bên dưới. Xác định đoạn chuỗi dữ liệu được mã hóa.", options: { A: "10 0 0 0 0 0 0 …", B: "0 10 0 0 0 0 0 …", C: "0 0 10 0 0 0 0 …", D: "0 0 0 10 0 0 0 …" }, answer: "A" },
+    { id: 82, question: "Để nén ảnh JPEG, sử dụng một khối ảnh xám có thang độ xám Gradient (Gradient Gray Scale) thay đổi dần dần, không có sự thay đổi đột ngột giữa các giá trị của các pixel lân cận. Khối ảnh xám đã sử dụng một chương trình Java để biến đổi, lượng tử hóa và sắp xếp lại các giá trị theo chuỗi zigzag như hình bên dưới. Xác định đoạn chuỗi dữ liệu được mã hóa.", options: { A: "45 -17 0 -15 0 0 -1 0 0 -1 0 0 …", B: "45 -17 -15 0 0 0 -1 0 0 -1 0 0 …", C: "45 -17 -15 0 0 0 -1 0 0 0 -1 0 …", D: "45 -17 -15 0 0 0 -1 0 -1 0 0 0 …" }, answer: "B" },
+    { id: 83, question: "Chuyện gì diễn ra khi một file bị nén?", options: { A: "File có chất lượng tốt hơn.", B: "File chiếm ít không gian lưu trữ hơn.", C: "File không thể phân phối đến client một cách nhanh hơn.", D: "Tất cả đều sai." }, answer: "B" },
+    { id: 84, question: "Tỉ số nén là tỉ số của …………………………………………………………", options: { A: "Kích thước file gốc so với kích thước file nén.", B: "Số pixel trong 1 frame của kích thước file gốc so với số pixel trong 1 frame của file nén.", C: "Kích thước file nén so với kích thước file gốc.", D: "Tất cả đều sai." }, answer: "C" },
+    { id: 85, question: "Phân loại của phương pháp nén có suy hao và nén không có suy hao?", options: { A: "Hệ thống lưu trữ truyền thông đa phương tiện.", B: "Các file.", C: "Các thuật toán nén.", D: "Tất cả đều đúng." }, answer: "B" },
+    { id: 86, question: "So sánh tỉ số nén của kỹ thuật nén có suy hao và kỹ thuật nén không có suy hao?", options: { A: "Tỉ số nén thấp hơn.", B: "Tỉ số nén cao hơn rất nhiều.", C: "Tỉ số nén tương tự nhau.", D: "Tất cả đều sai." }, answer: "C" },
+    { id: 87, question: "Audio/ Video đề cập đến nhu cầu (on-demand) theo yêu cầu đối với các file audio/ video được nén.", options: { A: "Streaming live audio/ video.", B: "Streaming stored audio/ video.", C: "Interactive audio/ video.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 88, question: "Audio/ Video đề cập đến việc phát sóng các chương trình phát thanh và truyền hình qua Internet.", options: { A: "Streaming live audio/ video.", B: "Streaming stored audio/ video.", C: "Interactive audio/ video.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 89, question: "Audio/ Video đề cập đến việc sử dụng Internet để tương tác các ứng dụng audio/ video.", options: { A: "Streaming live audio/ video.", B: "Streaming stored audio/ video.", C: "Interactive audio/ video.", D: "None of the choices are correct." }, answer: "A" },
+    { id: 90, question: "Bộ đệm (Buffer) nào được yêu cầu lưu lượng thời gian thực?", options: { A: "Playback buffer.", B: "Reordering buffer.", C: "Sorting buffer.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 91, question: "Để thiết lập mối quan hệ thời gian và thứ tự của các gói tin, lưu lượng thời gian thực cần trên mỗi gói tin:", options: { A: "Only a timestamp.", B: "Only a sequence number.", C: "Both a timestamp and a sequence number.", D: "None of the choices are correct." }, answer: "A" },
+    { id: 92, question: "Phương pháp nào có ý nghĩa là thay đổi mã hóa của tải trọng thành chất lượng thấp hơn để phù hợp với băng thông dành cho mạng?", options: { A: "Dịch (Translation).", B: "Trộn (Mixing).", C: "Mã hóa (Encoding).", D: "None of the choices are correct." }, answer: "B" },
+    { id: 93, question: "Phương pháp nào có ý nghĩa là kết hợp nhiều luồng lưu lượng thành một luồng?", options: { A: "Dịch (Translation).", B: "Trộn (Mixing).", C: "Mã hóa (Encoding).", D: "None of the choices are correct." }, answer: "B" },
+    { id: 94, question: "Để tái tạo lại các gói bị mất và bị hỏng, lưu lượng thời gian thực thường sử dụng phương pháp nào?", options: { A: "Truyền lại các gói bị mất và bị hỏng.", B: "Sử dụng phương pháp FEC (Forward Error Correction).", C: "Truyền lại toàn bộ lưu lượng.", D: "Tất cả đều sai." }, answer: "B" },
+    { id: 95, question: "Một buổi biểu diễn video thời gian thực kéo dài 10 phút. Nếu ở đó có jitter trong hệ thống, người xem trải qua bao nhiêu phút để xem buổi biểu diễn.", options: { A: "Less than 10 minutes.", B: "More than 10 minutes.", C: "Exactly 10 minutes.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 96, question: "Cách thức để hiển thị thời gian một gói được tạo ra so với gói tin đầu tiên hoặc gói tin trước đó như thế nào?", options: { A: "Timestamp.", B: "Playback buffer.", C: "Sequence number.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 97, question: "Phương pháp được sử dụng để số gói tin truyền thời gian thực?", options: { A: "Timestamp.", B: "Playback buffer.", C: "Sequence number.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 98, question: "Cách thức thêm các tín hiệu từ các nguồn khác để tạo ra một tín hiệu tổng hợp đơn?", options: { A: "Timestamp.", B: "Sequence number.", C: "Mixer.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 99, question: "Phương pháp thay đổi định dạng của tín hiệu video băng thông cao thành tín hiệu băng thông hẹp chất lượng thấp hơn?", options: { A: "Timestamp.", B: "Sequency number.", C: "Translator.", D: "None of the choices are correct." }, answer: "C" },
+    { id: 100, question: "Giao thức thuộc giao thức lớp ứng dụng có chức năng thiết lập, quản lý và kết thúc một phiên đa phương tiện?", options: { A: "SIP (Session Initialization Protocol).", B: "H.323.", C: "RTP (Real-time Transport Protocol).", D: "None of the choices are correct." }, answer: "C" },
+    { id: 101, question: "Một tiêu chuẩn được thiết kế bởi ITU (International Telecommunication Union) cho phép điện thoại trên mạng điện thoại công cộng để có thể đàm thoại với máy tính được kết nối Internet.", options: { A: "SIP (Session Initialization Protocol).", B: "H.323.", C: "RTP (Real-time Transport Protocol).", D: "None of the choices are correct." }, answer: "C" },
+    { id: 102, question: "Giao thức không thích hợp với lưu lượng đa phương tiện tương tác bởi vì chúng không thể cho phép truyền lại các gói tin?", options: { A: "TCP (Transmission Control Protocol).", B: "UDP (User Datagram Protocol).", C: "RTP (Real-time Transport Protocol).", D: "None of the choices are correct." }, answer: "B" },
+    { id: 103, question: "Giao thức được thiết kế để xử lý lưu lượng thời gian thực trên Internet?", options: { A: "TCP (Transmission Control Protocol).", B: "UDP (User Datagram Protocol).", C: "RTP (Real-time Transport Protocol).", D: "None of the choices are correct." }, answer: "A" },
+    { id: 104, question: "Giao thức được sử dụng để kiểm soát luồng và chất lượng dữ liệu liên quan với RTP (Real-time Transport Protocol).", options: { A: "SIP (Session Initialization Protocol).", B: "RTCP (Real-time Transport Control Protocol).", C: "H.323.", D: "None of the choices are correct." }, answer: "B" },
+    { id: 105, question: "Một gói tin RTP (Real-time Transport Protocol) được đóng gói ở đâu?", options: { A: "A UDP (User Datagram Protocol) user datagram.", B: "A TCP (Transmission Control Protocol) segment.", C: "An IP (Internet Protocol) datagram.", D: "None of the choices are correct." }, answer: "A" },
+    { id: 106, question: "Khả năng di chuyển xung quanh trong một luồng phương tiện được gọi là?", options: { A: "Buffering.", B: "Random access.", C: "Access.", D: "Sequential access." }, answer: "A" },
+    { id: 107, question: "Hai loại phát trực tiếp thời gian thực là?", options: { A: "Live streaming and On demand streaming.", B: "Dead streaming and Static streaming.", C: "Static streaming and On demand streaming.", D: "On demand streaming." }, answer: "A" },
+    { id: 108, question: "Truy cập ngẫu nhiên không cho phép trong …………………………………", options: { A: "Live streaming.", B: "Dead streaming.", C: "Static streaming.", D: "On demand streaming." }, answer: "B" },
+    { id: 109, question: "Việc phát trực tiếp diễn ra khi sự kiện đang xuất hiện là ……………………", options: { A: "Live streaming.", B: "Dead streaming.", C: "Static streaming.", D: "On demand streaming." }, answer: "A" },
+    { id: 110, question: "Để máy tính có thể cung cấp phương tiện liên tục thì nó phải đảm bảo các yêu cầu về tốc độ và thời gian cụ thể, còn được gọi là ……………………………….", options: { A: "Deadline.", B: "##QoS (##Quality of Service).", C: "Period.", D: "Burst time." }, answer: "A" },
+    { id: 111, question: "RTP (Real-time Transport Protocol) chủ yếu được sử dụng với các dịch vụ nào?", options: { A: "Streaming Media.", B: "Video Teleconference.", C: "Television Services.", D: "All of the choices are correct." }, answer: "A" },
+    { id: 112, question: "RTP (Real-time Transport Protocol) được sử dụng để làm gì?", options: { A: "Carry the media stream.", B: "Monitor transmission statistics of streams.", C: "Monitor quality of service of streams.", D: "Secure the stream." }, answer: "B" },
+    { id: 113, question: "RTP (Real-time Transport Protocol) cung cấp khả năng Jitter ………………", options: { A: "Media stream.", B: "Expansion.", C: "Media modification.", D: "Security." }, answer: "A" },
+    { id: 114, question: "Giao thức nào cung cấp đồng bộ hóa giữa các luồng truyền thông đa phương tiện?", options: { A: "RTP (Real-time Transport Protocol).", B: "RTCP (Real-time Transport Control Protocol).", C: "RPC.", D: "RTCT." }, answer: "D" }
+];
+
+    const script_elements = {
+        quizForm: document.getElementById('quiz-form'),
+        timerDisplay: document.getElementById('timer-display'),
+        setupContainer: document.getElementById('setup-container'),
+        quizContainer: document.getElementById('quiz-container'),
+        startButton: document.getElementById('start-button'),
+        shuffleButton: document.getElementById('shuffle-button'),
+        submitButton: document.getElementById('submit-button'),
+        finalResultScreen: document.getElementById('final-result-screen'),
+        stickyHeader: document.getElementById('sticky-header'),
+        mainContainer: document.getElementById('main-container'),
+        contentPadding: document.getElementById('content-padding')
+    };
+    
+    let score = 0;
+    let timerInterval;
+    let quizData = [];
+    const incorrectlyAttemptedQuestions = []; 
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    function prepareQuestions() {
+        const uniqueQuestions = new Map();
+        allQuestions.forEach(q => {
+            const trimmedQuestion = q.question.trim().replace(/\s+/g, ' ');
+            if (!uniqueQuestions.has(trimmedQuestion)) {
+                uniqueQuestions.set(trimmedQuestion, q);
+            }
+        });
+        quizData = Array.from(uniqueQuestions.values());
+        quizData.forEach((q, index) => {
+            q.id = index + 1;
+        });
+    }
+
+    script_elements.shuffleButton.addEventListener('click', () => {
+        shuffleArray(quizData);
+        script_elements.shuffleButton.textContent = 'Đã xáo trộn!';
+        script_elements.shuffleButton.classList.add('shuffled');
+        script_elements.shuffleButton.disabled = true;
+    });
+
+    script_elements.startButton.addEventListener('click', () => {
+        script_elements.setupContainer.style.display = 'none';
+        script_elements.quizContainer.style.display = 'block';
+        script_elements.stickyHeader.style.display = 'flex';
+        script_elements.submitButton.style.display = 'block';
+        
+        const selectedTimeInput = document.querySelector('input[name="time"]:checked');
+        const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 20;
+        startTimer(durationInMinutes);
+
+        renderQuiz();
+    });
+
+    script_elements.submitButton.addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn nộp bài không?')) {
+            endQuiz();
+        }
+    });
+
+    function renderQuiz() {
+        let html = '';
+        quizData.forEach((q, index) => {
+            const correctAnswerText = q.options[q.answer];
+            let optionsArray = Object.keys(q.options).map(key => ({ key, text: q.options[key] }));
+            shuffleArray(optionsArray);
+
+            const shuffledOptions = {};
+            let newAnswerKey = '';
+            const newKeys = ['A', 'B', 'C', 'D', 'E'];
+
+            optionsArray.forEach((option, i) => {
+                const currentKey = newKeys[i];
+                shuffledOptions[currentKey] = option.text;
+                if (option.text === correctAnswerText) {
+                    newAnswerKey = currentKey;
+                }
+            });
+            
+            q.shuffledAnswer = newAnswerKey;
+
+            html += `<div class="question-block" id="q-block-${q.id}">`;
+            html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
+            
+            if (q.image) {
+                html += `<div style="text-align: center; margin-bottom: 15px;">
+                            <img src="${q.image}" alt="Hình ảnh cho câu hỏi ${index + 1}" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
+                         </div>`;
+            }
+
+            html += `<fieldset id="fs-${q.id}">`;
+            html += `<div class="options-container">`;
+            for (const key in shuffledOptions) {
+                html += `<div>
+                            <label>
+                                <input type="radio" name="q${q.id}" value="${key}">
+                                <span>${key}. ${shuffledOptions[key]}</span>
+                            </label>
+                         </div>`;
+            }
+            html += `</div></fieldset></div>`;
+        });
+        script_elements.quizForm.innerHTML = html;
+    }
+
+    function handleAnswerSelection(event) {
+        const selectedRadio = event.target;
+        if (selectedRadio.tagName !== 'INPUT' || selectedRadio.type !== 'radio') return;
+
+        const questionId = parseInt(selectedRadio.name.substring(1));
+        const userAnswer = selectedRadio.value;
+        
+        const questionData = quizData.find(q => q.id === questionId);
+        if (!questionData || questionData.answeredCorrectly) {
+            return;
+        }
+
+        const block = document.getElementById(`q-block-${questionId}`);
+        block.classList.remove('correct', 'incorrect');
+        Array.from(block.querySelectorAll('.options-container div')).forEach(div => {
+            div.classList.remove('incorrect-option', 'correct-selection');
+        });
+
+        const isCorrect = userAnswer === questionData.shuffledAnswer;
+        const selectedLabelDiv = selectedRadio.closest('div');
+
+        if (isCorrect) {
+            block.classList.add('correct');
+            selectedLabelDiv.classList.add('correct-selection');
+            document.getElementById(`fs-${questionId}`).disabled = true;
+            questionData.answeredCorrectly = true;
+
+            if (!incorrectlyAttemptedQuestions.includes(questionId)) {
+                score++;
+            }
+        } else {
+            block.classList.add('incorrect');
+            selectedLabelDiv.classList.add('incorrect-option');
+
+            if (!incorrectlyAttemptedQuestions.includes(questionId)) {
+                incorrectlyAttemptedQuestions.push(questionId);
+            }
+        }
+    }
+
+    function startTimer(minutes) {
+        let duration = minutes * 60;
+        timerInterval = setInterval(() => {
+            const mins = Math.floor(duration / 60);
+            let secs = duration % 60;
+            secs = secs < 10 ? '0' + secs : secs;
+
+            script_elements.timerDisplay.textContent = `${mins}:${secs}`;
+            
+            if (duration < 60 && !script_elements.timerDisplay.classList.contains('ending')) {
+                script_elements.timerDisplay.classList.add('ending');
+            }
+
+            if (--duration < 0) {
+                endQuiz(true);
+            }
+        }, 1000);
+    }
+
+    function endQuiz(isTimeOut = false) {
+        clearInterval(timerInterval);
+        if (isTimeOut) {
+            alert("Đã hết giờ làm bài!");
+        }
+        
+        script_elements.stickyHeader.style.display = 'none';
+        script_elements.quizContainer.style.display = 'none';
+        script_elements.submitButton.style.display = 'none';
+
+        const totalQuestions = quizData.length;
+        document.getElementById('final-score-text').textContent = `Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
+        script_elements.finalResultScreen.style.display = 'block';
+
+        let countdown = 5;
+        const redirectMessage = document.getElementById('redirect-message');
+        redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            redirectMessage.textContent = `Trang sẽ tải lại sau ${countdown} giây...`;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
+    }
+    
+    prepareQuestions();
+    script_elements.quizForm.addEventListener('click', handleAnswerSelection);
+    </script>
+</body>
+</html>
