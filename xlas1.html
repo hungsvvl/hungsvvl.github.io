@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (V12 Pro)</title>
+    <title>Chấm Công UTC (V13 Modern UI)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -38,23 +38,21 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Inter', sans-serif; /* Google Font */
+            font-family: 'Inter', sans-serif;
             background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s;
         }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR & NAV --- */
         .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; }
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
         .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
         .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
-        /* --- MAIN --- */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
 
-        /* --- MOBILE NAV --- */
         .bottom-nav { display: none !important; } 
         @media (max-width: 768px) {
             .sidebar { display: none !important; }
@@ -67,18 +65,18 @@
                 padding-bottom: env(safe-area-inset-bottom);
             }
             .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; }
-            .b-nav-item i { font-size: 1.2rem; }
             .b-nav-item.active { color: var(--primary); }
         }
 
-        /* --- COMPONENTS --- */
+        /* --- UI ELEMENTS --- */
         .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         h3 { margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
 
-        .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; }
+        .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; justify-content: center; }
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
+        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
 
         .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
@@ -96,26 +94,20 @@
         .badge-red { background: #fee2e2; color: #991b1b; }
         .badge-yellow { background: #fef3c7; color: #92400e; }
 
-        /* --- TOAST NOTIFICATION (CẢNH BÁO ĐẸP) --- */
+        /* --- MODAL CONFIRM & LOGIN --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        /* --- TOAST NOTIFICATION --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; }
-        .toast { 
-            background: var(--bg-card); padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
-            display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary);
-            animation: slideInRight 0.3s ease forwards; 
-        }
+        .toast { background: var(--bg-card); padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary); animation: slideIn 0.3s; }
         .toast.error { border-left-color: var(--danger); }
         .toast.success { border-left-color: var(--success); }
-        .toast-content { flex: 1; }
         .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
         .toast-msg { font-size: 0.8rem; color: var(--text-sub); }
 
-        /* --- POPUP & LOGIN --- */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: var(--bg-card); padding: 24px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: slideUp 0.3s; }
-        
         #login-page { position: fixed; inset: 0; z-index: 10000; background: var(--bg-body); display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-card { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        
         .role-group { display: flex; background: var(--bg-body); padding: 4px; border-radius: 10px; margin-bottom: 24px; }
         .role-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 0.9rem; }
         .role-btn.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -124,14 +116,30 @@
         .flex-row { display: flex; gap: 12px; }
         .flex-1 { flex: 1; }
         
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @media (max-width: 768px) { .flex-row { flex-direction: column; } .btn { width: 100%; } }
     </style>
 </head>
 <body>
 
 <div id="toast-container"></div>
+
+<div id="confirm-modal" class="overlay">
+    <div class="modal-box">
+        <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h2 style="margin: 0 0 8px 0; color: var(--text-main);">Xác Nhận</h2>
+        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">
+            Bạn có chắc chắn muốn thực hiện hành động này?
+        </p>
+        <div class="flex-row">
+            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white;">Đồng Ý</button>
+            <button class="btn btn-outline flex-1" onclick="closeConfirmModal()">Hủy Bỏ</button>
+        </div>
+    </div>
+</div>
 
 <div id="new-id-modal" class="overlay">
     <div class="modal-box">
@@ -151,17 +159,14 @@
         <div style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-fingerprint"></i></div>
         <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
         <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
-
         <div class="role-group">
             <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
             <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
         </div>
-
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
             <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
-
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
@@ -201,7 +206,6 @@
         </div>
 
         <div id="view-admin" class="hidden">
-            
             <div id="tab-dashboard" class="tab-content">
                 <div class="flex-row">
                     <div class="card flex-1">
@@ -236,23 +240,14 @@
             <div id="tab-salary" class="tab-content hidden">
                 <div class="card">
                     <div class="flex-row">
-                        <div class="flex-1">
-                            <label style="font-size:0.8rem; font-weight:600">Từ ngày:</label>
-                            <input type="date" id="date-start" class="form-control">
-                        </div>
-                        <div class="flex-1">
-                            <label style="font-size:0.8rem; font-weight:600">Đến ngày:</label>
-                            <input type="date" id="date-end" class="form-control">
-                        </div>
-                        <div class="flex-1">
-                            <label style="font-size:0.8rem; font-weight:600">Lương/Ngày:</label>
-                            <input type="number" id="salary-val" class="form-control" value="500000">
-                        </div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Từ ngày:</label><input type="date" id="date-start" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Đến ngày:</label><input type="date" id="date-end" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Lương/Ngày:</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
                     </div>
                     <div class="flex-row" style="margin-top:10px">
                         <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
                         <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
-                        <button class="btn btn-danger flex-1" onclick="deleteDataRange()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
+                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
                     </div>
                 </div>
                 <div class="card">
@@ -272,7 +267,7 @@
                         <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
                         <div class="flex-row">
                             <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
-                            <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="delUser()">Xóa</button>
+                            <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="triggerDeleteUser()">Xóa</button>
                         </div>
                         <button class="btn btn-outline" style="width:100%; margin-top:12px" onclick="resetForm()">Làm mới</button>
                     </div>
@@ -284,7 +279,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -316,30 +310,35 @@
     let processedNewIDs = new Set();
     let currentRole = 'Guest';
     let chartPie = null, chartBar = null;
-    window.tempReport = []; // Lưu dữ liệu lương tạm thời để xuất excel
+    let confirmCallback = null;
+    window.tempReport = [];
 
-    // --- TOAST NOTIFICATION ---
+    // --- HELPER: TOAST & CONFIRM ---
     function showToast(msg, type = 'info') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        
-        let icon = type === 'error' ? '<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>' : 
-                   type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>' :
-                   '<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
-                   
-        let title = type === 'error' ? 'Lỗi' : type === 'success' ? 'Thành công' : 'Thông báo';
-
-        toast.innerHTML = `
-            ${icon}
-            <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-msg">${msg}</div>
-            </div>
-        `;
+        let title = type==='error'?'Lỗi':type==='success'?'Thành công':'Thông báo';
+        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
+        toast.innerHTML = `${icon}<div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
         container.appendChild(toast);
-        setTimeout(() => { toast.remove(); }, 3000);
+        setTimeout(() => toast.remove(), 3000);
     }
+
+    // Hàm mở popup xác nhận (Thay thế confirm mặc định)
+    function showConfirmDialog(msg, callback) {
+        document.getElementById('confirm-msg').innerText = msg;
+        document.getElementById('confirm-modal').style.display = 'flex';
+        confirmCallback = callback;
+    }
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+        confirmCallback = null;
+    }
+    document.getElementById('btn-confirm-yes').onclick = function() {
+        if(confirmCallback) confirmCallback();
+        closeConfirmModal();
+    };
 
     // --- UTILS ---
     function getCurrentDateTime() {
@@ -375,7 +374,6 @@
                 const lastLogSnap = await db.ref('attendance').orderByChild('id').equalTo(String(val)).limitToLast(1).once('value');
                 const lastLogData = lastLogSnap.val();
                 let isDuplicate = false;
-
                 if(lastLogData) {
                     const logKey = Object.keys(lastLogData)[0];
                     const logTimeStr = lastLogData[logKey].timestamp;
@@ -384,7 +382,6 @@
                     const logDate = new Date(`${year}-${month}-${day}T${t}`);
                     if ((new Date() - logDate) < 60000) isDuplicate = true;
                 }
-
                 if (!isDuplicate) {
                     db.ref('attendance').push({ id: val, timestamp: getCurrentDateTime(), auto_generated: true });
                     processedNewIDs.add(val);
@@ -399,19 +396,9 @@
         }
     });
 
-    function acceptNewID() {
-        closeNewID();
-        openTab('users');
-        document.getElementById('inp-id').value = newID;
-        document.getElementById('inp-code').focus();
-        db.ref('new_enroll').remove();
-    }
-    function closeNewID() {
-        document.getElementById('new-id-modal').style.display = 'none';
-        db.ref('new_enroll').remove();
-    }
+    function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
+    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
 
-    // --- DATA ---
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {};
         renderLoginDropdown();
@@ -432,11 +419,7 @@
         sel.innerHTML = '<option value="">-- Chọn tên --</option>';
         Object.keys(usersCache).forEach(id => {
             const i = getUserInfo(id);
-            if(i.name) {
-                const opt = document.createElement('option');
-                opt.value = id; opt.text = i.name;
-                sel.appendChild(opt);
-            }
+            if(i.name) { const opt = document.createElement('option'); opt.value = id; opt.text = i.name; sel.appendChild(opt); }
         });
     }
 
@@ -445,11 +428,8 @@
         const p = document.getElementById('pass').value;
         const snap = await db.ref('settings/admin_password').once('value');
         const dbPass = snap.val() || 'admin';
-
         if (u === 'UTC' && p === dbPass) {
-            currentRole = 'Admin';
-            enterApp('Quản Trị', 'Admin', 'view-admin');
-            openTab('dashboard'); 
+            currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); 
         } else showToast('Sai thông tin đăng nhập!', 'error');
     }
 
@@ -457,9 +437,7 @@
         const id = document.getElementById('login-select').value;
         if (!id) return showToast('Vui lòng chọn tên', 'error');
         const info = getUserInfo(id);
-        currentRole = 'Emp';
-        enterApp(info.name, 'Nhân Viên', 'view-emp');
-        loadEmpHistory(id);
+        currentRole = 'Emp'; enterApp(info.name, 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
     }
 
     function enterApp(name, role, viewId) {
@@ -471,201 +449,137 @@
         document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // --- TABS ---
     function openTab(tabName, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
-        
         document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
 
         const pcIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 2;
         const mobIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 1;
-        
-        if(document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`))
-            document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`).classList.add('active');
-        if(document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`))
-            document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`).classList.add('active');
+        if(document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`)) document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`).classList.add('active');
+        if(document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`)) document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`).classList.add('active');
 
         if(tabName === 'dashboard') updateDashboard();
         if(tabName === 'live') loadMonitor();
         if(tabName === 'users') renderUserList();
     }
 
-    // --- DASHBOARD ---
+    // --- FUNCTIONS ---
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value');
         const data = snap.val() || {};
         const logs = Object.values(data);
         const workTime = "08:00:00"; 
         let late = 0, onTime = 0, daysCount = {};
-
         logs.forEach(log => {
             const [date, time] = log.timestamp.split(' ');
             if (time > workTime) late++; else onTime++;
             daysCount[date] = (daysCount[date] || 0) + 1;
         });
-
         if(chartPie) chartPie.destroy();
-        chartPie = new Chart(document.getElementById('chartPie'), {
-            type: 'doughnut',
-            data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#10b981', '#ef4444'] }] },
-            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-
+        chartPie = new Chart(document.getElementById('chartPie'), { type: 'doughnut', data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#10b981', '#ef4444'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
         if(chartBar) chartBar.destroy();
         const labels = Object.keys(daysCount).slice(-5);
-        chartBar = new Chart(document.getElementById('chartBar'), {
-            type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#4f46e5', borderRadius: 4 }] },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-        });
+        chartBar = new Chart(document.getElementById('chartBar'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#4f46e5', borderRadius: 4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
     }
 
-    // --- MONITOR ---
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body');
             tbody.innerHTML = "";
             const data = snap.val();
             if (!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#999'>Chưa có dữ liệu</td></tr>"; return; }
-            
             const workTime = document.getElementById('work-time').value + ":00";
-
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
                 const timeOnly = log.timestamp.split(' ')[1];
                 const isLate = timeOnly > workTime;
-                
                 let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span> <button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem; margin-left:5px" onclick="quickAdd('${log.id}')">Thêm</button>`;
-                if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem" title="Auto Log"></i>`;
-                
+                if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
                 let codeDisplay = info.code !== "---" ? `<span class="badge badge-id">${info.code}</span>` : `<span style="color:#999; font-size:0.8rem">ID:${log.id}</span>`;
                 let statusHtml = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${log.timestamp.split(' ')[1]} <div style="font-size:0.7rem; color:#94a3b8">${log.timestamp.split(' ')[0]}</div></td>
-                        <td>${codeDisplay}</td>
-                        <td>${nameHtml}</td>
-                        <td>${statusHtml}</td>
-                        <td><button class="btn btn-danger" style="padding:6px 10px" onclick="if(confirm('Xóa?')) db.ref('attendance/${key}').remove()"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>`;
+                tbody.innerHTML += `<tr><td>${log.timestamp.split(' ')[1]} <div style="font-size:0.7rem; color:#94a3b8">${log.timestamp.split(' ')[0]}</div></td><td>${codeDisplay}</td><td>${nameHtml}</td><td>${statusHtml}</td><td><button class="btn btn-danger" style="padding:6px 10px" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             });
         });
     }
+    
+    function triggerDeleteLog(key) {
+        showConfirmDialog('Bạn có chắc muốn xóa dòng nhật ký này?', () => {
+            db.ref('attendance/' + key).remove();
+            showToast('Đã xóa thành công', 'success');
+        });
+    }
+    
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
 
-    // --- SALARY (DATE RANGE) ---
     async function calcSalary() {
         const dStart = document.getElementById('date-start').value;
         const dEnd = document.getElementById('date-end').value;
         const salary = document.getElementById('salary-val').value;
-
         if (!dStart || !dEnd) return showToast('Vui lòng chọn ngày bắt đầu và kết thúc!', 'error');
-
-        const startDate = new Date(dStart);
-        const endDate = new Date(dEnd);
-        // Set thời gian để so sánh chính xác
-        startDate.setHours(0,0,0,0);
-        endDate.setHours(23,59,59,999);
-
+        const startDate = new Date(dStart); startDate.setHours(0,0,0,0);
+        const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
         const tbody = document.getElementById('salary-table').querySelector('tbody');
         tbody.innerHTML = "";
-        let total = 0;
-        let stats = {};
-        window.tempReport = []; // Reset
-
+        let total = 0; let stats = {}; window.tempReport = [];
         if (data) {
             Object.values(data).forEach(log => {
-                // Log time: "25/11/2025 08:00:00"
                 const [dStr, tStr] = log.timestamp.split(' ');
                 const [dd, mm, yyyy] = dStr.split('/');
-                
-                // Tạo object Date từ log
                 const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-                
-                // SO SÁNH NGÀY
                 if (logDate >= startDate && logDate <= endDate) {
-                    // Lưu key theo ngày để không trùng (một ngày chỉ tính 1 công)
                     if(!stats[log.id]) stats[log.id] = new Set();
                     stats[log.id].add(dStr);
                 }
             });
         }
-
         Object.keys(stats).forEach(id => {
             const info = getUserInfo(id);
             if (!info.name || !info.code || info.code === "---") return;
-
-            const days = stats[id].size;
-            const money = days * salary;
-            total += money;
+            const days = stats[id].size; const money = days * salary; total += money;
             window.tempReport.push({ "Mã": info.code, "Tên": info.name, "Công": days, "Tiền": money });
-            
             tbody.innerHTML += `<tr><td><span class="badge badge-id">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success); font-weight:600">${money.toLocaleString()}</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
-        
-        if(window.tempReport.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu trong khoảng thời gian này.</td></tr>";
-        } else {
-            showToast(`Đã tính lương cho ${window.tempReport.length} nhân viên`, 'success');
-        }
+        if(window.tempReport.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu.</td></tr>";
+        else showToast(`Đã tính lương cho ${window.tempReport.length} nhân viên`, 'success');
     }
 
     function exportExcel() {
-        if(!window.tempReport || window.tempReport.length === 0) {
-            return showToast('Không có dữ liệu lương để xuất file!', 'error');
-        }
+        if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu để xuất!', 'error');
         const ws = XLSX.utils.json_to_sheet(window.tempReport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "BangLuong");
         XLSX.writeFile(wb, "BangLuong.xlsx");
-        showToast('Đang tải xuống file Excel...', 'success');
+        showToast('Đang tải file Excel...', 'success');
     }
     
-    async function deleteDataRange() {
+    function triggerDeleteData() {
         const dStart = document.getElementById('date-start').value;
         const dEnd = document.getElementById('date-end').value;
-        
         if(!dStart || !dEnd) return showToast('Chọn khoảng ngày cần xóa!', 'error');
-        if(!confirm(`CẢNH BÁO: Bạn sắp xóa vĩnh viễn dữ liệu từ ${dStart} đến ${dEnd}?`)) return;
-
-        const startDate = new Date(dStart);
-        const endDate = new Date(dEnd);
-        startDate.setHours(0,0,0,0);
-        endDate.setHours(23,59,59,999);
-
-        const snap = await db.ref('attendance').once('value');
-        const data = snap.val();
-        if(data) {
-            let updates = {};
-            let count = 0;
-            Object.entries(data).forEach(([k, log]) => {
-                const [dStr, tStr] = log.timestamp.split(' ');
-                const [dd, mm, yyyy] = dStr.split('/');
-                const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-
-                if (logDate >= startDate && logDate <= endDate) {
-                    updates['attendance/'+k] = null;
-                    count++;
-                }
-            });
-            
-            if(count > 0) {
-                await db.ref().update(updates);
-                showToast(`Đã xóa ${count} dòng dữ liệu!`, 'success');
-                document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
-            } else {
-                showToast('Không tìm thấy dữ liệu để xóa', 'info');
+        showConfirmDialog(`Xóa vĩnh viễn dữ liệu từ ${dStart} đến ${dEnd}?`, async () => {
+            const startDate = new Date(dStart); startDate.setHours(0,0,0,0);
+            const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
+            const snap = await db.ref('attendance').once('value');
+            const data = snap.val();
+            if(data) {
+                let updates = {}; let count = 0;
+                Object.entries(data).forEach(([k, log]) => {
+                    const [dStr, tStr] = log.timestamp.split(' ');
+                    const [dd, mm, yyyy] = dStr.split('/');
+                    const logDate = new Date(`${yyyy}-${mm}-${dd}`);
+                    if (logDate >= startDate && logDate <= endDate) { updates['attendance/'+k] = null; count++; }
+                });
+                if(count > 0) { await db.ref().update(updates); showToast(`Đã xóa ${count} dòng dữ liệu!`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
+                else showToast('Không tìm thấy dữ liệu để xóa', 'info');
             }
-        }
+        });
     }
 
-    // --- USERS ---
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
@@ -686,21 +600,23 @@
         const name = document.getElementById('inp-name').value;
         const code = document.getElementById('inp-code').value;
         if(!id || !name) return showToast('Thiếu thông tin!', 'error');
-        
         for(const [k, v] of Object.entries(usersCache)) {
              if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Trùng Mã NV', 'error');
         }
         db.ref('users/'+id).set({ name, code }).then(() => { showToast('Lưu thành công', 'success'); resetForm(); });
     }
-    function delUser() {
-        if(confirm('Xóa nhân viên này?')) { db.ref('users/'+document.getElementById('inp-id').value).remove(); resetForm(); }
+    function triggerDeleteUser() {
+        showConfirmDialog('Bạn có chắc muốn xóa nhân viên này?', () => {
+            db.ref('users/'+document.getElementById('inp-id').value).remove();
+            showToast('Đã xóa nhân viên', 'success');
+            resetForm();
+        });
     }
     function resetForm() {
         document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value="";
         document.getElementById('btn-del-user').classList.add('hidden');
     }
 
-    // --- EMP HISTORY ---
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody');
@@ -712,12 +628,10 @@
         });
     }
 
-    // SET DEFAULT DATES
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     document.getElementById('date-start').valueAsDate = firstDay;
     document.getElementById('date-end').valueAsDate = today;
-
 </script>
 </body>
 </html>
