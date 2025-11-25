@@ -11,99 +11,121 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         h2 {
             text-align: center;
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            color: #1a73e8;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .status-bar {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            background: #e8f0fe;
+            padding: 10px 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9em;
-            color: #666;
+            color: #5f6368;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        thead {
+            background-color: #1a73e8;
+            color: white;
         }
         th, td {
-            padding: 12px 15px;
+            padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
         th {
-            background-color: #3498db;
-            color: white;
             font-weight: 600;
         }
-        tr:hover {
-            background-color: #f1f1f1;
+        tbody tr:hover {
+            background-color: #f8f9fa;
         }
         /* Hiệu ứng nhấp nháy cho dòng mới nhất */
-        @keyframes flash {
-            0% { background-color: #d4edda; }
-            100% { background-color: white; }
+        @keyframes highlight {
+            0% { background-color: #d2e3fc; }
+            100% { background-color: transparent; }
         }
-        .new-row {
-            animation: flash 2s ease-out;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-style: italic;
-            color: #888;
+        .new-record {
+            animation: highlight 3s ease-out;
         }
         .badge {
-            background: #27ae60;
+            display: inline-block;
+            padding: 4px 8px;
+            background: #34a853;
             color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .time-col {
+            color: #5f6368;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .name-col {
+            font-weight: bold;
+            color: #202124;
+        }
+        #conn-status {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Lịch Sử Chấm Công</h2>
+    <h2>📋 Lịch Sử Chấm Công</h2>
+    
     <div class="status-bar">
-        Trạng thái: <span id="conn-status" style="color:orange">Đang kết nối...</span> 
-        | Tổng số bản ghi: <span id="total-count">0</span>
+        <div>
+            Trạng thái: <span id="conn-status" style="color:orange">Đang kết nối...</span>
+        </div>
+        <div>
+            Tổng số bản ghi: <strong id="total-count">0</strong>
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Thời Gian</th>
-                <th>ID</th>
-                <th>Họ và Tên</th>
+                <th width="30%">Thời Gian</th>
+                <th width="15%">ID</th>
+                <th>Họ và Tên Nhân Viên</th>
             </tr>
         </thead>
         <tbody id="table-body">
-            <tr><td colspan="3" class="loading">Đang tải dữ liệu từ Firebase...</td></tr>
+            <tr><td colspan="3" style="text-align:center; padding: 20px;">Đang tải dữ liệu từ Firebase...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
     // ================= CẤU HÌNH (LẤY TỪ FIREBASE CONSOLE) =================
-    // Thay thế đoạn này bằng thông tin trong Project Settings -> General -> Web App
+    // Bạn hãy thay thế toàn bộ đoạn bên dưới bằng config của bạn
     const firebaseConfig = {
-        apiKey: "AIzaSyD.... (COPY TỪ CONSOLE CỦA BẠN)",
+        apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
         databaseURL: "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com",
         projectId: "quanlychamcong-9dacd",
@@ -112,25 +134,25 @@
         appId: "..."
     };
 
-    // Khởi tạo Firebase
+    // --- KHỞI TẠO FIREBASE ---
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
 
     // Tham chiếu đến nhánh 'attendance'
-    // limitToLast(50): Chỉ lấy 50 người chấm công gần nhất để web đỡ lag
+    // limitToLast(50): Chỉ lấy 50 người mới nhất để web không bị lag
     const logsRef = db.ref('attendance').limitToLast(50);
     const connectedRef = db.ref(".info/connected");
 
-    // 1. Kiểm tra trạng thái kết nối
+    // 1. Kiểm tra trạng thái kết nối mạng
     connectedRef.on("value", (snap) => {
         const statusEl = document.getElementById("conn-status");
         if (snap.val() === true) {
-            statusEl.innerText = "Online (Real-time)";
+            statusEl.innerText = "● Online (Real-time)";
             statusEl.style.color = "green";
         } else {
-            statusEl.innerText = "Mất kết nối";
+            statusEl.innerText = "● Mất kết nối";
             statusEl.style.color = "red";
         }
     });
@@ -145,20 +167,18 @@
         tableBody.innerHTML = "";
 
         if (!data) {
-            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Chưa có dữ liệu chấm công.</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px'>Chưa có dữ liệu chấm công.</td></tr>";
             countSpan.innerText = 0;
             return;
         }
 
         // Chuyển Object thành Array để dễ sắp xếp
-        // Firebase trả về dạng: { "key1": {...}, "key2": {...} }
         let logArray = [];
         Object.keys(data).forEach(key => {
             logArray.push(data[key]);
         });
 
-        // Sắp xếp: Mới nhất lên đầu (Dựa vào timestamp chuỗi hoặc thứ tự firebase)
-        // Vì dùng limitToLast, firebase trả về cũ -> mới. Ta đảo ngược lại (reverse)
+        // Sắp xếp: Đảo ngược để cái mới nhất lên đầu
         logArray.reverse();
         
         countSpan.innerText = logArray.length;
@@ -168,12 +188,12 @@
             const row = document.createElement('tr');
             
             // Nếu là dòng đầu tiên (mới nhất), thêm class hiệu ứng nháy
-            if (index === 0) row.classList.add('new-row');
+            if (index === 0) row.classList.add('new-record');
 
             row.innerHTML = `
-                <td>${log.timestamp}</td>
-                <td><span class="badge">${log.id}</span></td>
-                <td style="font-weight:bold; color:#2c3e50;">${log.name}</td>
+                <td class="time-col">${log.timestamp}</td>
+                <td><span class="badge">ID: ${log.id}</span></td>
+                <td class="name-col">${log.name}</td>
             `;
             tableBody.appendChild(row);
         });
