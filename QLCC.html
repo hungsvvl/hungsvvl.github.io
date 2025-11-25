@@ -3,249 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hệ Thống Chấm Công UTC (V9 Compact)</title>
+    <title>Chấm Công UTC (V10 Ultimate)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* 2. CSS STYLES */
+        /* === 1. DESIGN SYSTEM === */
         :root {
-            --primary: #2563eb; --bg-body: #f3f4f6; --bg-card: #ffffff;
-            --text-main: #111827; --text-sub: #6b7280; --border: #e5e7eb;
-            --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+            --primary: #4f46e5;      /* Tím xanh hiện đại */
+            --primary-light: #e0e7ff;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
         }
 
+        /* DARK MODE */
         [data-theme="dark"] {
-            --primary: #3b82f6; --bg-body: #111827; --bg-card: #1f2937;
-            --text-main: #f9fafb; --text-sub: #9ca3af; --border: #374151;
+            --primary: #6366f1; --primary-light: #312e81; --bg-body: #0f172a; --bg-card: #1e293b;
+            --text-main: #f1f5f9; --text-sub: #94a3b8; --shadow: none;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.3s; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.3s; }
 
-        /* UI COMPONENTS */
-        .btn { padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-outline { border: 1px solid var(--border); background: transparent; color: var(--text-main); }
+        /* === 2. LAYOUT & NAVIGATION === */
+        /* PC: Sidebar */
+        .sidebar { width: 260px; background: var(--bg-card); padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #e2e8f0; z-index: 50; transition: 0.3s; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+        .nav-link { padding: 12px 15px; border-radius: 12px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-link:hover { background: var(--bg-body); color: var(--primary); }
+        .nav-link.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         
-        .card { background: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); margin-bottom: 10px; outline: none; font-size: 16px; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .top-bar { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; background: transparent; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 0 30px 100px 30px; } /* Padding bottom để tránh Bottom Nav che */
+
+        /* MOBILE: Bottom Navigation */
+        .bottom-nav { display: none; }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; } /* Ẩn sidebar trên mobile */
+            .top-bar { padding: 0 15px; }
+            .content-scroll { padding: 15px 15px 90px 15px; }
+            
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+                background: var(--bg-card); box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+                justify-content: space-around; align-items: center; z-index: 100;
+                border-top-left-radius: 20px; border-top-right-radius: 20px;
+            }
+            .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.75rem; gap: 4px; transition: 0.2s; }
+            .b-nav-item i { font-size: 1.2rem; }
+            .b-nav-item.active { color: var(--primary); transform: translateY(-5px); }
+        }
+
+        /* === 3. UI COMPONENTS === */
+        .card { background: var(--bg-card); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); transition: 0.3s; }
+        .card h3 { margin: 0 0 15px 0; font-size: 1.1rem; color: var(--text-main); }
+        
+        .btn { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-soft { background: var(--primary-light); color: var(--primary); }
+
+        .form-control { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; background: var(--bg-body); color: var(--text-main); margin-bottom: 15px; outline: none; font-family: inherit; transition: 0.2s; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
         /* TABLES */
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 10px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
-        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .table-responsive { overflow-x: auto; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { text-align: left; padding: 15px; background: var(--bg-body); color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; }
+        td { padding: 15px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; font-size: 0.9rem; }
         
-        /* BADGES */
-        .badge { padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
-        .bg-green { background: #dcfce7; color: #166534; }
-        .bg-red { background: #fee2e2; color: #991b1b; }
-        .bg-yellow { background: #fef3c7; color: #92400e; }
-        .badge-code { background: #f3e8ff; color: #7e22ce; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-id { background: var(--primary-light); color: var(--primary); }
+        .badge-green { background: #d1fae5; color: #047857; }
+        .badge-red { background: #fee2e2; color: #b91c1c; }
+        .badge-yellow { background: #fef3c7; color: #b45309; }
 
-        /* LAYOUT */
-        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e40af, #3b82f6); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 380px; text-align: center; color: #111827; }
+        /* === 4. POPUPS & OVERLAYS === */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        #app-container { display: none; flex-direction: column; height: 100%; }
-        #app-container.active { display: flex; }
-        
-        .header { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: var(--bg-card); flex-shrink: 0; }
-        .brand { font-weight:bold; font-size:1.1rem; color:var(--primary); display: flex; align-items: center; gap: 8px; }
-        
-        .main { flex: 1; padding: 15px; overflow-y: auto; overflow-x: hidden; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .nav-pills { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .nav-pills::-webkit-scrollbar { display: none; }
-        .nav-item { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; background: var(--bg-card); color: var(--text-sub); flex-shrink: 0; }
-        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* LOGIN PAGE */
+        #login-page { position: fixed; inset: 0; z-index: 10000; background: var(--bg-body); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .login-wrapper { background: var(--bg-card); width: 100%; max-width: 400px; padding: 40px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; }
+        .role-switch { display: flex; background: var(--bg-body); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+        .role-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; background: transparent; color: var(--text-sub); font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .role-btn.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); padding: 20px; }
-        .modal-box { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; animation: slideDown 0.3s; }
-        
         .hidden { display: none !important; }
         .flex-row { display: flex; gap: 10px; }
         .flex-col-1 { flex: 1; }
-        .flex-col-2 { flex: 2; }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @media (max-width: 768px) { .flex-row { flex-direction: column; } .btn { width: 100%; } .header { padding: 0 10px; } .brand span { display: none; } #user-role { display: none; } }
+
+        @media (max-width: 768px) {
+            .flex-row { flex-direction: column; }
+            .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-<div id="pass-modal" class="modal">
+<div id="new-id-modal" class="overlay">
     <div class="modal-box">
-        <h3>🔐 Đổi Mật Khẩu</h3>
-        <input type="password" id="new-pass" class="form-control" placeholder="Nhập mật khẩu mới">
-        <div class="flex-row">
-            <button class="btn btn-primary" onclick="saveNewPass()">Lưu</button>
-            <button class="btn btn-outline" onclick="document.getElementById('pass-modal').style.display='none'">Hủy</button>
-        </div>
-    </div>
-</div>
-
-<div id="new-id-modal" class="modal">
-    <div class="modal-box">
-        <i class="fa-solid fa-fingerprint" style="font-size: 3rem; color: var(--warning)"></i>
-        <h2 style="margin: 10px 0; color: var(--text-main)">Vân Tay Mới</h2>
-        <h1 id="modal-id" style="color: var(--primary); font-size: 2rem; margin: 5px 0">--</h1>
-        <p style="color: var(--text-sub); margin-bottom: 20px; font-size: 0.9rem">Đã tự động lưu log. Thêm tên ngay?</p>
+        <div style="font-size: 4rem; color: var(--warning); margin-bottom: 10px;"><i class="fa-solid fa-fingerprint"></i></div>
+        <h2 style="margin: 0;">Phát Hiện Mới</h2>
+        <h1 id="modal-id" style="font-size: 3rem; color: var(--primary); margin: 5px 0;">--</h1>
+        <p style="color: var(--text-sub); margin-bottom: 25px;">Đã tự động lưu giờ vào hệ thống.<br>Thêm tên nhân viên ngay?</p>
         <div class="flex-row">
             <button class="btn btn-primary" onclick="acceptNewID()">Thêm Ngay</button>
-            <button class="btn btn-outline" onclick="closeNewID()">Để sau</button>
+            <button class="btn btn-soft" onclick="closeNewID()">Để Sau</button>
         </div>
     </div>
 </div>
 
-<div id="login-overlay">
-    <div class="login-card">
-        <h2 style="color: var(--primary); margin-bottom: 20px;"><i class="fa-solid fa-clock"></i> UTC Timekeeper</h2>
-        <div class="flex-row" style="margin-bottom:20px; gap: 5px;">
-            <button class="btn btn-outline" style="flex:1" onclick="showLoginForm('emp')">Nhân Viên</button>
-            <button class="btn btn-outline" style="flex:1" onclick="showLoginForm('admin')">Quản Trị</button>
+<div id="login-page">
+    <div class="login-wrapper">
+        <h1 style="color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-clock"></i> UTC Time</h1>
+        <p style="color: var(--text-sub); margin-bottom: 30px;">Hệ thống chấm công thông minh</p>
+
+        <div class="role-switch">
+            <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
+            <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
         </div>
+
         <div id="form-emp">
-            <select id="login-select" class="form-control"><option>Đang tải...</option></select>
-            <button class="btn btn-primary" style="margin-top:10px" onclick="loginEmp()">Xem Lịch Sử</button>
+            <select id="login-select" class="form-control"><option>Đang tải dữ liệu...</option></select>
+            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Chấm Công</button>
         </div>
+
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
-            <button class="btn btn-primary" style="margin-top:10px" onclick="loginAdmin()">Đăng Nhập</button>
+            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
         </div>
     </div>
 </div>
 
-<div id="app-container">
-    <header class="header">
-        <div class="brand"><i class="fa-solid fa-clock"></i> <span>UTC System</span></div>
-        <div style="display:flex; gap:10px; align-items:center">
-            <button class="btn btn-outline" style="width:auto; padding:8px" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-            <div style="text-align:right; line-height: 1.2;">
-                <div id="user-name" style="font-size:0.9rem; font-weight:600">Guest</div>
-                <div id="user-role" style="font-size:0.7rem; color:var(--text-sub)">User</div>
-            </div>
-            <button id="btn-change-pass" class="hidden btn btn-outline" style="width:auto; padding:8px" onclick="document.getElementById('pass-modal').style.display='flex'"><i class="fa-solid fa-key"></i></button>
-            <button class="btn btn-danger" style="width:auto; padding:8px" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
-        </div>
-    </header>
+<nav class="sidebar">
+    <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
+    <div class="nav-link active" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
+    <div class="nav-link" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
+    <div class="nav-link" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+</nav>
 
-    <div class="main">
+<div class="main-content">
+    <div class="top-bar">
+        <button class="btn btn-soft" style="width: auto;" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="text-align: right;">
+                <div id="display-name" style="font-weight: 700;">Guest</div>
+                <div id="display-role" style="font-size: 0.8rem; color: var(--text-sub);">User</div>
+            </div>
+            <button class="btn btn-danger" style="width: auto; padding: 10px;" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </div>
+
+    <div class="content-scroll">
         <div class="container">
             
             <div id="view-emp" class="hidden">
                 <div class="card">
-                    <h3>📅 Lịch Sử Cá Nhân</h3>
-                    <div class="table-container">
+                    <h3>📅 Lịch Sử Của Bạn</h3>
+                    <div class="table-responsive">
                         <table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table>
                     </div>
                 </div>
             </div>
 
             <div id="view-admin" class="hidden">
-                <div class="nav-pills">
-                    <div class="nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
-                    <div class="nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i> Giám Sát</div>
-                    <div class="nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill"></i> Lương</div>
-                    <div class="nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i> Nhân Sự</div>
-                </div>
-
-                <div id="tab-dashboard">
+                
+                <div id="tab-dashboard" class="tab-content">
                     <div class="flex-row">
                         <div class="card flex-col-1">
-                            <h3>Hôm Nay</h3>
-                            <canvas id="chartPie" style="max-height:200px"></canvas>
+                            <h3>Tỷ Lệ Hôm Nay</h3>
+                            <canvas id="chartPie" style="max-height: 200px;"></canvas>
                         </div>
                         <div class="card flex-col-2">
-                            <h3>Tuần Qua</h3>
-                            <canvas id="chartBar" style="max-height:200px"></canvas>
+                            <h3>Thống Kê 7 Ngày</h3>
+                            <canvas id="chartBar" style="max-height: 200px;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-live" class="hidden">
+                <div id="tab-live" class="tab-content hidden">
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-                            <h3 style="margin:0">🔴 Live</h3>
-                            <input type="time" id="work-time" value="08:00" class="form-control" style="width:auto; margin:0">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                            <h3>🔴 Giám Sát Realtime</h3>
+                            <input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0">
                         </div>
-                        <div class="table-container">
+                        <div class="table-responsive">
                             <table id="live-table">
-                                <thead>
-                                    <tr>
-                                        <th>Thời Gian</th>
-                                        <th>Mã NV</th>
-                                        <th>Họ Tên</th>
-                                        <th>Status</th>
-                                        <th>Xóa</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Thời Gian</th><th>Mã NV</th><th>Họ Tên</th><th>Trạng Thái</th><th>Xóa</th></tr></thead>
                                 <tbody id="live-body"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-salary" class="hidden">
+                <div id="tab-salary" class="tab-content hidden">
                     <div class="card">
                         <div class="flex-row">
                             <input type="month" id="month-filter" class="form-control">
-                            <input type="number" id="salary-val" class="form-control" value="500000" placeholder="Lương/Ngày">
+                            <input type="number" id="salary-val" class="form-control" value="500000">
                         </div>
                         <div class="flex-row" style="margin-top:10px">
-                            <button class="btn btn-primary" onclick="calcSalary()">Tính</button>
-                            <button class="btn btn-success" onclick="exportExcel()">Excel</button>
-                            <button class="btn btn-danger" onclick="deleteMonth()">Xóa</button>
+                            <button class="btn btn-primary flex-col-1" onclick="calcSalary()">Tính Lương</button>
+                            <button class="btn btn-soft flex-col-1" onclick="exportExcel()">Excel</button>
+                            <button class="btn btn-danger flex-col-1" onclick="deleteMonth()">Xóa Data</button>
                         </div>
                     </div>
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-                            <h3 style="margin:0">Kết Quả</h3>
-                            <span style="color:var(--success); font-weight:bold" id="total-money">0 đ</span>
-                        </div>
-                        <div class="table-container">
-                            <table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Công</th><th>Tiền</th></tr></thead><tbody></tbody></table>
+                        <h3>Kết Quả: <span id="total-money" style="color:var(--success)">0 đ</span></h3>
+                        <div class="table-responsive">
+                            <table id="salary-table"><thead><tr><th>Mã NV</th><th>Tên</th><th>Công</th><th>Tiền</th></tr></thead><tbody></tbody></table>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-users" class="hidden">
+                <div id="tab-users" class="tab-content hidden">
                     <div class="flex-row">
                         <div class="card flex-col-1">
-                            <h3>Thông Tin</h3>
-                            <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
-                            <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
-                            <input type="text" id="inp-name" class="form-control" placeholder="Họ Tên">
+                            <h3>Thêm / Sửa</h3>
+                            <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay (VD: 1)">
+                            <input type="text" id="inp-code" class="form-control" placeholder="Mã NV (VD: NV01)">
+                            <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
                             <div class="flex-row">
                                 <button class="btn btn-primary" onclick="saveUser()">Lưu</button>
                                 <button class="btn btn-danger hidden" id="btn-del-user" onclick="delUser()">Xóa</button>
                             </div>
-                            <button class="btn btn-outline" style="margin-top:10px" onclick="resetForm()">Reset</button>
+                            <button class="btn btn-soft" style="width:100%; margin-top:10px" onclick="resetForm()">Làm mới</button>
                         </div>
                         <div class="card flex-col-2">
                             <h3>Danh Sách</h3>
-                            <div class="table-container" style="max-height:400px; overflow:auto">
+                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
                                 <table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
+<div class="bottom-nav" id="mobile-nav">
+    <div class="b-nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+</div>
+
 <script>
-    // 1. CONFIG
+    // 1. CONFIGURATION
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -258,15 +285,14 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // VARS
+    // GLOBAL VARIABLES
     let usersCache = {};
-    let reportData = [];
     let newID = null;
-    let lastAutoLogTime = {};
+    let processedNewIDs = new Set();
     let currentRole = 'Guest';
     let chartPie = null, chartBar = null;
 
-    // UTILS
+    // --- UTILITIES ---
     function getCurrentDateTime() {
         const now = new Date();
         const d = String(now.getDate()).padStart(2,'0');
@@ -291,28 +317,56 @@
         else body.setAttribute('data-theme', 'dark');
     }
 
-    // --- DATA ---
-    db.ref('users').on('value', snap => {
-        usersCache = snap.val() || {};
-        renderLoginDropdown();
-        if(currentRole === 'Admin') {
-            if(!document.getElementById('tab-users').classList.contains('hidden')) renderUserList();
-            loadMonitor();
-        }
-    });
-
-    db.ref('new_enroll').on('value', snap => {
+    // --- CORE LOGIC: NEW ENROLL & ANTI-DUPLICATE ---
+    db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
-        if(val) {
+        
+        if (val) {
             newID = val;
-            const now = Date.now();
-            if (!lastAutoLogTime[val] || (now - lastAutoLogTime[val] > 60000)) {
-                db.ref('attendance').push({
-                    id: val, timestamp: getCurrentDateTime(), auto_generated: true
-                });
-                lastAutoLogTime[val] = now;
+            
+            // LOGIC CHỐNG TRÙNG LẶP (ANTI-DUPLICATE)
+            // Kiểm tra xem ID này đã được xử lý trong phiên này chưa
+            if (!processedNewIDs.has(val)) {
+                
+                // Kiểm tra kỹ hơn: Lấy log cuối cùng của ID này trong DB
+                // Nếu log cuối cùng cách đây < 60 giây -> Bỏ qua (Coi như trùng)
+                const lastLogSnap = await db.ref('attendance').orderByChild('id').equalTo(String(val)).limitToLast(1).once('value');
+                const lastLogData = lastLogSnap.val();
+                
+                let isDuplicate = false;
+                if(lastLogData) {
+                    const logKey = Object.keys(lastLogData)[0];
+                    const logTimeStr = lastLogData[logKey].timestamp; // DD/MM/YYYY HH:mm:ss
+                    
+                    // Convert logTimeStr to Date Object for comparison
+                    const [d, t] = logTimeStr.split(' ');
+                    const [day, month, year] = d.split('/');
+                    const logDate = new Date(`${year}-${month}-${day}T${t}`);
+                    const now = new Date();
+                    
+                    // Nếu thời gian chênh lệch < 60000ms (1 phút) -> Trùng
+                    if ((now - logDate) < 60000) {
+                        isDuplicate = true;
+                        console.log("Duplicate detected. Skipping auto-log.");
+                    }
+                }
+
+                if (!isDuplicate) {
+                    // Nếu không trùng -> Ghi log mới
+                    db.ref('attendance').push({
+                        id: val,
+                        timestamp: getCurrentDateTime(),
+                        auto_generated: true
+                    });
+                    processedNewIDs.add(val);
+                }
             }
-            if(currentRole === 'Admin') document.getElementById('new-id-modal').style.display = 'flex';
+
+            // CHỈ HIỆN POPUP NẾU LÀ ADMIN
+            if (currentRole === 'Admin') {
+                document.getElementById('modal-id').innerText = newID;
+                document.getElementById('new-id-modal').style.display = 'flex';
+            }
         } else {
             document.getElementById('new-id-modal').style.display = 'none';
         }
@@ -320,19 +374,35 @@
 
     function acceptNewID() {
         closeNewID();
-        openTab('users', document.querySelectorAll('.nav-item')[3]);
+        openTab('users');
         document.getElementById('inp-id').value = newID;
         document.getElementById('inp-code').focus();
         db.ref('new_enroll').remove();
     }
-    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
-    function quickAdd(id) { openTab('users', document.querySelectorAll('.nav-item')[3]); document.getElementById('inp-id').value = id; }
+    
+    function closeNewID() {
+        document.getElementById('new-id-modal').style.display = 'none';
+        // Đợi 1 chút để đảm bảo admin đã nhìn thấy rồi mới xóa cờ, hoặc xóa luôn tùy logic
+        db.ref('new_enroll').remove();
+    }
 
-    // --- AUTH ---
-    function showLoginForm(type) {
+    // --- DATA LISTENER ---
+    db.ref('users').on('value', snap => {
+        usersCache = snap.val() || {};
+        renderLoginDropdown();
+        if (currentRole === 'Admin') {
+            renderUserList();
+            loadMonitor();
+        }
+    });
+
+    // --- AUTHENTICATION ---
+    function switchRole(role) {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden');
         document.getElementById('form-admin').classList.add('hidden');
-        document.getElementById('form-'+type).classList.remove('hidden');
+        document.getElementById('form-' + role).classList.remove('hidden');
     }
 
     function renderLoginDropdown() {
@@ -342,7 +412,7 @@
             const i = getUserInfo(id);
             if(i.name) {
                 const opt = document.createElement('option');
-                opt.value = id; opt.text = `${i.name}`;
+                opt.value = id; opt.text = i.name;
                 sel.appendChild(opt);
             }
         });
@@ -354,56 +424,76 @@
         const snap = await db.ref('settings/admin_password').once('value');
         const dbPass = snap.val() || 'admin';
 
-        if(u === 'UTC' && p === dbPass) {
+        if (u === 'UTC' && p === dbPass) {
             currentRole = 'Admin';
-            enterApp('Quản Trị', 'Admin', 'view-admin');
-            document.getElementById('btn-change-pass').classList.remove('hidden');
-            renderUserList(); openTab('live', document.querySelector('.nav-item')); loadMonitor();
-        } else alert('❌ Sai thông tin!');
+            enterApp('Quản Trị Viên', 'Admin', 'view-admin');
+            openTab('dashboard'); // Mặc định vào Dashboard
+            document.getElementById('mobile-nav').style.display = 'flex'; // Hiện bottom nav
+        } else {
+            alert('❌ Sai thông tin đăng nhập');
+        }
     }
-    
+
     function loginEmp() {
         const id = document.getElementById('login-select').value;
-        if(!id) return alert('Chọn tên!');
+        if (!id) return alert('Vui lòng chọn tên');
         const info = getUserInfo(id);
         currentRole = 'Emp';
         enterApp(info.name, 'Nhân Viên', 'view-emp');
         loadEmpHistory(id);
+        document.getElementById('mobile-nav').style.display = 'none'; // Ẩn nav admin
     }
 
-    function enterApp(name, role, view) {
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('app-container').classList.add('active');
-        document.getElementById('user-name').innerText = name;
-        document.getElementById('user-role').innerText = role;
+    function enterApp(name, role, viewId) {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('display-name').innerText = name;
+        document.getElementById('display-role').innerText = role;
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById(view).classList.remove('hidden');
-    }
-    
-    function saveNewPass() {
-        const np = document.getElementById('new-pass').value;
-        if(np) { db.ref('settings/admin_password').set(np); alert('OK'); document.getElementById('pass-modal').style.display='none'; }
+        document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // --- TABS ---
-    function openTab(tab, btn) {
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        ['dashboard','live','salary','users'].forEach(t => document.getElementById('tab-'+t).classList.add('hidden'));
-        document.getElementById('tab-'+tab).classList.remove('hidden');
-        if(tab === 'dashboard') updateDashboard();
-        if(tab === 'users') renderUserList();
+    // --- ADMIN TABS LOGIC ---
+    function openTab(tabName, btnElement) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+        
+        // Update PC Sidebar
+        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
+        // Update Mobile Bottom Nav
+        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
+
+        // Find and activate buttons (Logic hơi thủ công để map đúng)
+        if(tabName === 'dashboard') {
+             document.querySelector('.sidebar .nav-link:nth-child(2)').classList.add('active');
+             document.querySelector('.bottom-nav .b-nav-item:nth-child(1)').classList.add('active');
+             updateDashboard();
+        }
+        if(tabName === 'live') {
+             document.querySelector('.sidebar .nav-link:nth-child(3)').classList.add('active');
+             document.querySelector('.bottom-nav .b-nav-item:nth-child(2)').classList.add('active');
+             loadMonitor();
+        }
+        if(tabName === 'salary') {
+             document.querySelector('.sidebar .nav-link:nth-child(4)').classList.add('active');
+             document.querySelector('.bottom-nav .b-nav-item:nth-child(3)').classList.add('active');
+        }
+        if(tabName === 'users') {
+             document.querySelector('.sidebar .nav-link:nth-child(5)').classList.add('active');
+             document.querySelector('.bottom-nav .b-nav-item:nth-child(4)').classList.add('active');
+             renderUserList();
+        }
     }
 
-    // 1. DASHBOARD
+    // --- TAB 1: DASHBOARD ---
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value');
         const data = snap.val() || {};
         const logs = Object.values(data);
-        const workTime = document.getElementById('work-time').value + ":00";
+        const workTime = "08:00:00"; 
+        
         let late = 0, onTime = 0, daysCount = {};
-
         logs.forEach(log => {
             const [date, time] = log.timestamp.split(' ');
             if (time > workTime) late++; else onTime++;
@@ -414,125 +504,131 @@
         chartPie = new Chart(document.getElementById('chartPie'), {
             type: 'doughnut',
             data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#10b981', '#f59e0b'] }] },
-            options: { maintainAspectRatio: false }
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
 
         if(chartBar) chartBar.destroy();
         const labels = Object.keys(daysCount).slice(-5);
         chartBar = new Chart(document.getElementById('chartBar'), {
             type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Lượt', data: labels.map(d=>daysCount[d]), backgroundColor: '#2563eb' }] },
-            options: { maintainAspectRatio: false }
+            data: { labels: labels, datasets: [{ label: 'Lượt', data: labels.map(d=>daysCount[d]), backgroundColor: '#4f46e5', borderRadius: 5 }] },
+            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
         });
     }
 
-    // 2. MONITOR (HIỂN THỊ MÃ NV THAY ID, BỎ CỘT ẢNH)
+    // --- TAB 2: MONITOR ---
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body');
             tbody.innerHTML = "";
             const data = snap.val();
-            if(!data) { tbody.innerHTML = "<tr><td colspan='5'>Không có dữ liệu</td></tr>"; return; }
+            if (!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Chưa có dữ liệu</td></tr>"; return; }
             
             const workTime = document.getElementById('work-time').value + ":00";
+
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
-                
-                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge bg-yellow">Chưa ĐK</span> <button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem" onclick="quickAdd('${log.id}')">Thêm</button>`;
-                if (log.auto_generated && info.name) nameHtml += ` <span class="badge bg-green" style="font-size:0.6rem">Auto</span>`;
-                
                 const timeOnly = log.timestamp.split(' ')[1];
-                let statusHtml = (timeOnly > workTime) ? `<span class="badge bg-red">Muộn</span>` : `<span class="badge bg-green">OK</span>`;
+                const isLate = timeOnly > workTime;
                 
-                // HIỂN THỊ MÃ NV (NẾU CHƯA CÓ HIỆN ID TẠM)
-                let codeDisplay = info.code;
-                if (codeDisplay === "---") {
-                     codeDisplay = `<span style="color:#999; font-size:0.8em">ID:${log.id}</span>`;
-                } else {
-                     codeDisplay = `<span class="badge badge-code">${info.code}</span>`;
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
+                if(log.auto_generated) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
+                
+                let codeDisplay = info.code !== "---" ? `<span class="badge badge-code">${info.code}</span>` : `<span class="badge badge-id">ID: ${log.id}</span>`;
+                let statusHtml = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
+                
+                // Nút Thêm nhanh cho người lạ
+                let actionBtn = `<button class="btn btn-danger" style="padding:5px 10px" onclick="if(confirm('Xóa?')) db.ref('attendance/${key}').remove()"><i class="fa-solid fa-trash"></i></button>`;
+                if(!info.name) {
+                    actionBtn = `<button class="btn btn-soft" style="padding:5px 10px; margin-right:5px" onclick="quickAdd('${log.id}')"><i class="fa-solid fa-user-plus"></i></button>` + actionBtn;
                 }
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${log.timestamp.split(' ')[1]} <br> <span style="font-size:0.7rem; color:#888">${log.timestamp.split(' ')[0]}</span></td>
+                        <td>${log.timestamp.split(' ')[1]} <div style="font-size:0.7rem; color:#888">${log.timestamp.split(' ')[0]}</div></td>
                         <td>${codeDisplay}</td>
                         <td>${nameHtml}</td>
                         <td>${statusHtml}</td>
-                        <td><button class="btn btn-danger" style="padding:4px 8px" onclick="if(confirm('Xóa?')) db.ref('attendance/${key}').remove()"><i class="fa-solid fa-trash"></i></button></td>
+                        <td>${actionBtn}</td>
                     </tr>`;
             });
         });
     }
+    function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
 
-    // 3. SALARY
+    // --- TAB 3: SALARY ---
     async function calcSalary() {
         const mInput = document.getElementById('month-filter').value;
         const salary = document.getElementById('salary-val').value;
-        if (!mInput) return alert('Chọn tháng!');
+        if (!mInput) return alert('Vui lòng chọn tháng');
         const [yF, mF] = mInput.split('-');
 
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
         const tbody = document.getElementById('salary-table').querySelector('tbody');
         tbody.innerHTML = "";
-        reportData = [];
         let total = 0;
-
-        if(!data) return tbody.innerHTML = "<tr><td colspan='4'>Không có dữ liệu.</td></tr>";
-
         let stats = {};
-        Object.values(data).forEach(log => {
-            let dateStr = log.timestamp.split(' ')[0];
-            let y, m, d;
-            if (dateStr.includes('-')) [y, m, d] = dateStr.split('-'); else [d, m, y] = dateStr.split('/');
-            if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) {
-                if(!stats[log.id]) stats[log.id] = new Set();
-                stats[log.id].add(d);
-            }
-        });
 
+        if (data) {
+            Object.values(data).forEach(log => {
+                let dStr = log.timestamp.split(' ')[0];
+                let y, m, d;
+                if(dStr.includes('-')) [y,m,d] = dStr.split('-'); else [d,m,y] = dStr.split('/');
+                
+                if (parseInt(y) == parseInt(yF) && parseInt(m) == parseInt(mF)) {
+                    if(!stats[log.id]) stats[log.id] = new Set();
+                    stats[log.id].add(d);
+                }
+            });
+        }
+
+        let reportData = [];
         Object.keys(stats).forEach(id => {
             const info = getUserInfo(id);
-            if (!info.name || !info.code || info.code === "---") return;
+            if (!info.name || !info.code || info.code === "---") return; // Bỏ qua người lạ
 
             const days = stats[id].size;
             const money = days * salary;
             total += money;
-            reportData.push({ "Mã NV": info.code, "Họ Tên": info.name, "Ngày Công": days, "Lương": money });
-            tbody.innerHTML += `<tr><td><span class="badge" style="background:#f3e8ff; color:#7e22ce">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success)">${money.toLocaleString()}</td></tr>`;
+            reportData.push({ "Mã": info.code, "Tên": info.name, "Công": days, "Tiền": money });
+            
+            tbody.innerHTML += `<tr><td><span class="badge badge-code">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success)">${money.toLocaleString()}</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
-        if(reportData.length === 0) tbody.innerHTML = "<tr><td colspan='4'>Không tìm thấy nhân viên hợp lệ.</td></tr>";
+        window.tempReportData = reportData; // Lưu tạm để xuất excel
     }
 
     function exportExcel() {
-        if(!reportData.length) return alert('Chưa tính lương!');
-        const ws = XLSX.utils.json_to_sheet(reportData);
+        if(!window.tempReportData || window.tempReportData.length === 0) return alert('Hãy bấm Tính lương trước');
+        const ws = XLSX.utils.json_to_sheet(window.tempReportData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Luong");
+        XLSX.utils.book_append_sheet(wb, ws, "BangLuong");
         XLSX.writeFile(wb, "BangLuong.xlsx");
     }
     
     async function deleteMonth() {
         const mInput = document.getElementById('month-filter').value;
-        if(!mInput || !confirm('Xóa dữ liệu tháng này?')) return;
+        if(!mInput || !confirm('CẢNH BÁO: Xóa toàn bộ dữ liệu tháng này?')) return;
         const [yF, mF] = mInput.split('-');
+        
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
-        let updates = {};
         if(data) {
+            let updates = {};
             Object.entries(data).forEach(([k, log]) => {
-                let d = log.timestamp.split(' ')[0];
+                let dStr = log.timestamp.split(' ')[0];
                 let y, m;
-                if(d.includes('-')) [y,m] = d.split('-'); else [_,m,y] = d.split('/');
-                if(parseInt(y)==yF && parseInt(m)==mF) updates['attendance/'+k] = null;
+                if(dStr.includes('-')) [y,m] = dStr.split('-'); else [_,m,y] = dStr.split('/');
+                if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) updates['attendance/'+k] = null;
             });
             await db.ref().update(updates);
-            alert('Đã xóa!');
+            alert('Đã xóa dữ liệu thành công.');
+            document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
         }
     }
 
-    // 4. USERS
+    // --- TAB 4: USERS ---
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
@@ -552,30 +648,36 @@
         const id = document.getElementById('inp-id').value;
         const name = document.getElementById('inp-name').value;
         const code = document.getElementById('inp-code').value;
-        if(!id || !name) return alert('Thiếu thông tin!');
+        if(!id || !name) return alert('Thiếu thông tin');
         
-        for (const [key, val] of Object.entries(usersCache)) {
-            if(key === id) continue;
-            const exCode = (typeof val === 'object' && val.code) ? val.code : "";
-            if(code && exCode && code.toUpperCase() === exCode.toUpperCase()) return alert('Trùng Mã NV!');
+        // Validate Code
+        for(const [k, v] of Object.entries(usersCache)) {
+             if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return alert('Trùng Mã NV');
         }
-        db.ref('users/'+id).set({ name: name, code: code }).then(()=>{ alert('Đã lưu'); resetForm(); });
-    }
-    function delUser() { if(confirm('Xóa?')) { db.ref('users/'+document.getElementById('inp-id').value).remove(); resetForm(); } }
-    function resetForm() { document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value=""; document.getElementById('btn-del-user').classList.add('hidden'); }
 
-    // 5. EMP VIEW
+        db.ref('users/'+id).set({ name, code }).then(() => { alert('Đã lưu'); resetForm(); });
+    }
+    function delUser() {
+        if(confirm('Xóa nhân viên này?')) { db.ref('users/'+document.getElementById('inp-id').value).remove(); resetForm(); }
+    }
+    function resetForm() {
+        document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value="";
+        document.getElementById('btn-del-user').classList.add('hidden');
+    }
+
+    // --- EMP VIEW ---
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody');
             tb.innerHTML = "";
             const data = snap.val();
             if(data) Object.values(data).reverse().forEach(log => {
-                if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge bg-green">Thành công</span></td></tr>`;
+                if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge badge-green">Thành công</span></td></tr>`;
             });
         });
     }
 
+    // INIT DATE
     const d = new Date();
     document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 </script>
