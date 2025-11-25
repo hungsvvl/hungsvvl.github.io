@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Công UTC (Ultimate V7)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hệ Thống Chấm Công UTC (V9 Compact)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -13,76 +13,80 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* 2. CSS & THEME VARIABLES */
+        /* 2. CSS STYLES */
         :root {
             --primary: #2563eb; --bg-body: #f3f4f6; --bg-card: #ffffff;
             --text-main: #111827; --text-sub: #6b7280; --border: #e5e7eb;
             --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
         }
 
-        /* DARK MODE VARIABLES */
         [data-theme="dark"] {
             --primary: #3b82f6; --bg-body: #111827; --bg-card: #1f2937;
             --text-main: #f9fafb; --text-sub: #9ca3af; --border: #374151;
         }
 
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; overflow: hidden; transition: 0.3s; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: 0.3s; }
 
         /* UI COMPONENTS */
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn { padding: 10px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+        .btn:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { border: 1px solid var(--border); background: transparent; color: var(--text-main); }
         
-        .card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); margin-bottom: 10px; outline: none; }
+        .card { background: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); margin-bottom: 10px; outline: none; font-size: 16px; }
 
         /* TABLES */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; background: var(--bg-body); color: var(--text-sub); font-size: 0.85rem; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 10px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+        td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
         
-        /* BADGES & IMAGES */
-        .badge { padding: 4px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+        /* BADGES */
+        .badge { padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
         .bg-green { background: #dcfce7; color: #166534; }
         .bg-red { background: #fee2e2; color: #991b1b; }
         .bg-yellow { background: #fef3c7; color: #92400e; }
-        .img-thumb { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); cursor: pointer; }
+        .badge-code { background: #f3e8ff; color: #7e22ce; }
 
         /* LAYOUT */
-        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e40af, #3b82f6); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-card { background: white; padding: 30px; border-radius: 16px; width: 400px; text-align: center; color: #111827; }
+        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e40af, #3b82f6); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 380px; text-align: center; color: #111827; }
         
-        #app-container { display: none; flex-direction: column; height: 100vh; }
+        #app-container { display: none; flex-direction: column; height: 100%; }
         #app-container.active { display: flex; }
-        .header { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--bg-card); }
-        .main { flex: 1; padding: 20px; overflow-y: auto; }
-        .nav-pills { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav-item { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; background: var(--bg-card); color: var(--text-sub); }
+        
+        .header { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: var(--bg-card); flex-shrink: 0; }
+        .brand { font-weight:bold; font-size:1.1rem; color:var(--primary); display: flex; align-items: center; gap: 8px; }
+        
+        .main { flex: 1; padding: 15px; overflow-y: auto; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .nav-pills { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .nav-pills::-webkit-scrollbar { display: none; }
+        .nav-item { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; background: var(--bg-card); color: var(--text-sub); flex-shrink: 0; }
         .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* MODALS */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal-box { background: var(--bg-card); padding: 30px; border-radius: 12px; width: 400px; text-align: center; animation: slideDown 0.3s; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); padding: 20px; }
+        .modal-box { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; animation: slideDown 0.3s; }
         
         .hidden { display: none !important; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-col-1 { flex: 1; }
+        .flex-col-2 { flex: 2; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (max-width: 768px) { .flex-row { flex-direction: column; } .btn { width: 100%; } .header { padding: 0 10px; } .brand span { display: none; } #user-role { display: none; } }
     </style>
 </head>
 <body>
 
-<div id="img-modal" class="modal" onclick="this.style.display='none'">
-    <img id="img-preview" src="" style="max-width: 90%; max-height: 90%; border-radius: 8px; border: 4px solid white;">
-</div>
-
 <div id="pass-modal" class="modal">
     <div class="modal-box">
-        <h3>🔐 Đổi Mật Khẩu Admin</h3>
+        <h3>🔐 Đổi Mật Khẩu</h3>
         <input type="password" id="new-pass" class="form-control" placeholder="Nhập mật khẩu mới">
-        <div style="display:flex; gap:10px; justify-content:center; margin-top:15px">
+        <div class="flex-row">
             <button class="btn btn-primary" onclick="saveNewPass()">Lưu</button>
             <button class="btn btn-outline" onclick="document.getElementById('pass-modal').style.display='none'">Hủy</button>
         </div>
@@ -92,12 +96,12 @@
 <div id="new-id-modal" class="modal">
     <div class="modal-box">
         <i class="fa-solid fa-fingerprint" style="font-size: 3rem; color: var(--warning)"></i>
-        <h2 style="color: var(--text-main)">Phát Hiện Vân Tay Mới</h2>
-        <h1 id="modal-id" style="color: var(--primary); font-size: 2.5rem; margin: 10px 0">--</h1>
-        <p style="color: var(--text-sub)">Đã tự động lưu log. Thêm tên ngay?</p>
-        <div style="display:flex; gap:10px; justify-content:center">
+        <h2 style="margin: 10px 0; color: var(--text-main)">Vân Tay Mới</h2>
+        <h1 id="modal-id" style="color: var(--primary); font-size: 2rem; margin: 5px 0">--</h1>
+        <p style="color: var(--text-sub); margin-bottom: 20px; font-size: 0.9rem">Đã tự động lưu log. Thêm tên ngay?</p>
+        <div class="flex-row">
             <button class="btn btn-primary" onclick="acceptNewID()">Thêm Ngay</button>
-            <button class="btn btn-outline" onclick="closeNewID()">Bỏ Qua</button>
+            <button class="btn btn-outline" onclick="closeNewID()">Để sau</button>
         </div>
     </div>
 </div>
@@ -105,36 +109,33 @@
 <div id="login-overlay">
     <div class="login-card">
         <h2 style="color: var(--primary); margin-bottom: 20px;"><i class="fa-solid fa-clock"></i> UTC Timekeeper</h2>
-        
-        <div style="display:flex; gap:10px; margin-bottom:20px">
+        <div class="flex-row" style="margin-bottom:20px; gap: 5px;">
             <button class="btn btn-outline" style="flex:1" onclick="showLoginForm('emp')">Nhân Viên</button>
             <button class="btn btn-outline" style="flex:1" onclick="showLoginForm('admin')">Quản Trị</button>
         </div>
-
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
-            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Công</button>
+            <button class="btn btn-primary" style="margin-top:10px" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
-
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
-            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
+            <button class="btn btn-primary" style="margin-top:10px" onclick="loginAdmin()">Đăng Nhập</button>
         </div>
     </div>
 </div>
 
 <div id="app-container">
     <header class="header">
-        <div style="font-weight:bold; font-size:1.2rem; color:var(--primary)"><i class="fa-solid fa-clock"></i> UTC System</div>
-        <div style="display:flex; gap:15px; align-items:center">
-            <button class="btn btn-outline" onclick="toggleTheme()" title="Giao diện Sáng/Tối"><i class="fa-solid fa-moon"></i></button>
-            <div style="text-align:right">
-                <div id="user-name" style="font-weight:600">Guest</div>
-                <div id="user-role" style="font-size:0.75rem; color:var(--text-sub)">User</div>
+        <div class="brand"><i class="fa-solid fa-clock"></i> <span>UTC System</span></div>
+        <div style="display:flex; gap:10px; align-items:center">
+            <button class="btn btn-outline" style="width:auto; padding:8px" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <div style="text-align:right; line-height: 1.2;">
+                <div id="user-name" style="font-size:0.9rem; font-weight:600">Guest</div>
+                <div id="user-role" style="font-size:0.7rem; color:var(--text-sub)">User</div>
             </div>
-            <button id="btn-change-pass" class="hidden btn btn-outline" onclick="document.getElementById('pass-modal').style.display='flex'" title="Đổi MK"><i class="fa-solid fa-key"></i></button>
-            <button class="btn btn-danger" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
+            <button id="btn-change-pass" class="hidden btn btn-outline" style="width:auto; padding:8px" onclick="document.getElementById('pass-modal').style.display='flex'"><i class="fa-solid fa-key"></i></button>
+            <button class="btn btn-danger" style="width:auto; padding:8px" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </header>
 
@@ -159,30 +160,35 @@
                 </div>
 
                 <div id="tab-dashboard">
-                    <div style="display:flex; gap:20px; flex-wrap:wrap">
-                        <div class="card" style="flex:1; min-width:300px">
-                            <h3>Tỷ lệ Đi Muộn / Đúng Giờ (Hôm nay)</h3>
-                            <canvas id="chartPie"></canvas>
+                    <div class="flex-row">
+                        <div class="card flex-col-1">
+                            <h3>Hôm Nay</h3>
+                            <canvas id="chartPie" style="max-height:200px"></canvas>
                         </div>
-                        <div class="card" style="flex:2; min-width:300px">
-                            <h3>Số Lượng Chấm Công (7 ngày qua)</h3>
-                            <canvas id="chartBar"></canvas>
+                        <div class="card flex-col-2">
+                            <h3>Tuần Qua</h3>
+                            <canvas id="chartBar" style="max-height:200px"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-live" class="hidden">
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:15px">
-                            <h3>🔴 Live Monitor</h3>
-                            <div>
-                                <label style="font-size:0.8rem; font-weight:bold">Giờ làm việc:</label>
-                                <input type="time" id="work-time" value="08:00" class="form-control" style="width:auto; display:inline-block">
-                            </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                            <h3 style="margin:0">🔴 Live</h3>
+                            <input type="time" id="work-time" value="08:00" class="form-control" style="width:auto; margin:0">
                         </div>
                         <div class="table-container">
                             <table id="live-table">
-                                <thead><tr><th>Thời Gian</th><th>Ảnh</th><th>ID</th><th>Tên</th><th>Trạng Thái</th><th>Xóa</th></tr></thead>
+                                <thead>
+                                    <tr>
+                                        <th>Thời Gian</th>
+                                        <th>Mã NV</th>
+                                        <th>Họ Tên</th>
+                                        <th>Status</th>
+                                        <th>Xóa</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="live-body"></tbody>
                             </table>
                         </div>
@@ -191,38 +197,41 @@
 
                 <div id="tab-salary" class="hidden">
                     <div class="card">
-                        <div style="display:flex; gap:10px; margin-bottom:10px">
+                        <div class="flex-row">
                             <input type="month" id="month-filter" class="form-control">
                             <input type="number" id="salary-val" class="form-control" value="500000" placeholder="Lương/Ngày">
                         </div>
-                        <div style="display:flex; gap:10px">
-                            <button class="btn btn-primary" onclick="calcSalary()">Tính Lương</button>
-                            <button class="btn btn-primary" style="background:#10b981" onclick="exportExcel()">Xuất Excel</button>
-                            <button class="btn btn-danger" onclick="deleteMonth()">Xóa Dữ Liệu</button>
+                        <div class="flex-row" style="margin-top:10px">
+                            <button class="btn btn-primary" onclick="calcSalary()">Tính</button>
+                            <button class="btn btn-success" onclick="exportExcel()">Excel</button>
+                            <button class="btn btn-danger" onclick="deleteMonth()">Xóa</button>
                         </div>
                     </div>
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between">
-                            <h3>Bảng Lương</h3>
-                            <h3 style="color:var(--success)">Tổng: <span id="total-money">0 đ</span></h3>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                            <h3 style="margin:0">Kết Quả</h3>
+                            <span style="color:var(--success); font-weight:bold" id="total-money">0 đ</span>
                         </div>
                         <div class="table-container">
-                            <table id="salary-table"><thead><tr><th>Mã NV</th><th>Tên</th><th>Công</th><th>Tiền</th></tr></thead><tbody></tbody></table>
+                            <table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Công</th><th>Tiền</th></tr></thead><tbody></tbody></table>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-users" class="hidden">
-                    <div style="display:flex; gap:20px">
-                        <div class="card" style="flex:1">
+                    <div class="flex-row">
+                        <div class="card flex-col-1">
                             <h3>Thông Tin</h3>
                             <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
                             <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
                             <input type="text" id="inp-name" class="form-control" placeholder="Họ Tên">
-                            <button class="btn btn-primary" onclick="saveUser()">Lưu</button>
-                            <button class="btn btn-danger hidden" id="btn-del-user" style="margin-top:10px" onclick="delUser()">Xóa</button>
+                            <div class="flex-row">
+                                <button class="btn btn-primary" onclick="saveUser()">Lưu</button>
+                                <button class="btn btn-danger hidden" id="btn-del-user" onclick="delUser()">Xóa</button>
+                            </div>
+                            <button class="btn btn-outline" style="margin-top:10px" onclick="resetForm()">Reset</button>
                         </div>
-                        <div class="card" style="flex:2">
+                        <div class="card flex-col-2">
                             <h3>Danh Sách</h3>
                             <div class="table-container" style="max-height:400px; overflow:auto">
                                 <table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table>
@@ -230,7 +239,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -250,16 +258,15 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // GLOBAL VARS
+    // VARS
     let usersCache = {};
     let reportData = [];
     let newID = null;
-    let processedNewIDs = new Set();
+    let lastAutoLogTime = {};
     let currentRole = 'Guest';
-    let chartPieInstance = null;
-    let chartBarInstance = null;
+    let chartPie = null, chartBar = null;
 
-    // --- UTILS ---
+    // UTILS
     function getCurrentDateTime() {
         const now = new Date();
         const d = String(now.getDate()).padStart(2,'0');
@@ -290,24 +297,20 @@
         renderLoginDropdown();
         if(currentRole === 'Admin') {
             if(!document.getElementById('tab-users').classList.contains('hidden')) renderUserList();
-            loadMonitor(); // update name
+            loadMonitor();
         }
     });
 
-    // NEW ID LOGIC
     db.ref('new_enroll').on('value', snap => {
         const val = snap.val();
         if(val) {
             newID = val;
-            if(!processedNewIDs.has(val)) {
-                // Auto log
+            const now = Date.now();
+            if (!lastAutoLogTime[val] || (now - lastAutoLogTime[val] > 60000)) {
                 db.ref('attendance').push({
-                    id: val,
-                    timestamp: getCurrentDateTime(),
-                    auto_generated: true,
-                    image: '' // Placeholder cho ảnh nếu có
+                    id: val, timestamp: getCurrentDateTime(), auto_generated: true
                 });
-                processedNewIDs.add(val);
+                lastAutoLogTime[val] = now;
             }
             if(currentRole === 'Admin') document.getElementById('new-id-modal').style.display = 'flex';
         } else {
@@ -323,6 +326,7 @@
         db.ref('new_enroll').remove();
     }
     function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
+    function quickAdd(id) { openTab('users', document.querySelectorAll('.nav-item')[3]); document.getElementById('inp-id').value = id; }
 
     // --- AUTH ---
     function showLoginForm(type) {
@@ -336,28 +340,26 @@
         sel.innerHTML = '<option value="">-- Chọn tên --</option>';
         Object.keys(usersCache).forEach(id => {
             const i = getUserInfo(id);
-            const opt = document.createElement('option');
-            opt.value = id; opt.text = `${i.name} (ID:${id})`;
-            sel.appendChild(opt);
+            if(i.name) {
+                const opt = document.createElement('option');
+                opt.value = id; opt.text = `${i.name}`;
+                sel.appendChild(opt);
+            }
         });
     }
 
     async function loginAdmin() {
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
-        
-        // Lấy password từ Firebase (Bảo mật hơn)
         const snap = await db.ref('settings/admin_password').once('value');
-        const dbPass = snap.val() || 'admin'; // Mặc định là admin
+        const dbPass = snap.val() || 'admin';
 
         if(u === 'UTC' && p === dbPass) {
             currentRole = 'Admin';
-            enterApp('Quản Trị Viên', 'Admin', 'view-admin');
+            enterApp('Quản Trị', 'Admin', 'view-admin');
             document.getElementById('btn-change-pass').classList.remove('hidden');
-            renderUserList();
-            loadMonitor();
-            updateDashboard();
-        } else alert('Sai thông tin!');
+            renderUserList(); openTab('live', document.querySelector('.nav-item')); loadMonitor();
+        } else alert('❌ Sai thông tin!');
     }
     
     function loginEmp() {
@@ -381,121 +383,88 @@
     
     function saveNewPass() {
         const np = document.getElementById('new-pass').value;
-        if(np) {
-            db.ref('settings/admin_password').set(np);
-            alert('Đổi mật khẩu thành công!');
-            document.getElementById('pass-modal').style.display = 'none';
-        }
+        if(np) { db.ref('settings/admin_password').set(np); alert('OK'); document.getElementById('pass-modal').style.display='none'; }
     }
 
-    // --- ADMIN TABS ---
+    // --- TABS ---
     function openTab(tab, btn) {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
-        
         ['dashboard','live','salary','users'].forEach(t => document.getElementById('tab-'+t).classList.add('hidden'));
         document.getElementById('tab-'+tab).classList.remove('hidden');
-
         if(tab === 'dashboard') updateDashboard();
         if(tab === 'users') renderUserList();
     }
 
-    // 1. DASHBOARD (CHARTS)
+    // 1. DASHBOARD
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value');
         const data = snap.val() || {};
         const logs = Object.values(data);
-        const workTime = document.getElementById('work-time').value + ":00"; // 08:00:00
-
-        // Pie Chart Data
-        let late = 0, onTime = 0;
-        // Bar Chart Data
-        let daysCount = {};
+        const workTime = document.getElementById('work-time').value + ":00";
+        let late = 0, onTime = 0, daysCount = {};
 
         logs.forEach(log => {
-            const [date, time] = log.timestamp.split(' '); // date: DD/MM/YYYY
-            
-            // Tính trễ/sớm
+            const [date, time] = log.timestamp.split(' ');
             if (time > workTime) late++; else onTime++;
-
-            // Tính số lượng theo ngày
             daysCount[date] = (daysCount[date] || 0) + 1;
         });
 
-        // Render Pie
-        if(chartPieInstance) chartPieInstance.destroy();
-        chartPieInstance = new Chart(document.getElementById('chartPie'), {
+        if(chartPie) chartPie.destroy();
+        chartPie = new Chart(document.getElementById('chartPie'), {
             type: 'doughnut',
-            data: {
-                labels: ['Đúng Giờ', 'Đi Muộn'],
-                datasets: [{ data: [onTime, late], backgroundColor: ['#10b981', '#f59e0b'] }]
-            }
+            data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#10b981', '#f59e0b'] }] },
+            options: { maintainAspectRatio: false }
         });
 
-        // Render Bar
-        if(chartBarInstance) chartBarInstance.destroy();
-        const labels = Object.keys(daysCount).slice(-7); // 7 ngày gần nhất
-        const values = labels.map(d => daysCount[d]);
-        
-        chartBarInstance = new Chart(document.getElementById('chartBar'), {
+        if(chartBar) chartBar.destroy();
+        const labels = Object.keys(daysCount).slice(-5);
+        chartBar = new Chart(document.getElementById('chartBar'), {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{ label: 'Lượt Chấm Công', data: values, backgroundColor: '#2563eb' }]
-            }
+            data: { labels: labels, datasets: [{ label: 'Lượt', data: labels.map(d=>daysCount[d]), backgroundColor: '#2563eb' }] },
+            options: { maintainAspectRatio: false }
         });
     }
 
-    // 2. MONITOR (CÓ LOGIC TRỄ GIỜ & ẢNH)
+    // 2. MONITOR (HIỂN THỊ MÃ NV THAY ID, BỎ CỘT ẢNH)
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body');
             tbody.innerHTML = "";
             const data = snap.val();
-            if(!data) { tbody.innerHTML = "<tr><td colspan='6'>Không có dữ liệu</td></tr>"; return; }
+            if(!data) { tbody.innerHTML = "<tr><td colspan='5'>Không có dữ liệu</td></tr>"; return; }
             
             const workTime = document.getElementById('work-time').value + ":00";
-
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
                 
-                // Logic Tên
-                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge bg-yellow">Chưa ĐK</span> <button class="btn btn-outline" style="padding:2px 6px; font-size:0.7em" onclick="quickAdd('${log.id}')">Thêm</button>`;
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge bg-yellow">Chưa ĐK</span> <button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem" onclick="quickAdd('${log.id}')">Thêm</button>`;
+                if (log.auto_generated && info.name) nameHtml += ` <span class="badge bg-green" style="font-size:0.6rem">Auto</span>`;
                 
-                // Logic Trạng Thái (Đi muộn)
                 const timeOnly = log.timestamp.split(' ')[1];
-                let statusHtml = (timeOnly > workTime) 
-                    ? `<span class="badge bg-red">Đi Muộn</span>` 
-                    : `<span class="badge bg-green">Đúng Giờ</span>`;
-
-                // Logic Ảnh (Nếu có URL)
-                // Giả sử log.image chứa URL. Nếu không có dùng ảnh mặc định.
-                let imgHtml = `<img src="${log.image || 'https://via.placeholder.com/40'}" class="img-thumb" onclick="viewImg(this.src)">`;
+                let statusHtml = (timeOnly > workTime) ? `<span class="badge bg-red">Muộn</span>` : `<span class="badge bg-green">OK</span>`;
+                
+                // HIỂN THỊ MÃ NV (NẾU CHƯA CÓ HIỆN ID TẠM)
+                let codeDisplay = info.code;
+                if (codeDisplay === "---") {
+                     codeDisplay = `<span style="color:#999; font-size:0.8em">ID:${log.id}</span>`;
+                } else {
+                     codeDisplay = `<span class="badge badge-code">${info.code}</span>`;
+                }
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${log.timestamp}</td>
-                        <td>${imgHtml}</td>
-                        <td><span class="badge badge-id">${log.id}</span></td>
+                        <td>${log.timestamp.split(' ')[1]} <br> <span style="font-size:0.7rem; color:#888">${log.timestamp.split(' ')[0]}</span></td>
+                        <td>${codeDisplay}</td>
                         <td>${nameHtml}</td>
                         <td>${statusHtml}</td>
-                        <td><button class="btn btn-danger" style="padding:5px 10px" onclick="delLog('${key}')"><i class="fa-solid fa-trash"></i></button></td>
+                        <td><button class="btn btn-danger" style="padding:4px 8px" onclick="if(confirm('Xóa?')) db.ref('attendance/${key}').remove()"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>`;
             });
         });
     }
-    
-    function viewImg(src) {
-        document.getElementById('img-preview').src = src;
-        document.getElementById('img-modal').style.display = 'flex';
-    }
-    function quickAdd(id) {
-        openTab('users', document.querySelectorAll('.nav-item')[3]);
-        document.getElementById('inp-id').value = id;
-    }
-    function delLog(k) { if(confirm('Xóa?')) db.ref('attendance/'+k).remove(); }
 
-    // 3. SALARY (Giữ nguyên logic cũ nhưng UI đẹp hơn)
+    // 3. SALARY
     async function calcSalary() {
         const mInput = document.getElementById('month-filter').value;
         const salary = document.getElementById('salary-val').value;
@@ -509,13 +478,13 @@
         reportData = [];
         let total = 0;
 
-        if(!data) return tbody.innerHTML = "<tr><td colspan='4'>Không có dữ liệu</td></tr>";
+        if(!data) return tbody.innerHTML = "<tr><td colspan='4'>Không có dữ liệu.</td></tr>";
 
         let stats = {};
         Object.values(data).forEach(log => {
             let dateStr = log.timestamp.split(' ')[0];
             let y, m, d;
-            if(dateStr.includes('-')) [y, m, d] = dateStr.split('-'); else [d, m, y] = dateStr.split('/');
+            if (dateStr.includes('-')) [y, m, d] = dateStr.split('-'); else [d, m, y] = dateStr.split('/');
             if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) {
                 if(!stats[log.id]) stats[log.id] = new Set();
                 stats[log.id].add(d);
@@ -523,41 +492,47 @@
         });
 
         Object.keys(stats).forEach(id => {
+            const info = getUserInfo(id);
+            if (!info.name || !info.code || info.code === "---") return;
+
             const days = stats[id].size;
             const money = days * salary;
             total += money;
-            const info = getUserInfo(id);
             reportData.push({ "Mã NV": info.code, "Họ Tên": info.name, "Ngày Công": days, "Lương": money });
-            tbody.innerHTML += `<tr><td><span class="badge badge-code">${info.code}</span></td><td>${info.name||'ID:'+id}</td><td><b>${days}</b></td><td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td></tr>`;
+            tbody.innerHTML += `<tr><td><span class="badge" style="background:#f3e8ff; color:#7e22ce">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success)">${money.toLocaleString()}</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
+        if(reportData.length === 0) tbody.innerHTML = "<tr><td colspan='4'>Không tìm thấy nhân viên hợp lệ.</td></tr>";
     }
+
     function exportExcel() {
-        if(!reportData.length) return alert('Chưa có dữ liệu!');
+        if(!reportData.length) return alert('Chưa tính lương!');
         const ws = XLSX.utils.json_to_sheet(reportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Luong");
         XLSX.writeFile(wb, "BangLuong.xlsx");
     }
+    
     async function deleteMonth() {
-        if(!confirm('Xóa dữ liệu tháng này?')) return;
         const mInput = document.getElementById('month-filter').value;
+        if(!mInput || !confirm('Xóa dữ liệu tháng này?')) return;
         const [yF, mF] = mInput.split('-');
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
-        if(!data) return;
         let updates = {};
-        Object.entries(data).forEach(([k, log]) => {
-            let dateStr = log.timestamp.split(' ')[0];
-            let y, m;
-            if(dateStr.includes('-')) [y, m] = dateStr.split('-'); else [_, m, y] = dateStr.split('/');
-            if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) updates['attendance/'+k] = null;
-        });
-        await db.ref().update(updates);
-        alert('Đã xóa!');
+        if(data) {
+            Object.entries(data).forEach(([k, log]) => {
+                let d = log.timestamp.split(' ')[0];
+                let y, m;
+                if(d.includes('-')) [y,m] = d.split('-'); else [_,m,y] = d.split('/');
+                if(parseInt(y)==yF && parseInt(m)==mF) updates['attendance/'+k] = null;
+            });
+            await db.ref().update(updates);
+            alert('Đã xóa!');
+        }
     }
 
-    // 4. USERS (Check trùng)
+    // 4. USERS
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
@@ -577,15 +552,13 @@
         const id = document.getElementById('inp-id').value;
         const name = document.getElementById('inp-name').value;
         const code = document.getElementById('inp-code').value;
-        if(!id || !name) return alert('Nhập thiếu thông tin');
-
-        // Check trùng Code
+        if(!id || !name) return alert('Thiếu thông tin!');
+        
         for (const [key, val] of Object.entries(usersCache)) {
             if(key === id) continue;
             const exCode = (typeof val === 'object' && val.code) ? val.code : "";
             if(code && exCode && code.toUpperCase() === exCode.toUpperCase()) return alert('Trùng Mã NV!');
         }
-        
         db.ref('users/'+id).set({ name: name, code: code }).then(()=>{ alert('Đã lưu'); resetForm(); });
     }
     function delUser() { if(confirm('Xóa?')) { db.ref('users/'+document.getElementById('inp-id').value).remove(); resetForm(); } }
@@ -597,19 +570,12 @@
             const tb = document.querySelector('#emp-table tbody');
             tb.innerHTML = "";
             const data = snap.val();
-            if(data) {
-                Object.values(data).reverse().forEach(log => {
-                    if(log.id == id) {
-                        const t = log.timestamp.split(' ')[1];
-                        const status = (t > "08:00:00") ? '<span class="badge bg-red">Đi muộn</span>' : '<span class="badge bg-green">Đúng giờ</span>';
-                        tb.innerHTML += `<tr><td>${log.timestamp}</td><td>${status}</td></tr>`;
-                    }
-                });
-            }
+            if(data) Object.values(data).reverse().forEach(log => {
+                if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge bg-green">Thành công</span></td></tr>`;
+            });
         });
     }
 
-    // INIT
     const d = new Date();
     document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 </script>
