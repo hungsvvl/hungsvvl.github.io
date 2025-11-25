@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Công Thông Minh Pro</title>
+    <title>Hệ Thống Chấm Công Chuyên Nghiệp v2</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -12,18 +12,14 @@
     
     <style>
         :root {
-            --primary: #2563eb;    /* Xanh dương chủ đạo */
-            --bg-body: #f1f5f9;    /* Nền xám nhạt */
-            --bg-card: #ffffff;    /* Nền trắng thẻ */
-            --text-main: #1e293b;  /* Màu chữ chính */
-            --text-sub: #64748b;   /* Màu chữ phụ */
-            --success: #10b981;    /* Màu xanh thành công */
-            --danger: #ef4444;     /* Màu đỏ cảnh báo */
+            --primary: #2563eb; --bg-body: #f1f5f9; --bg-card: #ffffff;
+            --text-main: #1e293b; --text-sub: #64748b;
+            --success: #10b981; --danger: #ef4444;
         }
 
         body { font-family: 'Roboto', sans-serif; background: var(--bg-body); margin: 0; padding: 0; color: var(--text-main); }
         
-        /* --- MÀN HÌNH ĐĂNG NHẬP --- */
+        /* LOGIN */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
@@ -39,7 +35,7 @@
         .login-form { display: none; animation: fadeIn 0.3s; }
         .login-form.active { display: block; }
         
-        /* --- GIAO DIỆN CHÍNH --- */
+        /* MAIN UI */
         .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 20px; }
         .app-container.active { display: block; }
 
@@ -51,71 +47,61 @@
         .logout-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .logout-btn:hover { background: rgba(255,255,255,0.3); }
 
-        /* --- CARD & BUTTONS --- */
         .card { 
             background: var(--bg-card); padding: 25px; border-radius: 12px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px; border: 1px solid #e2e8f0;
         }
         .card h4 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
 
-        input, button, select { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        input, button, select { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 14px; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         button { cursor: pointer; font-weight: 600; border: none; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; } 
 
-        /* --- BẢNG DỮ LIỆU --- */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #f8fafc; color: var(--text-sub); font-weight: 700; text-transform: uppercase; font-size: 0.85em; padding: 15px; text-align: left; border-bottom: 2px solid #e2e8f0; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
         tr:hover { background-color: #f8fafc; }
         
-        /* --- ADMIN MENU --- */
         .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; }
         .nav-item { 
             padding: 12px 20px; background: white; border-radius: 8px; cursor: pointer; 
             font-weight: 600; color: var(--text-sub); border: 1px solid #e2e8f0; transition: 0.2s;
-            display: flex; align-items: center; gap: 8px;
         }
-        .nav-item:hover { background: #f8fafc; }
-        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* --- POPUP ID MỚI --- */
+        /* POPUP */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center;
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px);
         }
         .modal-box {
             background: white; padding: 30px; border-radius: 16px; width: 400px; text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: slideDown 0.4s;
         }
-        .modal-icon { font-size: 50px; margin-bottom: 15px; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .view-section { display: none; }
         .view-section.active { display: block; }
+        
+        .badge-id { background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; font-weight:bold; font-size: 0.9em; }
+        .badge-code { background:#f0fdf4; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:bold; border: 1px solid #bbf7d0; font-size: 0.9em;}
     </style>
 </head>
 <body>
 
 <div id="new-id-modal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-icon">🔔</div>
-        <h2 style="color: var(--primary); margin:0">Phát hiện Vân Tay Mới!</h2>
-        <p style="color: var(--text-sub)">Hệ thống vừa nhận được tín hiệu từ ID:</p>
-        <h1 id="modal-id-display" style="font-size: 3em; margin: 10px 0; color: var(--text-main)">--</h1>
-        <p>Bạn có muốn đặt tên cho nhân viên này ngay không?</p>
+        <h2 style="color: var(--primary); margin:0">🔔 Phát hiện Vân Tay Mới</h2>
+        <p>ID Thiết Bị: <strong id="modal-id-display" style="font-size: 1.5em; color: var(--danger)">--</strong></p>
+        <p>Bạn có muốn thêm nhân viên này ngay không?</p>
         <div class="btn-group" style="justify-content: center;">
-            <button class="btn-success" onclick="acceptNewID()" style="width: auto;">✅ Có, Đặt tên ngay</button>
-            <button class="btn-danger" onclick="closeNewIDModal()" style="width: auto;">❌ Bỏ qua</button>
+            <button class="btn-success" onclick="acceptNewID()" style="width: auto;">Có, Thêm ngay</button>
+            <button class="btn-danger" onclick="closeNewIDModal()" style="width: auto;">Bỏ qua</button>
         </div>
     </div>
 </div>
@@ -129,7 +115,10 @@
         </div>
 
         <div id="login-form-emp" class="login-form active">
-            <input type="number" id="login-emp-id" placeholder="Nhập ID Vân Tay của bạn...">
+            <p style="text-align:left; font-size:0.9em; color:#666; margin-bottom:5px">Chọn tên của bạn:</p>
+            <select id="login-emp-select">
+                <option value="">-- Đang tải danh sách... --</option>
+            </select>
             <button class="btn-primary" onclick="loginAsEmployee()">Xem Lịch Sử</button>
         </div>
 
@@ -143,7 +132,6 @@
 </div>
 
 <div id="main-app" class="app-container">
-    
     <div class="header-bar">
         <div>
             <h3 style="margin:0; font-size: 1.2em" id="welcome-msg">Xin chào</h3>
@@ -154,9 +142,9 @@
 
     <div id="view-employee" class="view-section">
         <div class="card">
-            <h4>📅 Lịch Sử Chấm Công Cá Nhân</h4>
+            <h4>📅 Lịch Sử Chấm Công Của Bạn</h4>
             <table>
-                <thead><tr><th>Thời Gian</th><th>ID</th><th>Trạng Thái</th></tr></thead>
+                <thead><tr><th>Thời Gian</th><th>Mã NV</th><th>Trạng Thái</th></tr></thead>
                 <tbody id="emp-history-body"><tr><td colspan="3">Đang tải...</td></tr></tbody>
             </table>
         </div>
@@ -175,10 +163,11 @@
                 <table>
                     <thead>
                         <tr>
-                            <th width="30%">Thời Gian</th>
-                            <th width="10%">ID</th>
+                            <th width="25%">Thời Gian</th>
+                            <th width="10%">ID Vân Tay</th>
+                            <th width="15%">Mã NV</th>
                             <th>Họ Tên</th>
-                            <th width="10%" style="text-align:center">Hành động</th>
+                            <th width="10%" style="text-align:center">Xóa</th>
                         </tr>
                     </thead>
                     <tbody id="adm-live-body"></tbody>
@@ -200,10 +189,9 @@
                 </div>
             </div>
             <div class="card">
-                <h4>Kết Quả Tính Lương</h4>
                 <table id="salary-table">
-                    <thead><tr><th>ID</th><th>Họ Tên</th><th>Công</th><th>Thực Lĩnh</th></tr></thead>
-                    <tbody id="salary-body"><tr><td colspan="4" style="text-align:center">Vui lòng chọn tháng và bấm Tính Lương</td></tr></tbody>
+                    <thead><tr><th>Mã NV</th><th>Họ Tên</th><th>Ngày Công</th><th>Thực Lĩnh</th></tr></thead>
+                    <tbody id="salary-body"><tr><td colspan="4" style="text-align:center">Chọn tháng để xem dữ liệu</td></tr></tbody>
                 </table>
                 <h3 style="text-align:right; margin-top:20px; color:var(--success)">Tổng Chi: <span id="total-payout">0 đ</span></h3>
             </div>
@@ -211,10 +199,14 @@
 
         <div id="adm-tab-manage" class="view-section">
             <div style="display:flex; gap:20px; flex-wrap: wrap;">
-                <div class="card" style="flex:1; min-width: 300px; height:fit-content">
+                <div class="card" style="flex:1; min-width: 300px;">
                     <h4>📝 Thông Tin Nhân Viên</h4>
-                    <label>ID Vân Tay:</label>
-                    <input type="number" id="inp-id" placeholder="Nhập ID (Ví dụ: 1)">
+                    <label>ID Vân Tay (Từ thiết bị):</label>
+                    <input type="number" id="inp-id" placeholder="VD: 1, 2, 3...">
+                    
+                    <label>Mã Nhân Viên (Quản lý):</label>
+                    <input type="text" id="inp-code" placeholder="VD: NV001, KD02...">
+                    
                     <label>Họ và Tên:</label>
                     <input type="text" id="inp-name" placeholder="Nhập tên nhân viên">
                     
@@ -223,10 +215,10 @@
                 </div>
 
                 <div class="card" style="flex:2; min-width: 300px;">
-                    <h4>Danh Sách Hiện Có</h4>
-                    <div style="max-height:400px; overflow-y:auto">
+                    <h4>Danh Sách Nhân Viên</h4>
+                    <div style="max-height:450px; overflow-y:auto">
                         <table id="user-list-table">
-                            <thead><tr><th>ID</th><th>Tên Nhân Viên</th></tr></thead>
+                            <thead><tr><th>ID</th><th>Mã NV</th><th>Họ Tên</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -238,7 +230,6 @@
 
 <script>
     // ================= 1. CẤU HÌNH FIREBASE =================
-    // >>> BẠN HÃY ĐIỀN API KEY CỦA BẠN VÀO DƯỚI ĐÂY <<<
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -253,11 +244,20 @@
     const db = firebase.database();
 
     // ================= 2. BIẾN TOÀN CỤC =================
-    let usersCache = {};
+    let usersCache = {}; // Cấu trúc mới: { id: { name: "A", code: "NV01" } }
     let reportData = [];
     let newIDDetected = null;
 
-    // ================= 3. XỬ LÝ SỰ KIỆN ID MỚI (POPUP) =================
+    // Load User Ngay khi mở trang để đổ vào Dropdown
+    db.ref('users').on('value', snap => {
+        usersCache = snap.val() || {};
+        renderLoginDropdown(); // Cập nhật dropdown đăng nhập
+        if(document.getElementById('view-admin').style.display === 'block') {
+            renderUserList(); // Cập nhật danh sách admin
+        }
+    });
+
+    // ================= 3. XỬ LÝ SỰ KIỆN ID MỚI =================
     db.ref('new_enroll').on('value', snap => {
         const val = snap.val();
         if (val) {
@@ -271,29 +271,55 @@
 
     function acceptNewID() {
         document.getElementById('new-id-modal').style.display = 'none';
+        // Chuyển sang tab quản lý nếu đang ở Admin
         if(document.getElementById('view-admin').style.display !== 'none') { 
-            const manageTabBtn = document.querySelectorAll('.nav-item')[2];
-            switchAdminTab('manage', manageTabBtn);
-            
+            switchAdminTab('manage', document.querySelectorAll('.nav-item')[2]);
             document.getElementById('inp-id').value = newIDDetected;
-            document.getElementById('inp-name').value = ""; 
-            document.getElementById('inp-name').focus();
+            document.getElementById('inp-code').focus(); // Focus vào ô Mã NV
         }
         db.ref('new_enroll').remove();
     }
-
     function closeNewIDModal() {
         db.ref('new_enroll').remove();
         document.getElementById('new-id-modal').style.display = 'none';
     }
 
-    // ================= 4. LOGIC ĐĂNG NHẬP =================
+    // ================= 4. LOGIC ĐĂNG NHẬP & APP =================
     function switchLoginTab(type) {
         document.querySelectorAll('.login-tab').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
         event.target.classList.add('active');
         document.getElementById(`login-form-${type}`).classList.add('active');
         document.getElementById('login-error').style.display = 'none';
+    }
+
+    // Render danh sách nhân viên vào Dropdown Select
+    function renderLoginDropdown() {
+        const select = document.getElementById('login-emp-select');
+        select.innerHTML = '<option value="">-- Chọn tên của bạn --</option>';
+        
+        Object.keys(usersCache).forEach(id => {
+            const u = usersCache[id];
+            // Xử lý tương thích dữ liệu cũ (chỉ có tên) và mới (object)
+            const name = (typeof u === 'object') ? u.name : u;
+            const code = (typeof u === 'object' && u.code) ? `(${u.code})` : `(ID:${id})`;
+            
+            const option = document.createElement('option');
+            option.value = id;
+            option.text = `${name} ${code}`;
+            select.appendChild(option);
+        });
+    }
+
+    function loginAsEmployee() {
+        const id = document.getElementById('login-emp-select').value;
+        if (!id) return showError("Vui lòng chọn tên của bạn!");
+        
+        const u = usersCache[id];
+        const name = (typeof u === 'object') ? u.name : u;
+
+        setupApp(name, 'Nhân Viên', 'view-employee');
+        loadEmployeeData(id);
     }
 
     function loginAsAdmin() {
@@ -305,16 +331,6 @@
         } else {
             showError("Sai tên đăng nhập hoặc mật khẩu!");
         }
-    }
-
-    function loginAsEmployee() {
-        const id = document.getElementById('login-emp-id').value;
-        if (!id) return showError("Vui lòng nhập ID!");
-        db.ref('users/' + id).once('value', snap => {
-            const name = snap.val() || "Nhân viên " + id;
-            setupApp(name, 'Nhân Viên', 'view-employee');
-            loadEmployeeData(id);
-        });
     }
 
     function setupApp(name, role, viewId) {
@@ -334,107 +350,104 @@
     }
     function logout() { location.reload(); }
 
-    // ================= 5. LOGIC ADMIN (GIÁM SÁT & XÓA & QUẢN LÝ) =================
-    
+    // ================= 5. LOGIC ADMIN =================
     function switchAdminTab(tabName, btnElement) {
-        document.getElementById('adm-tab-live').style.display = 'none';
-        document.getElementById('adm-tab-report').style.display = 'none';
-        document.getElementById('adm-tab-manage').style.display = 'none';
+        document.querySelectorAll('.view-section').forEach(el => {
+            if(el.id.startsWith('adm-tab')) el.style.display = 'none';
+        });
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         
-        if(btnElement) {
-             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-             btnElement.classList.add('active');
-        } else {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            if(tabName === 'manage') document.querySelectorAll('.nav-item')[2].classList.add('active');
-        }
+        if(btnElement) btnElement.classList.add('active');
         document.getElementById('adm-tab-' + tabName).style.display = 'block';
     }
 
-    // --- Giám sát Live & Nút xóa từng dòng ---
+    // --- Tab Giám Sát ---
     function loadAdminData() {
-        db.ref('users').on('value', snap => {
-            usersCache = snap.val() || {};
-            renderUserList();
-        });
-
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('adm-live-body');
             tbody.innerHTML = "";
             const data = snap.val();
-            if(!data) {
-                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Chưa có dữ liệu</td></tr>";
-                return;
-            }
+            if(!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Chưa có dữ liệu</td></tr>"; return; }
             
-            // Render dữ liệu ra bảng kèm nút Xóa
             Object.entries(data).reverse().forEach(([key, log]) => {
-                const name = usersCache[log.id] || `<span style="color:red; font-style:italic">Chưa đặt tên</span>`;
+                const user = usersCache[log.id];
+                const name = user ? ((typeof user === 'object') ? user.name : user) : "Chưa đặt tên";
+                const code = (user && typeof user === 'object' && user.code) ? user.code : "--";
+
                 tbody.innerHTML += `
                     <tr>
                         <td>${log.timestamp}</td>
-                        <td><span style="background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; font-weight:bold">${log.id}</span></td>
-                        <td>${name}</td>
-                        <td style="text-align:center">
-                            <button class="btn-danger" style="padding:5px 10px; font-size:0.8em" onclick="deleteLog('${key}')">🗑️ Xóa</button>
-                        </td>
+                        <td><span class="badge-id">${log.id}</span></td>
+                        <td><span class="badge-code">${code}</span></td>
+                        <td><b>${name}</b></td>
+                        <td style="text-align:center"><button class="btn-danger" style="padding:4px 8px; font-size:0.8em" onclick="deleteLog('${key}')">🗑️</button></td>
                     </tr>`;
             });
         });
     }
 
-    // --- Hàm xóa 1 dòng ---
     function deleteLog(key) {
-        if(confirm("Xóa dòng lịch sử này?")) {
-            db.ref('attendance/' + key).remove()
-                .then(()=>alert("Đã xóa!"))
-                .catch(e=>alert("Lỗi: "+e));
-        }
+        if(confirm("Xóa dòng này?")) db.ref('attendance/' + key).remove();
     }
 
-    // --- Quản lý User (Thêm/Sửa/Xóa) ---
+    // --- Tab Quản Lý Nhân Sự ---
     function renderUserList() {
         const tbody = document.querySelector('#user-list-table tbody');
         tbody.innerHTML = "";
         Object.keys(usersCache).forEach(id => {
-            tbody.innerHTML += `<tr onclick="editUser('${id}', '${usersCache[id]}')" style="cursor:pointer"><td><b>${id}</b></td><td>${usersCache[id]}</td></tr>`;
+            const u = usersCache[id];
+            const name = (typeof u === 'object') ? u.name : u;
+            const code = (typeof u === 'object' && u.code) ? u.code : "";
+            
+            tbody.innerHTML += `<tr onclick="editUser('${id}', '${name}', '${code}')" style="cursor:pointer">
+                <td><span class="badge-id">${id}</span></td>
+                <td><span class="badge-code">${code}</span></td>
+                <td>${name}</td>
+            </tr>`;
         });
     }
 
     function saveUser() {
         const id = document.getElementById('inp-id').value;
         const name = document.getElementById('inp-name').value;
+        const code = document.getElementById('inp-code').value;
+
         if(id && name) {
-            db.ref('users/' + id).set(name);
-            alert("Đã lưu thông tin nhân viên!");
+            // Lưu dạng Object gồm Tên và Mã NV
+            db.ref('users/' + id).set({
+                name: name,
+                code: code
+            });
+            alert("Đã lưu thành công!");
             resetForm();
         } else {
-            alert("Vui lòng nhập đủ ID và Tên");
+            alert("Vui lòng nhập ít nhất ID và Tên!");
         }
     }
     
     function deleteUser() {
         const id = document.getElementById('inp-id').value;
-        if(confirm("Chắc chắn xóa nhân viên này?")) {
+        if(confirm("Xóa nhân viên này?")) {
             db.ref('users/' + id).remove();
             resetForm();
         }
     }
 
-    function editUser(id, name) {
+    function editUser(id, name, code) {
         document.getElementById('inp-id').value = id;
         document.getElementById('inp-name').value = name;
+        document.getElementById('inp-code').value = code;
         document.getElementById('btn-delete').style.display = 'inline-block';
     }
 
     function resetForm() {
         document.getElementById('inp-id').value = "";
         document.getElementById('inp-name').value = "";
+        document.getElementById('inp-code').value = "";
         document.getElementById('btn-delete').style.display = 'none';
     }
 
-    // ================= 6. TÍNH LƯƠNG & XÓA THÁNG =================
-    
+    // ================= 6. TÍNH LƯƠNG & EXCEL VIỆT HÓA =================
     async function calcSalary() {
         const monthInput = document.getElementById('filter-month').value;
         const salary = document.getElementById('salary-input').value;
@@ -452,17 +465,11 @@
         let stats = {};
         let countFound = 0;
 
-        // Logic xử lý ngày tháng thông minh
         Object.values(data).forEach(log => {
             let dateStr = log.timestamp.split(' ')[0]; 
-            // Hỗ trợ cả 2025-11-25 và 25/11/2025
             let yLog, mLog, dLog;
-            
-            if(dateStr.includes('-')) {
-                [yLog, mLog, dLog] = dateStr.split('-');
-            } else {
-                [dLog, mLog, yLog] = dateStr.split('/');
-            }
+            if(dateStr.includes('-')) { [yLog, mLog, dLog] = dateStr.split('-'); }
+            else { [dLog, mLog, yLog] = dateStr.split('/'); }
 
             if(parseInt(yLog) === parseInt(yFilter) && parseInt(mLog) === parseInt(mFilter)) {
                 if(!stats[log.id]) stats[log.id] = new Set();
@@ -472,50 +479,66 @@
         });
 
         tbody.innerHTML = "";
-        reportData = [];
+        reportData = []; // Reset dữ liệu excel
         let total = 0;
 
         if(countFound === 0) {
-            tbody.innerHTML = `<tr><td colspan='4' style='color:red'>Không tìm thấy dữ liệu tháng ${mFilter}/${yFilter}</td></tr>`;
-            return;
+            tbody.innerHTML = `<tr><td colspan='4' style='color:red'>Không có dữ liệu tháng ${mFilter}/${yFilter}</td></tr>`; return;
         }
 
         Object.keys(stats).forEach(id => {
             const days = stats[id].size;
             const money = days * salary;
-            const name = usersCache[id] || "Chưa đặt tên";
+            
+            // Lấy thông tin user
+            const u = usersCache[id];
+            const name = u ? ((typeof u === 'object') ? u.name : u) : "Chưa đặt tên";
+            const code = (u && typeof u === 'object' && u.code) ? u.code : "";
+
             total += money;
-            reportData.push({ID: id, Name: name, Days: days, Salary: money});
-            tbody.innerHTML += `<tr><td><b>${id}</b></td><td>${name}</td><td style="font-weight:bold">${days}</td><td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td></tr>`;
+
+            // Dữ liệu Xuất Excel (Tiếng Việt)
+            reportData.push({
+                "Mã Nhân Viên": code,
+                "Họ và Tên": name,
+                "ID Vân Tay": id,
+                "Số Ngày Công": days,
+                "Lương Cơ Bản": salary,
+                "Thực Lĩnh (VNĐ)": money
+            });
+
+            tbody.innerHTML += `<tr>
+                <td><span class="badge-code">${code}</span></td>
+                <td>${name}</td>
+                <td style="font-weight:bold">${days}</td>
+                <td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td>
+            </tr>`;
         });
         document.getElementById('total-payout').innerText = total.toLocaleString() + " đ";
     }
 
     function exportExcel() {
-        if(reportData.length == 0) return alert("Chưa có dữ liệu!");
+        if(reportData.length == 0) return alert("Chưa có dữ liệu để xuất!");
         const ws = XLSX.utils.json_to_sheet(reportData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Luong");
-        XLSX.writeFile(wb, "BangLuong.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "BangLuong");
+        XLSX.writeFile(wb, "BangLuong_ChiTiet.xlsx");
     }
 
-    // --- Xóa dữ liệu cả tháng ---
     async function deleteMonthData() {
         const monthInput = document.getElementById('filter-month').value;
-        if(!monthInput) return alert("Chọn tháng cần xóa trước!");
+        if(!monthInput) return alert("Chọn tháng!");
         const [yFilter, mFilter] = monthInput.split('-');
 
-        if(!confirm(`CẢNH BÁO: Xóa toàn bộ dữ liệu tháng ${mFilter}/${yFilter}?\nKhông thể hoàn tác!`)) return;
-        
+        if(!confirm(`CẢNH BÁO: Xóa toàn bộ dữ liệu tháng ${mFilter}/${yFilter}?`)) return;
         const code = Math.floor(1000 + Math.random() * 9000);
-        if(prompt(`Nhập mã "${code}" để xác nhận xóa:`) != code) return alert("Mã sai. Hủy bỏ.");
+        if(prompt(`Nhập mã "${code}" để xác nhận xóa:`) != code) return alert("Mã sai.");
 
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
         if(!data) return alert("Không có gì để xóa.");
 
         let updates = {};
-        let count = 0;
         Object.entries(data).forEach(([key, log]) => {
             let dateStr = log.timestamp.split(' ')[0];
             let yLog, mLog;
@@ -524,38 +547,35 @@
 
             if(parseInt(yLog) === parseInt(yFilter) && parseInt(mLog) === parseInt(mFilter)) {
                 updates['attendance/' + key] = null;
-                count++;
             }
         });
-
-        if(count > 0) {
-            await db.ref().update(updates);
-            alert(`Đã xóa ${count} bản ghi.`);
-            document.getElementById('salary-body').innerHTML = "";
-        } else {
-            alert("Không tìm thấy dữ liệu khớp.");
-        }
+        await db.ref().update(updates);
+        alert("Đã xóa xong!");
+        document.getElementById('salary-body').innerHTML = "";
     }
 
     // ================= 7. LOGIC NHÂN VIÊN =================
     function loadEmployeeData(myId) {
         const tbody = document.getElementById('emp-history-body');
-        db.ref('attendance').limitToLast(50).on('value', snap => {
+        const u = usersCache[myId];
+        const myCode = (u && typeof u === 'object') ? u.code : "--";
+
+        db.ref('attendance').limitToLast(100).on('value', snap => {
             tbody.innerHTML = "";
             const data = snap.val();
             if(!data) return;
             Object.values(data).reverse().forEach(log => {
                 if(log.id == myId) {
-                    tbody.innerHTML += `<tr><td>${log.timestamp}</td><td><b>${log.id}</b></td><td style="color:var(--success)">✔ Thành công</td></tr>`;
+                    tbody.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge-code">${myCode}</span></td><td style="color:var(--success)">✔ Thành công</td></tr>`;
                 }
             });
         });
     }
 
-    // Mặc định chọn tháng hiện tại
+    // Mặc định tháng hiện tại
     const d = new Date();
     document.getElementById('filter-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-
 </script>
+
 </body>
 </html>
