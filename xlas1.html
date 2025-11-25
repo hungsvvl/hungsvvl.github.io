@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (V16 - Auto Login)</title>
+    <title>Chấm Công UTC (V17 Stable)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* === 2. GIAO DIỆN (CSS) === */
@@ -26,19 +27,16 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s;
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s; }
 
-        /* SIDEBAR & NAV */
+        /* SIDEBAR */
         .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; transition: 0.3s; }
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
         .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
         .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
+        /* MAIN */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
@@ -59,7 +57,7 @@
             .b-nav-item.active { color: var(--primary); }
         }
 
-        /* UI ELEMENTS */
+        /* COMPONENTS */
         .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         h3 { margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
         .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; justify-content: center; }
@@ -67,25 +65,20 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
-        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; }
+        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
-        /* COMPACT TABLE CSS (V15) */
+        /* TABLES */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.9rem; }
-        
-        /* Mobile Table Tweaks */
+        /* Mobile Table */
         .compact-cell { display: flex; flex-direction: column; gap: 2px; }
         .compact-main { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
         .compact-sub { font-size: 0.75rem; color: var(--text-sub); }
         .compact-time { font-family: monospace; font-weight: 700; color: var(--primary); }
-        
-        @media (max-width: 768px) {
-            table { min-width: 100% !important; }
-            th, td { padding: 10px 8px; }
-        }
+        @media (max-width: 768px) { table { min-width: 100% !important; } th, td { padding: 10px 8px; } }
 
         /* BADGES */
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
@@ -103,15 +96,14 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: popIn 0.3s; }
         
+        /* LOGIN STYLE */
         #login-page { position: fixed; inset: 0; z-index: 10000; background: var(--bg-body); display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-card { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
         .role-group { display: flex; background: var(--bg-body); padding: 4px; border-radius: 10px; margin-bottom: 24px; }
         .role-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 0.9rem; }
         .role-btn.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Custom Checkbox */
         .remember-check { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-sub); cursor: pointer; justify-content: flex-start; }
-        .remember-check input { width: 16px; height: 16px; cursor: pointer; }
+        .remember-check input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
 
         .hidden { display: none !important; }
         .flex-row { display: flex; gap: 12px; } .flex-1 { flex: 1; }
@@ -127,7 +119,7 @@
 <div id="confirm-modal" class="overlay">
     <div class="modal-box">
         <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;"><i class="fa-solid fa-circle-exclamation"></i></div>
-        <h2 style="margin: 0 0 8px 0; color: var(--text-main);">Xác Nhận</h2>
+        <h2 style="margin: 0 0 8px 0;">Xác Nhận</h2>
         <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">Hành động này không thể hoàn tác.</p>
         <div class="flex-row">
             <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white;">Đồng Ý</button>
@@ -154,6 +146,7 @@
         <div style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-fingerprint"></i></div>
         <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
         <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
+        
         <div class="role-group">
             <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
             <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
@@ -161,18 +154,14 @@
         
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
-            <label class="remember-check">
-                <input type="checkbox" id="remember-emp"> Ghi nhớ tôi
-            </label>
+            <label class="remember-check"><input type="checkbox" id="remember-emp"> Ghi nhớ tôi</label>
             <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
 
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
-            <label class="remember-check">
-                <input type="checkbox" id="remember-admin"> Ghi nhớ đăng nhập
-            </label>
+            <label class="remember-check"><input type="checkbox" id="remember-admin"> Ghi nhớ đăng nhập</label>
             <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
         </div>
     </div>
@@ -215,6 +204,7 @@
                     <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height: 220px;"></canvas></div>
                 </div>
             </div>
+
             <div id="tab-live" class="tab-content hidden">
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
@@ -229,6 +219,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="tab-salary" class="tab-content hidden">
                 <div class="card">
                     <div class="flex-row">
@@ -247,6 +238,7 @@
                     <div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
+
             <div id="tab-users" class="tab-content hidden">
                 <div class="flex-row">
                     <div class="card flex-1">
@@ -278,7 +270,6 @@
 </div>
 
 <script>
-    // 1. CONFIG
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -292,64 +283,32 @@
     const db = firebase.database();
 
     // VARS
-    let usersCache = {};
-    let newID = null;
-    let processedNewIDs = new Set();
-    let currentRole = 'Guest';
-    let chartPie = null, chartBar = null;
-    let confirmCallback = null;
-    window.tempReport = [];
+    let usersCache = {}; let newID = null; let processedNewIDs = new Set(); let currentRole = 'Guest'; 
+    let chartPie = null, chartBar = null; let confirmCallback = null; window.tempReport = [];
 
-    // --- AUTO LOGIN CHECK ---
-    window.onload = function() {
-        const savedSession = localStorage.getItem('utc_auth_session');
-        if (savedSession) {
+    // --- AUTO LOGIN CHECK (FIXED) ---
+    (function checkAutoLogin() {
+        const saved = localStorage.getItem('utc_session_v17');
+        if (saved) {
             try {
-                const session = JSON.parse(savedSession);
-                if (session.role === 'Admin') {
-                    loginAdmin(true); // true = auto login mode
-                } else if (session.role === 'Emp' && session.id) {
-                    loginEmp(true, session.id);
-                }
-            } catch(e) { localStorage.removeItem('utc_auth_session'); }
+                const s = JSON.parse(saved);
+                if (s.role === 'Admin') loginAdmin(true);
+                else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
+            } catch(e) { localStorage.removeItem('utc_session_v17'); }
         }
-    }
+    })();
 
-    // --- TOAST & CONFIRM ---
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div'); toast.className = `toast ${type}`;
-        let title = type==='error'?'Lỗi':type==='success'?'Thành công':'Thông báo';
-        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
-        toast.innerHTML = `${icon}<div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
-        container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
-    }
-    function showConfirmDialog(msg, callback) {
-        document.getElementById('confirm-msg').innerText = msg;
-        document.getElementById('confirm-modal').style.display = 'flex';
-        confirmCallback = callback;
-    }
-    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; confirmCallback = null; }
-    document.getElementById('btn-confirm-yes').onclick = function() { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
+    // --- DATA ---
+    db.ref('users').on('value', snap => {
+        usersCache = snap.val() || {}; renderLoginDropdown();
+        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); }
+        // Update name for auto-login User
+        if (currentRole === 'Emp') {
+            const s = JSON.parse(localStorage.getItem('utc_session_v17'));
+            if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên";
+        }
+    });
 
-    // --- UTILS ---
-    function getCurrentDateTime() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2,'0'); const m = String(now.getMonth()+1).padStart(2,'0'); const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2,'0'); const min = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
-        return `${d}/${m}/${y} ${h}:${min}:${s}`;
-    }
-    function getUserInfo(id) {
-        const u = usersCache[id];
-        if (!u) return { name: null, code: "---" };
-        if (typeof u === 'string') return { name: u, code: "---" };
-        return { name: u.name, code: u.code || "---" };
-    }
-    function toggleTheme() {
-        const body = document.body; body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
-    }
-
-    // --- LOGIC ---
     db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
         if (val) {
@@ -359,8 +318,8 @@
                 const lastLogData = lastLogSnap.val();
                 let isDuplicate = false;
                 if(lastLogData) {
-                    const logKey = Object.keys(lastLogData)[0];
-                    const [d, t] = lastLogData[logKey].timestamp.split(' ');
+                    const k = Object.keys(lastLogData)[0];
+                    const [d, t] = lastLogData[k].timestamp.split(' ');
                     const [day, month, year] = d.split('/');
                     if ((new Date() - new Date(`${year}-${month}-${day}T${t}`)) < 60000) isDuplicate = true;
                 }
@@ -376,19 +335,6 @@
         } else { document.getElementById('new-id-modal').style.display = 'none'; }
     });
 
-    function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
-    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
-
-    db.ref('users').on('value', snap => {
-        usersCache = snap.val() || {}; renderLoginDropdown();
-        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); }
-        // Nếu đang là nhân viên (đã login), cập nhật lại tên hiển thị
-        if (currentRole === 'Emp') {
-             const savedSession = JSON.parse(localStorage.getItem('utc_auth_session'));
-             if(savedSession) document.getElementById('display-name').innerText = getUserInfo(savedSession.id).name || "Nhân Viên";
-        }
-    });
-
     // --- AUTH ---
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
@@ -401,36 +347,23 @@
             const i = getUserInfo(id); if(i.name) { const opt = document.createElement('option'); opt.value = id; opt.text = i.name; sel.appendChild(opt); }
         });
     }
-
     async function loginAdmin(isAuto = false) {
-        if(isAuto) {
-            currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); return;
-        }
+        if(isAuto) { currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); return; }
         const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
         const snap = await db.ref('settings/admin_password').once('value');
         if (u === 'UTC' && p === (snap.val() || 'admin')) {
-            if(document.getElementById('remember-admin').checked) {
-                localStorage.setItem('utc_auth_session', JSON.stringify({ role: 'Admin' }));
-            }
+            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v17', JSON.stringify({ role: 'Admin' }));
             currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); 
         } else showToast('Sai thông tin đăng nhập!', 'error');
     }
-
     function loginEmp(isAuto = false, autoId = null) {
         const id = isAuto ? autoId : document.getElementById('login-select').value;
         if (!id) return showToast('Vui lòng chọn tên', 'error');
-        
         const info = getUserInfo(id);
-        if(!isAuto && document.getElementById('remember-emp').checked) {
-            localStorage.setItem('utc_auth_session', JSON.stringify({ role: 'Emp', id: id }));
-        }
-        currentRole = 'Emp'; enterApp(info.name || "Nhân Viên", 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
+        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v17', JSON.stringify({ role: 'Emp', id: id }));
+        currentRole = 'Emp'; enterApp(info.name || "Đang tải...", 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
     }
-
-    function logout() {
-        localStorage.removeItem('utc_auth_session');
-        location.reload();
-    }
+    function logout() { localStorage.removeItem('utc_session_v17'); location.reload(); }
 
     function enterApp(name, role, viewId) {
         document.getElementById('login-page').style.display = 'none';
@@ -439,17 +372,49 @@
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
         document.getElementById(viewId).classList.remove('hidden');
-
+        
+        // Layout Logic
         const sidebar = document.getElementById('main-sidebar');
         const mobNav = document.getElementById('mobile-nav');
         if(role === 'Admin') {
-            sidebar.style.display = ''; 
+            sidebar.style.display = '';
             if(window.innerWidth <= 768) mobNav.style.display = 'flex';
         } else {
             sidebar.style.display = 'none'; mobNav.style.display = 'none';
         }
     }
 
+    // --- HELPERS ---
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div'); toast.className = `toast ${type}`;
+        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
+        toast.innerHTML = `${icon}<div><div class="toast-title">${type==='error'?'Lỗi':'Thông báo'}</div><div class="toast-msg">${msg}</div></div>`;
+        container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+    }
+    function showConfirmDialog(msg, callback) {
+        document.getElementById('confirm-msg').innerText = msg;
+        document.getElementById('confirm-modal').style.display = 'flex';
+        confirmCallback = callback;
+    }
+    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; confirmCallback = null; }
+    document.getElementById('btn-confirm-yes').onclick = function() { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
+    function getCurrentDateTime() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2,'0'); const m = String(now.getMonth()+1).padStart(2,'0'); const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2,'0'); const min = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
+        return `${d}/${m}/${y} ${h}:${min}:${s}`;
+    }
+    function getUserInfo(id) {
+        const u = usersCache[id]; if (!u) return { name: null, code: "---" };
+        if (typeof u === 'string') return { name: u, code: "---" };
+        return { name: u.name, code: u.code || "---" };
+    }
+    function toggleTheme() { document.body.toggleAttribute('data-theme'); }
+    function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
+    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
+
+    // --- TABS & FEATURES ---
     function openTab(tabName, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
@@ -462,7 +427,6 @@
         if(tabName === 'dashboard') updateDashboard(); if(tabName === 'live') loadMonitor(); if(tabName === 'users') renderUserList();
     }
 
-    // --- FUNCTIONS ---
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value'); const data = snap.val() || {};
         const logs = Object.values(data); const workTime = "08:00:00"; 
@@ -483,22 +447,15 @@
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id); const [datePart, timePart] = log.timestamp.split(' ');
                 const isLate = timePart > workTime;
-                
-                // Mobile Compact Table Logic
                 let nameHtml = info.name ? `<div class="compact-main">${info.name}</div>` : `<span class="badge badge-yellow" style="margin-bottom:2px">Chưa ĐK</span>`;
-                let subHtml = "";
-                if (!info.name) { subHtml = `<div style="margin-top:4px"><button class="btn btn-outline" style="padding:2px 8px; font-size:0.65rem; height:auto" onclick="quickAdd('${log.id}')">➕ Thêm</button></div>`; } 
-                else { let codeTxt = info.code !== "---" ? info.code : `ID: ${log.id}`; subHtml = `<div class="compact-sub">${codeTxt}</div>`; }
+                let subHtml = !info.name ? `<div style="margin-top:4px"><button class="btn btn-outline" style="padding:2px 8px; font-size:0.65rem; height:auto" onclick="quickAdd('${log.id}')">➕ Thêm</button></div>` : `<div class="compact-sub">${info.code !== "---" ? info.code : `ID: ${log.id}`}</div>`;
                 if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
-                
                 let statusBadge = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
                 let timeHtml = `<div class="compact-cell"><div class="compact-time">${timePart} <span style="font-weight:400; color:#999; font-size:0.7rem">(${datePart.substr(0,5)})</span></div><div style="margin-top:2px">${statusBadge}</div></div>`;
-
                 tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
             });
         });
     }
-    
     function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng nhật ký này?', () => { db.ref('attendance/' + key).remove(); showToast('Đã xóa', 'success'); }); }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
 
@@ -533,7 +490,7 @@
     function triggerDeleteData() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value;
         if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        showConfirmDialog(`Xóa vĩnh viễn dữ liệu từ ${dStart} đến ${dEnd}?`, async () => {
+        showConfirmDialog(`Xóa dữ liệu từ ${dStart} đến ${dEnd}?`, async () => {
             const startDate = new Date(dStart); startDate.setHours(0,0,0,0); const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
             const snap = await db.ref('attendance').once('value'); const data = snap.val();
             if(data) {
