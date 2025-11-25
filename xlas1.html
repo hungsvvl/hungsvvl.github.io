@@ -3,71 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (System Font)</title>
+    <title>Chấm Công UTC (V12 Pro)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* === 2. GIAO DIỆN (CSS) === */
         :root {
-            --primary: #2563eb;       /* Xanh chuẩn hệ thống */
-            --primary-light: #eff6ff;
-            --bg-body: #f1f5f9;       /* Xám nhạt */
+            --primary: #4f46e5;       
+            --primary-light: #eef2ff;
+            --bg-body: #f3f4f6;       
             --bg-card: #ffffff;
-            --text-main: #0f172a;     /* Đen than */
-            --text-sub: #64748b;      /* Xám ghi */
-            --border: #e2e8f0;
+            --text-main: #1f2937;     
+            --text-sub: #6b7280;      
+            --border: #e5e7eb;
             --danger: #ef4444;
             --success: #10b981;
             --warning: #f59e0b;
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --radius: 12px;
         }
 
-        /* DARK MODE */
         [data-theme="dark"] {
-            --primary: #3b82f6; --primary-light: #1e3a8a; --bg-body: #0f172a; 
-            --bg-card: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border: #334155;
+            --primary: #6366f1; --primary-light: #312e81; --bg-body: #0f172a; 
+            --bg-card: #1e293b; --text-main: #f9fafb; --text-sub: #94a3b8; --border: #334155;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            /* SỬ DỤNG FONT HỆ THỐNG (Native Font Stack) */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: 'Inter', sans-serif; /* Google Font */
             background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s;
         }
 
-        /* --- SIDEBAR (PC) --- */
+        /* --- SIDEBAR --- */
         .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; }
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
         .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
         .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
-        /* --- MAIN CONTENT --- */
+        /* --- MAIN --- */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
 
-        /* --- MOBILE BOTTOM NAV (SỬA LỖI UI) --- */
-        .bottom-nav { display: none !important; } /* Mặc định ẩn tuyệt đối trên PC */
-
+        /* --- MOBILE NAV --- */
+        .bottom-nav { display: none !important; } 
         @media (max-width: 768px) {
-            .sidebar { display: none !important; } /* Ẩn Sidebar trên Mobile */
+            .sidebar { display: none !important; }
             .top-bar { padding: 0 16px; }
-            .content-scroll { padding: 16px 16px 90px 16px; } /* Chừa chỗ cho menu dưới */
-            
-            /* Chỉ hiện menu dưới khi là Mobile */
+            .content-scroll { padding: 16px 16px 90px 16px; }
             .bottom-nav {
                 display: flex !important; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
                 background: var(--bg-card); border-top: 1px solid var(--border);
                 justify-content: space-around; align-items: center; z-index: 100;
-                padding-bottom: env(safe-area-inset-bottom); /* Hỗ trợ iPhone X trở lên */
+                padding-bottom: env(safe-area-inset-bottom);
             }
             .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; }
             .b-nav-item i { font-size: 1.2rem; }
@@ -82,28 +79,39 @@
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
-        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
 
-        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; }
+        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
-        /* TABLES */
+        /* --- TABLES --- */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; }
+        th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.9rem; }
-        tr:last-child td { border-bottom: none; }
-
+        
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .badge-id { background: var(--primary-light); color: var(--primary); }
         .badge-green { background: #dcfce7; color: #166534; }
         .badge-red { background: #fee2e2; color: #991b1b; }
         .badge-yellow { background: #fef3c7; color: #92400e; }
 
+        /* --- TOAST NOTIFICATION (CẢNH BÁO ĐẸP) --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; }
+        .toast { 
+            background: var(--bg-card); padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
+            display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary);
+            animation: slideInRight 0.3s ease forwards; 
+        }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.success { border-left-color: var(--success); }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+        .toast-msg { font-size: 0.8rem; color: var(--text-sub); }
+
         /* --- POPUP & LOGIN --- */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: var(--bg-card); padding: 24px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-box { background: var(--bg-card); padding: 24px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: slideUp 0.3s; }
         
         #login-page { position: fixed; inset: 0; z-index: 10000; background: var(--bg-body); display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-card { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
@@ -117,19 +125,20 @@
         .flex-1 { flex: 1; }
         
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @media (max-width: 768px) { .flex-row { flex-direction: column; } .btn { width: 100%; } }
     </style>
 </head>
 <body>
+
+<div id="toast-container"></div>
 
 <div id="new-id-modal" class="overlay">
     <div class="modal-box">
         <div style="font-size: 3.5rem; margin-bottom: 16px;">👋</div>
         <h2 style="margin: 0 0 8px 0; color: var(--text-main);">Vân Tay Mới</h2>
         <h1 id="modal-id" style="font-size: 2.5rem; color: var(--primary); margin: 0 0 16px 0; font-weight: 800;">--</h1>
-        <p style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.9rem;">
-            Hệ thống đã tự động lưu giờ quét.<br>Bạn có muốn đặt tên ngay không?
-        </p>
+        <p style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.9rem;">Hệ thống đã lưu giờ quét.<br>Thêm tên nhân viên ngay?</p>
         <div class="flex-row">
             <button class="btn btn-primary flex-1" onclick="acceptNewID()">Thêm Ngay</button>
             <button class="btn btn-outline flex-1" onclick="closeNewID()">Để Sau</button>
@@ -141,7 +150,7 @@
     <div class="login-card">
         <div style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-fingerprint"></i></div>
         <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
-        <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Đăng nhập để tiếp tục</p>
+        <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
 
         <div class="role-group">
             <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
@@ -150,13 +159,13 @@
 
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
-            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Chấm Công</button>
+            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
 
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
-            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập Admin</button>
+            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
         </div>
     </div>
 </div>
@@ -182,10 +191,9 @@
     </div>
 
     <div class="content-scroll">
-        
         <div id="view-emp" class="hidden">
             <div class="card">
-                <h3>Lịch Sử Chấm Công</h3>
+                <h3>📅 Lịch Sử Của Bạn</h3>
                 <div class="table-responsive">
                     <table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table>
                 </div>
@@ -201,7 +209,7 @@
                         <canvas id="chartPie" style="max-height: 220px;"></canvas>
                     </div>
                     <div class="card flex-1">
-                        <h3>Thống Kê Tuần</h3>
+                        <h3>Thống Kê 7 Ngày</h3>
                         <canvas id="chartBar" style="max-height: 220px;"></canvas>
                     </div>
                 </div>
@@ -228,19 +236,29 @@
             <div id="tab-salary" class="tab-content hidden">
                 <div class="card">
                     <div class="flex-row">
-                        <div class="flex-1"><label style="font-size:0.8rem">Chọn Tháng:</label><input type="month" id="month-filter" class="form-control"></div>
-                        <div class="flex-1"><label style="font-size:0.8rem">Lương/Ngày:</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
+                        <div class="flex-1">
+                            <label style="font-size:0.8rem; font-weight:600">Từ ngày:</label>
+                            <input type="date" id="date-start" class="form-control">
+                        </div>
+                        <div class="flex-1">
+                            <label style="font-size:0.8rem; font-weight:600">Đến ngày:</label>
+                            <input type="date" id="date-end" class="form-control">
+                        </div>
+                        <div class="flex-1">
+                            <label style="font-size:0.8rem; font-weight:600">Lương/Ngày:</label>
+                            <input type="number" id="salary-val" class="form-control" value="500000">
+                        </div>
                     </div>
                     <div class="flex-row" style="margin-top:10px">
-                        <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính</button>
-                        <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                        <button class="btn btn-danger flex-1" onclick="deleteMonth()"><i class="fa-solid fa-trash"></i> Xóa</button>
+                        <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
+                        <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
+                        <button class="btn btn-danger flex-1" onclick="deleteDataRange()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
                     </div>
                 </div>
                 <div class="card">
                     <h3>Kết Quả: <span id="total-money" style="color:var(--success)">0 đ</span></h3>
                     <div class="table-responsive">
-                        <table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Công</th><th>Tiền</th></tr></thead><tbody></tbody></table>
+                        <table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table>
                     </div>
                 </div>
             </div>
@@ -250,8 +268,8 @@
                     <div class="card flex-1">
                         <h3>Thông Tin</h3>
                         <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
-                        <input type="text" id="inp-code" class="form-control" placeholder="Mã NV (VD: NV01)">
-                        <input type="text" id="inp-name" class="form-control" placeholder="Họ Tên">
+                        <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
+                        <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
                         <div class="flex-row">
                             <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
                             <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="delUser()">Xóa</button>
@@ -279,7 +297,7 @@
 </div>
 
 <script>
-    // 1. CẤU HÌNH FIREBASE (THAY API KEY CỦA BẠN VÀO ĐÂY)
+    // 1. CONFIG
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -292,14 +310,38 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // GLOBAL VARS
+    // VARS
     let usersCache = {};
     let newID = null;
     let processedNewIDs = new Set();
     let currentRole = 'Guest';
     let chartPie = null, chartBar = null;
+    window.tempReport = []; // Lưu dữ liệu lương tạm thời để xuất excel
 
-    // UTILS
+    // --- TOAST NOTIFICATION ---
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let icon = type === 'error' ? '<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>' : 
+                   type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>' :
+                   '<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
+                   
+        let title = type === 'error' ? 'Lỗi' : type === 'success' ? 'Thành công' : 'Thông báo';
+
+        toast.innerHTML = `
+            ${icon}
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-msg">${msg}</div>
+            </div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 3000);
+    }
+
+    // --- UTILS ---
     function getCurrentDateTime() {
         const now = new Date();
         const d = String(now.getDate()).padStart(2,'0');
@@ -324,40 +366,30 @@
         else body.setAttribute('data-theme', 'dark');
     }
 
-    // === CORE: CHỐNG DUPLICATE & ID MỚI ===
+    // --- CORE LOGIC ---
     db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
         if (val) {
             newID = val;
-            
-            // Kiểm tra xem đã xử lý trong phiên này chưa
             if (!processedNewIDs.has(val)) {
-                
-                // Truy vấn log cuối cùng của ID này
                 const lastLogSnap = await db.ref('attendance').orderByChild('id').equalTo(String(val)).limitToLast(1).once('value');
                 const lastLogData = lastLogSnap.val();
                 let isDuplicate = false;
 
                 if(lastLogData) {
                     const logKey = Object.keys(lastLogData)[0];
-                    const logTimeStr = lastLogData[logKey].timestamp; // DD/MM/YYYY HH:mm:ss
+                    const logTimeStr = lastLogData[logKey].timestamp;
                     const [d, t] = logTimeStr.split(' ');
                     const [day, month, year] = d.split('/');
                     const logDate = new Date(`${year}-${month}-${day}T${t}`);
-                    
-                    // Nếu log cũ cách đây < 60 giây -> Coi là trùng
                     if ((new Date() - logDate) < 60000) isDuplicate = true;
                 }
 
                 if (!isDuplicate) {
-                    db.ref('attendance').push({
-                        id: val, timestamp: getCurrentDateTime(), auto_generated: true
-                    });
+                    db.ref('attendance').push({ id: val, timestamp: getCurrentDateTime(), auto_generated: true });
                     processedNewIDs.add(val);
                 }
             }
-
-            // Chỉ hiện Popup nếu là Admin
             if (currentRole === 'Admin') {
                 document.getElementById('modal-id').innerText = newID;
                 document.getElementById('new-id-modal').style.display = 'flex';
@@ -368,7 +400,7 @@
     });
 
     function acceptNewID() {
-        document.getElementById('new-id-modal').style.display = 'none';
+        closeNewID();
         openTab('users');
         document.getElementById('inp-id').value = newID;
         document.getElementById('inp-code').focus();
@@ -379,17 +411,14 @@
         db.ref('new_enroll').remove();
     }
 
-    // === DATA HANDLING ===
+    // --- DATA ---
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {};
         renderLoginDropdown();
-        if (currentRole === 'Admin') {
-            renderUserList();
-            loadMonitor();
-        }
+        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); }
     });
 
-    // === AUTHENTICATION ===
+    // --- AUTH ---
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
@@ -421,12 +450,12 @@
             currentRole = 'Admin';
             enterApp('Quản Trị', 'Admin', 'view-admin');
             openTab('dashboard'); 
-        } else alert('❌ Sai thông tin');
+        } else showToast('Sai thông tin đăng nhập!', 'error');
     }
 
     function loginEmp() {
         const id = document.getElementById('login-select').value;
-        if (!id) return alert('Vui lòng chọn tên');
+        if (!id) return showToast('Vui lòng chọn tên', 'error');
         const info = getUserInfo(id);
         currentRole = 'Emp';
         enterApp(info.name, 'Nhân Viên', 'view-emp');
@@ -442,24 +471,19 @@
         document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // === TABS SYSTEM ===
+    // --- TABS ---
     function openTab(tabName, btnElement) {
-        // PC Sidebar
-        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
-        // Mobile Bottom Nav
-        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
-        // Hide contents
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        
         document.getElementById('tab-' + tabName).classList.remove('hidden');
+        
+        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
 
-        // Activate buttons logic
         const pcIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 2;
         const mobIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 1;
         
         if(document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`))
             document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`).classList.add('active');
-        
         if(document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`))
             document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`).classList.add('active');
 
@@ -468,7 +492,7 @@
         if(tabName === 'users') renderUserList();
     }
 
-    // === DASHBOARD ===
+    // --- DASHBOARD ---
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value');
         const data = snap.val() || {};
@@ -493,12 +517,12 @@
         const labels = Object.keys(daysCount).slice(-5);
         chartBar = new Chart(document.getElementById('chartBar'), {
             type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#2563eb', borderRadius: 4 }] },
+            data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#4f46e5', borderRadius: 4 }] },
             options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
         });
     }
 
-    // === MONITOR ===
+    // --- MONITOR ---
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body');
@@ -532,12 +556,19 @@
     }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
 
-    // === SALARY ===
+    // --- SALARY (DATE RANGE) ---
     async function calcSalary() {
-        const mInput = document.getElementById('month-filter').value;
+        const dStart = document.getElementById('date-start').value;
+        const dEnd = document.getElementById('date-end').value;
         const salary = document.getElementById('salary-val').value;
-        if (!mInput) return alert('Chọn tháng trước!');
-        const [yF, mF] = mInput.split('-');
+
+        if (!dStart || !dEnd) return showToast('Vui lòng chọn ngày bắt đầu và kết thúc!', 'error');
+
+        const startDate = new Date(dStart);
+        const endDate = new Date(dEnd);
+        // Set thời gian để so sánh chính xác
+        startDate.setHours(0,0,0,0);
+        endDate.setHours(23,59,59,999);
 
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
@@ -545,17 +576,22 @@
         tbody.innerHTML = "";
         let total = 0;
         let stats = {};
-        window.tempReport = [];
+        window.tempReport = []; // Reset
 
         if (data) {
             Object.values(data).forEach(log => {
-                let dStr = log.timestamp.split(' ')[0];
-                let y, m, d;
-                if(dStr.includes('-')) [y,m,d] = dStr.split('-'); else [d,m,y] = dStr.split('/');
+                // Log time: "25/11/2025 08:00:00"
+                const [dStr, tStr] = log.timestamp.split(' ');
+                const [dd, mm, yyyy] = dStr.split('/');
                 
-                if (parseInt(y) == parseInt(yF) && parseInt(m) == parseInt(mF)) {
+                // Tạo object Date từ log
+                const logDate = new Date(`${yyyy}-${mm}-${dd}`);
+                
+                // SO SÁNH NGÀY
+                if (logDate >= startDate && logDate <= endDate) {
+                    // Lưu key theo ngày để không trùng (một ngày chỉ tính 1 công)
                     if(!stats[log.id]) stats[log.id] = new Set();
-                    stats[log.id].add(d);
+                    stats[log.id].add(dStr);
                 }
             });
         }
@@ -567,42 +603,69 @@
             const days = stats[id].size;
             const money = days * salary;
             total += money;
-            window.tempReport.push({ "Mã": info.code, "Tên": info.name, "Công": days, "Lương": money });
+            window.tempReport.push({ "Mã": info.code, "Tên": info.name, "Công": days, "Tiền": money });
             
             tbody.innerHTML += `<tr><td><span class="badge badge-id">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success); font-weight:600">${money.toLocaleString()}</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
+        
+        if(window.tempReport.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu trong khoảng thời gian này.</td></tr>";
+        } else {
+            showToast(`Đã tính lương cho ${window.tempReport.length} nhân viên`, 'success');
+        }
     }
 
     function exportExcel() {
-        if(!window.tempReport || window.tempReport.length === 0) return alert('Hãy bấm Tính Lương trước!');
+        if(!window.tempReport || window.tempReport.length === 0) {
+            return showToast('Không có dữ liệu lương để xuất file!', 'error');
+        }
         const ws = XLSX.utils.json_to_sheet(window.tempReport);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Luong");
+        XLSX.utils.book_append_sheet(wb, ws, "BangLuong");
         XLSX.writeFile(wb, "BangLuong.xlsx");
+        showToast('Đang tải xuống file Excel...', 'success');
     }
     
-    async function deleteMonth() {
-        const mInput = document.getElementById('month-filter').value;
-        if(!mInput || !confirm('CẢNH BÁO: Xóa toàn bộ dữ liệu tháng này?')) return;
-        const [yF, mF] = mInput.split('-');
+    async function deleteDataRange() {
+        const dStart = document.getElementById('date-start').value;
+        const dEnd = document.getElementById('date-end').value;
+        
+        if(!dStart || !dEnd) return showToast('Chọn khoảng ngày cần xóa!', 'error');
+        if(!confirm(`CẢNH BÁO: Bạn sắp xóa vĩnh viễn dữ liệu từ ${dStart} đến ${dEnd}?`)) return;
+
+        const startDate = new Date(dStart);
+        const endDate = new Date(dEnd);
+        startDate.setHours(0,0,0,0);
+        endDate.setHours(23,59,59,999);
+
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
         if(data) {
             let updates = {};
+            let count = 0;
             Object.entries(data).forEach(([k, log]) => {
-                let dStr = log.timestamp.split(' ')[0];
-                let y, m;
-                if(dStr.includes('-')) [y,m] = dStr.split('-'); else [_,m,y] = dStr.split('/');
-                if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) updates['attendance/'+k] = null;
+                const [dStr, tStr] = log.timestamp.split(' ');
+                const [dd, mm, yyyy] = dStr.split('/');
+                const logDate = new Date(`${yyyy}-${mm}-${dd}`);
+
+                if (logDate >= startDate && logDate <= endDate) {
+                    updates['attendance/'+k] = null;
+                    count++;
+                }
             });
-            await db.ref().update(updates);
-            alert('Đã xóa dữ liệu.');
-            document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
+            
+            if(count > 0) {
+                await db.ref().update(updates);
+                showToast(`Đã xóa ${count} dòng dữ liệu!`, 'success');
+                document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
+            } else {
+                showToast('Không tìm thấy dữ liệu để xóa', 'info');
+            }
         }
     }
 
-    // === USERS ===
+    // --- USERS ---
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
@@ -622,12 +685,12 @@
         const id = document.getElementById('inp-id').value;
         const name = document.getElementById('inp-name').value;
         const code = document.getElementById('inp-code').value;
-        if(!id || !name) return alert('Thiếu thông tin');
+        if(!id || !name) return showToast('Thiếu thông tin!', 'error');
         
         for(const [k, v] of Object.entries(usersCache)) {
-             if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return alert('Trùng Mã NV');
+             if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Trùng Mã NV', 'error');
         }
-        db.ref('users/'+id).set({ name, code }).then(() => { alert('Đã lưu'); resetForm(); });
+        db.ref('users/'+id).set({ name, code }).then(() => { showToast('Lưu thành công', 'success'); resetForm(); });
     }
     function delUser() {
         if(confirm('Xóa nhân viên này?')) { db.ref('users/'+document.getElementById('inp-id').value).remove(); resetForm(); }
@@ -637,7 +700,7 @@
         document.getElementById('btn-del-user').classList.add('hidden');
     }
 
-    // === EMP HISTORY ===
+    // --- EMP HISTORY ---
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody');
@@ -649,8 +712,12 @@
         });
     }
 
-    const d = new Date();
-    document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    // SET DEFAULT DATES
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('date-start').valueAsDate = firstDay;
+    document.getElementById('date-end').valueAsDate = today;
+
 </script>
 </body>
 </html>
