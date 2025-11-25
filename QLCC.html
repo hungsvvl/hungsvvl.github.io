@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Công V3 (Fix Lỗi)</title>
+    <title>Hệ Thống Chấm Công V5 (Check Trùng)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -35,6 +35,7 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .badge-id { background: #e0f2fe; color: #0284c7; }
         .badge-warn { background: #fee2e2; color: #ef4444; }
+        .badge-new { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #f8fafc; padding: 12px; text-align: left; font-size: 0.9em; color: #64748b; }
@@ -56,10 +57,11 @@
     <div class="modal-content">
         <h2 style="color:var(--primary)">🔔 Phát Hiện ID Mới</h2>
         <h1 id="modal-id" style="font-size:3em; margin:10px 0; color:var(--danger)">--</h1>
-        <p>Có vân tay lạ vừa quét. Thêm nhân viên ngay?</p>
+        <p>Đã tự động lưu giờ quét vào lịch sử.</p>
+        <p>Bạn có muốn đặt tên cho nhân viên này ngay?</p>
         <div style="display:flex; gap:10px">
-            <button class="btn-green" onclick="acceptNewID()">Thêm Ngay</button>
-            <button class="btn-red" onclick="closeModal()">Bỏ Qua</button>
+            <button class="btn-green" onclick="acceptNewID()">Đặt Tên Ngay</button>
+            <button class="btn-red" onclick="closeModal()">Để Sau</button>
         </div>
     </div>
 </div>
@@ -171,33 +173,45 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // BIẾN
+    // BIẾN TOÀN CỤC
     let usersCache = {};
     let reportData = [];
     let newID = null;
+    let processedNewIDs = new Set();
 
-    // === HÀM XỬ LÝ DỮ LIỆU AN TOÀN (QUAN TRỌNG) ===
-    // Hàm này giúp lấy tên/code dù DB lưu dạng cũ (string) hay mới (object)
-    function getUserInfo(id) {
-        const u = usersCache[id];
-        if (!u) return { name: null, code: "---" }; // Chưa có dữ liệu
-        if (typeof u === 'string') return { name: u, code: "---" }; // Dữ liệu cũ
-        return { name: u.name, code: u.code || "---" }; // Dữ liệu mới
+    // HÀM LẤY THỜI GIAN
+    function getCurrentDateTime() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        return `${d}/${m}/${y} ${h}:${min}:${s}`;
     }
 
-    // LOAD DỮ LIỆU BAN ĐẦU
+    // LOAD DATA
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {};
-        renderLogin(); // Cập nhật dropdown đăng nhập
+        renderLogin(); 
         if(document.getElementById('view-admin').style.display === 'block') renderUserList();
-        // Gọi lại load monitor để cập nhật tên ngay lập tức nếu đang mở
         loadMonitor(); 
     });
 
-    // ID MỚI
+    // AUTO LOG & POPUP
     db.ref('new_enroll').on('value', snap => {
-        if(snap.val()) {
-            newID = snap.val();
+        const val = snap.val();
+        if(val) {
+            newID = val;
+            if(!processedNewIDs.has(val)) {
+                db.ref('attendance').push({
+                    id: val,
+                    timestamp: getCurrentDateTime(),
+                    auto_generated: true
+                });
+                processedNewIDs.add(val);
+            }
             document.getElementById('modal-id').innerText = newID;
             document.getElementById('new-id-modal').style.display = 'flex';
         } else {
@@ -214,12 +228,20 @@
         }
         db.ref('new_enroll').remove();
     }
+    
     function closeModal() { 
         document.getElementById('new-id-modal').style.display = 'none'; 
-        db.ref('new_enroll').remove();
+        db.ref('new_enroll').remove(); 
     }
 
-    // LOGIN
+    function getUserInfo(id) {
+        const u = usersCache[id];
+        if (!u) return { name: null, code: "---" };
+        if (typeof u === 'string') return { name: u, code: "---" };
+        return { name: u.name, code: u.code || "---" };
+    }
+
+    // LOGIN & UI
     function switchTab(t) {
         document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
         document.querySelectorAll('.form').forEach(e=>e.classList.remove('active'));
@@ -242,8 +264,8 @@
     function loginAdmin() {
         if(document.getElementById('user').value == 'UTC' && document.getElementById('pass').value == 'admin') {
             enterApp('Quản Trị Viên', 'view-admin');
-            openAdminTab('live', document.querySelector('.nav-item')); // Mặc định vào tab giám sát
-            loadMonitor(); // Bắt đầu tải log
+            openAdminTab('live', document.querySelector('.nav-item'));
+            loadMonitor();
         } else alert('Sai mật khẩu');
     }
 
@@ -264,7 +286,6 @@
         document.getElementById(view).style.display = 'block';
     }
 
-    // ADMIN FUNCTIONS
     function openAdminTab(tab, btn) {
         document.getElementById('tab-live').style.display = 'none';
         document.getElementById('tab-salary').style.display = 'none';
@@ -274,7 +295,7 @@
         if(btn) btn.classList.add('active');
     }
 
-    // --- TAB GIÁM SÁT (QUAN TRỌNG: Hiện cả chưa lưu) ---
+    // --- GIÁM SÁT ---
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body');
@@ -284,9 +305,9 @@
 
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
-                // Nếu chưa có tên -> Hiện "Chưa đăng ký" màu đỏ
-                const nameDisplay = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-warn">Chưa đăng ký</span>`;
-                
+                let nameDisplay = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-warn">Chưa đăng ký</span>`;
+                if(log.auto_generated) nameDisplay += ` <span class="badge badge-new" style="font-size:0.7em">Mới quét</span>`;
+
                 tbody.innerHTML += `
                     <tr>
                         <td>${log.timestamp}</td>
@@ -300,7 +321,7 @@
     }
     function delLog(k) { if(confirm('Xóa?')) db.ref('attendance/'+k).remove(); }
 
-    // --- TAB NHÂN SỰ ---
+    // --- NHÂN SỰ & CHECK TRÙNG (NÂNG CẤP) ---
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
@@ -321,16 +342,49 @@
         document.getElementById('inp-name').value = info.name;
         document.getElementById('btn-del-user').style.display = 'inline-block';
     }
+
     function saveUser() {
-        const id = document.getElementById('inp-id').value;
-        const name = document.getElementById('inp-name').value;
-        const code = document.getElementById('inp-code').value;
-        if(id && name) {
-            db.ref('users/'+id).set({ name: name, code: code });
-            alert('Đã lưu!');
-            resetForm();
-        } else alert('Nhập thiếu ID hoặc Tên');
+        // 1. Lấy dữ liệu và loại bỏ khoảng trắng thừa
+        const id = document.getElementById('inp-id').value.trim();
+        const name = document.getElementById('inp-name').value.trim();
+        const code = document.getElementById('inp-code').value.trim();
+
+        if (!id || !name) return alert('Vui lòng nhập ID và Tên!');
+
+        // 2. CHECK TRÙNG MÃ NHÂN VIÊN
+        // Duyệt qua tất cả user hiện có để xem Mã NV này đã có ai dùng chưa
+        for (const [key, val] of Object.entries(usersCache)) {
+            // Bỏ qua nếu đang so sánh với chính user này (trường hợp đang Edit)
+            if (key === id) continue;
+
+            // Lấy mã của user khác (xử lý trường hợp dữ liệu cũ/mới)
+            const existingCode = (typeof val === 'object' && val.code) ? val.code : "";
+            
+            // So sánh (không phân biệt hoa thường)
+            if (code !== "" && existingCode !== "" && code.toUpperCase() === existingCode.toUpperCase()) {
+                alert(`⛔ LỖI: Mã nhân viên '${code}' đã bị trùng!\nĐang được sử dụng bởi: ${typeof val === 'object' ? val.name : val} (ID: ${key}).\nVui lòng chọn mã khác.`);
+                return; // Dừng lại, không cho lưu
+            }
+        }
+
+        // 3. CHECK TRÙNG ID VÂN TAY (Cảnh báo ghi đè)
+        if (usersCache[id]) {
+            const currentInfo = getUserInfo(id);
+            // Nếu người dùng đang bấm nút Lưu cho ID đã tồn tại, hỏi xác nhận
+            if(!confirm(`⚠️ CẢNH BÁO: ID ${id} đã tồn tại (${currentInfo.name}).\nBạn có muốn CẬP NHẬT thông tin mới cho ID này không?`)) {
+                return; // Nếu bấm Cancel thì dừng lại
+            }
+        }
+
+        // 4. LƯU DỮ LIỆU
+        db.ref('users/'+id).set({ name: name, code: code })
+            .then(() => {
+                alert('✅ Đã lưu thành công!');
+                resetForm();
+            })
+            .catch(e => alert('Lỗi: ' + e));
     }
+
     function delUser() {
         const id = document.getElementById('inp-id').value;
         if(confirm('Xóa nhân viên này?')) {
@@ -417,7 +471,6 @@
         document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
     }
 
-    // USER VIEW
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody');
@@ -431,7 +484,6 @@
         });
     }
     
-    // Init Date
     const d = new Date();
     document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 </script>
