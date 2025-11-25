@@ -9,9 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* === 2. GIAO DIỆN (CSS) === */
@@ -30,56 +29,79 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s; }
 
-        /* --- SIDEBAR & NAV --- */
+        /* SIDEBAR (PC) */
         .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; transition: 0.3s; }
+        /* Ẩn sidebar nếu body có class role-emp (Nhân viên) hoặc trên mobile */
+        body.role-emp .sidebar { display: none !important; }
+        @media (max-width: 768px) { .sidebar { display: none !important; } }
+
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
         .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
         .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
+        /* MAIN CONTENT */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
 
-        /* Mobile Nav */
-        .bottom-nav { display: none !important; } 
+        /* === MOBILE BOTTOM NAV (FIXED LOGIC) === */
+        .bottom-nav { display: none; } /* Mặc định ẩn trên PC */
+
         @media (max-width: 768px) {
-            .sidebar { display: none !important; }
             .top-bar { padding: 0 16px; }
             .content-scroll { padding: 16px 16px 90px 16px; }
-            .bottom-nav {
-                display: flex !important; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+            
+            /* Chỉ hiện Menu dưới khi là Mobile VÀ là Admin */
+            body.role-admin .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
                 background: var(--bg-card); border-top: 1px solid var(--border);
                 justify-content: space-around; align-items: center; z-index: 100;
                 padding-bottom: env(safe-area-inset-bottom);
             }
-            .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; }
+            
+            .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; flex: 1; }
             .b-nav-item.active { color: var(--primary); }
         }
 
-        /* --- UI ELEMENTS --- */
+        /* COMPONENTS */
         .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         h3 { margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
         .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; justify-content: center; }
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
+        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
-        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; font-family: 'Inter', sans-serif; }
+        .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
-        /* --- TABLES --- */
+        /* TABLES */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.9rem; }
+        /* Compact Table for Mobile */
+        .compact-cell { display: flex; flex-direction: column; gap: 2px; }
+        .compact-main { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        .compact-sub { font-size: 0.75rem; color: var(--text-sub); }
+        .compact-time { font-family: monospace; font-weight: 700; color: var(--primary); }
+        @media (max-width: 768px) { table { min-width: 100% !important; } th, td { padding: 10px 8px; } }
+
+        /* BADGES */
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .badge-id { background: var(--primary-light); color: var(--primary); }
         .badge-green { background: #dcfce7; color: #166534; }
         .badge-red { background: #fee2e2; color: #991b1b; }
         .badge-yellow { background: #fef3c7; color: #92400e; }
 
-        /* --- TOAST & MODAL --- */
+        /* SETTINGS ITEMS */
+        .settings-list { display: flex; flex-direction: column; gap: 10px; }
+        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-body); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .settings-item:hover { background: var(--primary-light); }
+        .settings-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); }
+
+        /* TOAST & MODAL */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--bg-card); padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary); animation: slideIn 0.3s; }
         .toast.error { border-left-color: var(--danger); } .toast.success { border-left-color: var(--success); }
@@ -93,6 +115,8 @@
         .role-group { display: flex; background: var(--bg-body); padding: 4px; border-radius: 10px; margin-bottom: 24px; }
         .role-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; font-weight: 600; color: var(--text-sub); cursor: pointer; font-size: 0.9rem; }
         .role-btn.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .remember-check { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-sub); cursor: pointer; justify-content: flex-start; }
+        .remember-check input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
 
         .hidden { display: none !important; }
         .flex-row { display: flex; gap: 12px; } .flex-1 { flex: 1; }
@@ -141,11 +165,13 @@
         </div>
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
+            <label class="remember-check"><input type="checkbox" id="remember-emp"> Ghi nhớ tôi</label>
             <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
+            <label class="remember-check"><input type="checkbox" id="remember-admin"> Ghi nhớ đăng nhập</label>
             <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
         </div>
     </div>
@@ -153,10 +179,11 @@
 
 <nav class="sidebar" id="main-sidebar">
     <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
-    <div class="nav-link active" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
-    <div class="nav-link" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
-    <div class="nav-link" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
-    <div class="nav-link" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+    <div class="nav-link active" id="pc-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
+    <div class="nav-link" id="pc-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
+    <div class="nav-link" id="pc-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" id="pc-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+    <div class="nav-link" id="pc-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
 </nav>
 
 <div class="main-content">
@@ -167,7 +194,7 @@
                 <div id="display-name" style="font-weight: 600; font-size: 0.9rem;">Guest</div>
                 <div id="display-role" style="font-size: 0.75rem; color: var(--text-sub);">User</div>
             </div>
-            <button class="btn btn-danger" style="width: auto; padding: 8px;" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
+            <button class="btn btn-danger" style="width: auto; padding: 8px;" onclick="logout()" title="Đăng xuất"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </div>
 
@@ -184,28 +211,19 @@
         <div id="view-admin" class="hidden">
             <div id="tab-dashboard" class="tab-content">
                 <div class="flex-row">
-                    <div class="card flex-1">
-                        <h3>Tỷ Lệ Hôm Nay</h3>
-                        <canvas id="chartPie" style="max-height: 220px;"></canvas>
-                    </div>
-                    <div class="card flex-1">
-                        <h3>Thống Kê 7 Ngày</h3>
-                        <canvas id="chartBar" style="max-height: 220px;"></canvas>
-                    </div>
+                    <div class="card flex-1"><h3>Tỷ Lệ Hôm Nay</h3><canvas id="chartPie" style="max-height: 220px;"></canvas></div>
+                    <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height: 220px;"></canvas></div>
                 </div>
             </div>
             <div id="tab-live" class="tab-content hidden">
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
                         <h3>Giám Sát Realtime</h3>
-                        <div style="display:flex; align-items:center; gap:8px">
-                            <span style="font-size:0.8rem; color:var(--text-sub)">Giờ làm:</span>
-                            <input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:6px">
-                        </div>
+                        <div style="display:flex; align-items:center; gap:8px"><span style="font-size:0.8rem; color:var(--text-sub)">Giờ làm:</span><input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:6px"></div>
                     </div>
                     <div class="table-responsive">
                         <table id="live-table">
-                            <thead><tr><th>Thời Gian</th><th>Mã NV</th><th>Họ Tên</th><th>Trạng Thái</th><th>Xóa</th></tr></thead>
+                            <thead><tr><th width="45%">Nhân Viên</th><th width="40%">Chi Tiết</th><th width="15%" style="text-align:center">Xóa</th></tr></thead>
                             <tbody id="live-body"></tbody>
                         </table>
                     </div>
@@ -220,15 +238,13 @@
                     </div>
                     <div class="flex-row" style="margin-top:10px">
                         <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
-                        <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                        <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
                         <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
                     </div>
                 </div>
                 <div class="card">
                     <h3>Kết Quả: <span id="total-money" style="color:var(--success)">0 đ</span></h3>
-                    <div class="table-responsive">
-                        <table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table>
-                    </div>
+                    <div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
             <div id="tab-users" class="tab-content hidden">
@@ -246,10 +262,44 @@
                     </div>
                     <div class="card flex-1">
                         <h3>Danh Sách</h3>
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table>
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;"><table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-settings" class="tab-content hidden">
+                <div class="card">
+                    <h3>Cài Đặt</h3>
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="openTrashView()">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-trash-can"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Thùng Rác</div><div style="font-size:0.8rem; color:var(--text-sub)">Khôi phục dữ liệu đã xóa</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                        </div>
+                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo: 0909xxx', 'info')">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-headset"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Hỗ trợ lỗi và bảo trì</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                        </div>
+                        <div class="settings-item">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-code-branch"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v21.0 (Stable)</div></div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div id="tab-trash-detail" class="tab-content hidden">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+                        <div style="display:flex; align-items:center; gap:10px"><button class="btn btn-outline" style="padding:6px 10px" onclick="openTab('settings')"><i class="fa-solid fa-arrow-left"></i></button><h3 style="margin:0; color:var(--danger)">Thùng Rác</h3></div>
+                        <button class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px" onclick="emptyTrash()">Dọn sạch</button>
+                    </div>
+                    <div class="table-responsive"><table id="trash-table"><thead><tr><th>Nhân Viên</th><th>Thời Gian</th><th style="text-align:center">Thao Tác</th></tr></thead><tbody id="trash-body"></tbody></table></div>
                 </div>
             </div>
         </div>
@@ -257,10 +307,11 @@
 </div>
 
 <div class="bottom-nav" id="mobile-nav">
-    <div class="b-nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
-    <div class="b-nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
-    <div class="b-nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
-    <div class="b-nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
 </div>
 
 <script>
@@ -278,47 +329,41 @@
     const db = firebase.database();
 
     // VARS
-    let usersCache = {};
-    let newID = null;
-    let processedNewIDs = new Set();
-    let currentRole = 'Guest';
-    let chartPie = null, chartBar = null;
-    let confirmCallback = null;
-    window.tempReport = [];
+    let usersCache = {}; let newID = null; let processedNewIDs = new Set(); let currentRole = 'Guest'; 
+    let chartPie = null, chartBar = null; let confirmCallback = null; window.tempReport = [];
 
-    // --- HELPERS ---
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div'); toast.className = `toast ${type}`;
-        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
-        toast.innerHTML = `${icon}<div><div class="toast-title">${type==='error'?'Lỗi':'Thông báo'}</div><div class="toast-msg">${msg}</div></div>`;
-        container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
-    }
-    function showConfirmDialog(msg, callback) {
-        document.getElementById('confirm-msg').innerText = msg;
-        document.getElementById('confirm-modal').style.display = 'flex';
-        confirmCallback = callback;
-    }
-    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; confirmCallback = null; }
-    document.getElementById('btn-confirm-yes').onclick = function() { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
+    // AUTO LOGIN
+    (function checkAutoLogin() {
+        const saved = localStorage.getItem('utc_session_v21');
+        if (saved) {
+            try {
+                const s = JSON.parse(saved);
+                if (s.role === 'Admin') loginAdmin(true);
+                else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
+            } catch(e) { localStorage.removeItem('utc_session_v21'); }
+        }
+    })();
 
-    function getCurrentDateTime() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2,'0'); const m = String(now.getMonth()+1).padStart(2,'0'); const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2,'0'); const min = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
-        return `${d}/${m}/${y} ${h}:${min}:${s}`;
+    // HELPERS
+    function showToast(msg, type='info') {
+        const container=document.getElementById('toast-container'); const toast=document.createElement('div'); toast.className=`toast ${type}`;
+        let icon=type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
+        toast.innerHTML=`${icon}<div><div class="toast-title">${type==='error'?'Lỗi':type==='success'?'Thành công':'Thông báo'}</div><div class="toast-msg">${msg}</div></div>`;
+        container.appendChild(toast); setTimeout(()=>toast.remove(),3000);
     }
-    function getUserInfo(id) {
-        const u = usersCache[id];
-        if (!u) return { name: null, code: "---" };
-        if (typeof u === 'string') return { name: u, code: "---" };
-        return { name: u.name, code: u.code || "---" };
-    }
+    function showConfirmDialog(msg, callback) { document.getElementById('confirm-msg').innerText=msg; document.getElementById('confirm-modal').style.display='flex'; confirmCallback=callback; }
+    function closeConfirmModal() { document.getElementById('confirm-modal').style.display='none'; confirmCallback=null; }
+    document.getElementById('btn-confirm-yes').onclick=function(){ if(confirmCallback) confirmCallback(); closeConfirmModal(); };
+    
     function toggleTheme() {
-        const body = document.body; body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
+        const body = document.body;
+        if (body.getAttribute('data-theme') === 'dark') body.removeAttribute('data-theme');
+        else body.setAttribute('data-theme', 'dark');
     }
+    function getCurrentDateTime() { const now=new Date(); return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`; }
+    function getUserInfo(id) { const u=usersCache[id]; if(!u)return{name:null,code:"---"}; if(typeof u==='string')return{name:u,code:"---"}; return{name:u.name,code:u.code||"---"}; }
 
-    // --- LOGIC ---
+    // CORE LOGIC
     db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
         if (val) {
@@ -328,9 +373,8 @@
                 const lastLogData = lastLogSnap.val();
                 let isDuplicate = false;
                 if(lastLogData) {
-                    const logKey = Object.keys(lastLogData)[0];
-                    const [d, t] = lastLogData[logKey].timestamp.split(' ');
-                    const [day, month, year] = d.split('/');
+                    const k = Object.keys(lastLogData)[0];
+                    const [d, t] = lastLogData[k].timestamp.split(' '); const [day, month, year] = d.split('/');
                     if ((new Date() - new Date(`${year}-${month}-${day}T${t}`)) < 60000) isDuplicate = true;
                 }
                 if (!isDuplicate) {
@@ -338,86 +382,87 @@
                     processedNewIDs.add(val);
                 }
             }
-            if (currentRole === 'Admin') {
-                document.getElementById('modal-id').innerText = newID;
-                document.getElementById('new-id-modal').style.display = 'flex';
-            }
+            if (currentRole === 'Admin') { document.getElementById('modal-id').innerText = newID; document.getElementById('new-id-modal').style.display = 'flex'; }
         } else { document.getElementById('new-id-modal').style.display = 'none'; }
     });
-
     function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
     function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
 
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {}; renderLoginDropdown();
-        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); }
+        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); loadTrash(); }
+        if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v21')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
     });
 
-    // --- LOGIN ---
+    // AUTH & ROLE CSS CONTROL
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden'); document.getElementById('form-admin').classList.add('hidden');
         document.getElementById('form-' + role).classList.remove('hidden');
     }
-    function renderLoginDropdown() {
-        const sel = document.getElementById('login-select'); sel.innerHTML = '<option value="">-- Chọn tên --</option>';
-        Object.keys(usersCache).forEach(id => {
-            const i = getUserInfo(id); if(i.name) { const opt = document.createElement('option'); opt.value = id; opt.text = i.name; sel.appendChild(opt); }
-        });
-    }
-    async function loginAdmin() {
-        const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
-        const snap = await db.ref('settings/admin_password').once('value');
-        if (u === 'UTC' && p === (snap.val() || 'admin')) {
-            currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); 
-        } else showToast('Sai thông tin đăng nhập!', 'error');
-    }
-    function loginEmp() {
-        const id = document.getElementById('login-select').value;
-        if (!id) return showToast('Vui lòng chọn tên', 'error');
-        const info = getUserInfo(id);
-        currentRole = 'Emp'; enterApp(info.name, 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
-    }
+    function renderLoginDropdown() { const sel=document.getElementById('login-select'); sel.innerHTML='<option value="">-- Chọn tên --</option>'; Object.keys(usersCache).forEach(id => { const i=getUserInfo(id); if(i.name) { const opt=document.createElement('option'); opt.value=id; opt.text=i.name; sel.appendChild(opt); }}); }
     
-    // === QUAN TRỌNG: SỬA LAYOUT NHÂN VIÊN ===
-    function enterApp(name, role, viewId) {
+    async function loginAdmin(isAuto=false) {
+        if(isAuto) { setAppMode('Admin'); return; }
+        const u=document.getElementById('user').value; const p=document.getElementById('pass').value;
+        const snap=await db.ref('settings/admin_password').once('value');
+        if(u==='UTC' && p===(snap.val()||'admin')) {
+            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Admin'}));
+            setAppMode('Admin');
+        } else showToast('Sai thông tin!','error');
+    }
+    function loginEmp(isAuto=false, autoId=null) {
+        const id=isAuto?autoId:document.getElementById('login-select').value;
+        if(!id) return showToast('Vui lòng chọn tên','error');
+        const info=getUserInfo(id);
+        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Emp',id:id}));
+        setAppMode('Emp', info.name); loadEmpHistory(id);
+    }
+    function logout() { localStorage.removeItem('utc_session_v21'); location.reload(); }
+
+    function setAppMode(role, name="Quản Trị") {
+        currentRole = role;
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('display-name').innerText = name;
-        document.getElementById('display-role').innerText = role;
+        document.getElementById('display-role').innerText = role === 'Admin' ? 'Admin' : 'Nhân Viên';
+        
+        // Xóa class cũ và thêm class mới để CSS xử lý
+        document.body.classList.remove('role-admin', 'role-emp');
+        document.body.classList.add(role === 'Admin' ? 'role-admin' : 'role-emp');
+
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById(viewId).classList.remove('hidden');
-
-        // LOGIC ẨN MENU KHI LÀ NHÂN VIÊN
-        const sidebar = document.getElementById('main-sidebar');
-        const mobNav = document.getElementById('mobile-nav');
         
         if (role === 'Admin') {
-            sidebar.style.display = ''; // Reset về CSS mặc định (flex trên PC)
-            // Mobile nav được CSS media query xử lý, nhưng ta đảm bảo nó có thể hiện
-            if (window.innerWidth <= 768) mobNav.style.display = 'flex'; 
+            document.getElementById('view-admin').classList.remove('hidden');
+            openTab('dashboard');
         } else {
-            // Nhân viên: Ẩn sạch
-            sidebar.style.display = 'none';
-            mobNav.style.display = 'none'; 
+            document.getElementById('view-emp').classList.remove('hidden');
         }
     }
 
-    function openTab(tabName, btnElement) {
+    // TABS
+    function openTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById('tab-' + tabName).classList.remove('hidden');
-        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
+        const contentId = (tabName === 'trash' || tabName === 'settings') ? (tabName==='trash'?'tab-trash-detail':'tab-settings') : 'tab-' + tabName;
+        const target = document.getElementById(contentId);
+        if(target) target.classList.remove('hidden');
         
-        const pcIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 2;
-        const mobIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 1;
-        if(document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`)) document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`).classList.add('active');
-        if(document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`)) document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`).classList.add('active');
+        document.querySelectorAll('.nav-link, .b-nav-item').forEach(el => el.classList.remove('active'));
+        
+        const pcBtn = document.getElementById('pc-' + tabName);
+        const mobBtn = document.getElementById('mob-' + tabName);
+        if(pcBtn) pcBtn.classList.add('active');
+        if(mobBtn) mobBtn.classList.add('active');
 
-        if(tabName === 'dashboard') updateDashboard(); if(tabName === 'live') loadMonitor(); if(tabName === 'users') renderUserList();
+        if(tabName === 'dashboard') updateDashboard();
+        if(tabName === 'live') loadMonitor();
+        if(tabName === 'trash') loadTrash();
+        if(tabName === 'users') renderUserList();
     }
+    function openTrashView() { openTab('trash'); }
 
-    // --- FUNCTIONS (Dashboard, Monitor, Salary, User) ---
+    // FEATURES
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value'); const data = snap.val() || {};
         const logs = Object.values(data); const workTime = "08:00:00"; 
@@ -433,25 +478,27 @@
     function loadMonitor() {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tbody = document.getElementById('live-body'); tbody.innerHTML = ""; const data = snap.val();
-            if (!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#999'>Chưa có dữ liệu</td></tr>"; return; }
+            if (!data) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Chưa có dữ liệu</td></tr>"; return; }
             const workTime = document.getElementById('work-time').value + ":00";
             Object.entries(data).reverse().forEach(([key, log]) => {
-                const info = getUserInfo(log.id); const timeOnly = log.timestamp.split(' ')[1];
-                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span> <button class="btn btn-outline" style="padding:2px 6px; font-size:0.7rem; margin-left:5px" onclick="quickAdd('${log.id}')">Thêm</button>`;
+                const info = getUserInfo(log.id); const [datePart, timePart] = log.timestamp.split(' ');
+                const isLate = timePart > workTime;
+                let nameHtml = info.name ? `<div class="compact-main">${info.name}</div>` : `<span class="badge badge-yellow" style="margin-bottom:2px">Chưa ĐK</span>`;
+                let subHtml = !info.name ? `<div style="margin-top:4px"><button class="btn btn-outline" style="padding:2px 8px; font-size:0.65rem; height:auto" onclick="quickAdd('${log.id}')">➕ Thêm</button></div>` : `<div class="compact-sub">${info.code !== "---" ? info.code : `ID: ${log.id}`}</div>`;
                 if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
-                let codeDisplay = info.code !== "---" ? `<span class="badge badge-id">${info.code}</span>` : `<span style="color:#999; font-size:0.8rem">ID:${log.id}</span>`;
-                let statusHtml = (timeOnly > workTime) ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
-                tbody.innerHTML += `<tr><td>${log.timestamp.split(' ')[1]} <div style="font-size:0.7rem; color:#94a3b8">${log.timestamp.split(' ')[0]}</div></td><td>${codeDisplay}</td><td>${nameHtml}</td><td>${statusHtml}</td><td><button class="btn btn-danger" style="padding:6px 10px" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+                let statusBadge = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
+                let timeHtml = `<div class="compact-cell"><div class="compact-time">${timePart} <span style="font-weight:400; color:#999; font-size:0.7rem">(${datePart.substr(0,5)})</span></div><div style="margin-top:2px">${statusBadge}</div></div>`;
+                tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
             });
         });
     }
-    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng nhật ký này?', () => { db.ref('attendance/' + key).remove(); showToast('Đã xóa', 'success'); }); }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
+    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
 
     async function calcSalary() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value; const salary = document.getElementById('salary-val').value;
         if (!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        const startDate = new Date(dStart); startDate.setHours(0,0,0,0); const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
+        const start = new Date(dStart); start.setHours(0,0,0,0); const end = new Date(dEnd); end.setHours(23,59,59,999);
         const snap = await db.ref('attendance').once('value'); const data = snap.val();
         const tbody = document.getElementById('salary-table').querySelector('tbody'); tbody.innerHTML = "";
         let total = 0; let stats = {}; window.tempReport = [];
@@ -459,7 +506,7 @@
             Object.values(data).forEach(log => {
                 const [dStr, tStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
                 const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-                if (logDate >= startDate && logDate <= endDate) { if(!stats[log.id]) stats[log.id] = new Set(); stats[log.id].add(dStr); }
+                if (logDate >= start && logDate <= end) { if(!stats[log.id]) stats[log.id] = new Set(); stats[log.id].add(dStr); }
             });
         }
         Object.keys(stats).forEach(id => {
@@ -471,29 +518,50 @@
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
         if(window.tempReport.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu.</td></tr>";
     }
-    function exportExcel() {
-        if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu!', 'error');
-        const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file...', 'success');
-    }
+    function exportExcel() { if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu!', 'error'); const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file...', 'success'); }
     function triggerDeleteData() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value;
         if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        showConfirmDialog(`Xóa vĩnh viễn dữ liệu từ ${dStart} đến ${dEnd}?`, async () => {
-            const startDate = new Date(dStart); startDate.setHours(0,0,0,0); const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
+        showConfirmDialog(`Chuyển dữ liệu từ ${dStart} đến ${dEnd} vào thùng rác?`, async () => {
+            const start = new Date(dStart); start.setHours(0,0,0,0); const end = new Date(dEnd); end.setHours(23,59,59,999);
             const snap = await db.ref('attendance').once('value'); const data = snap.val();
             if(data) {
                 let updates = {}; let count = 0;
                 Object.entries(data).forEach(([k, log]) => {
                     const [dStr, tStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
                     const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-                    if (logDate >= startDate && logDate <= endDate) { updates['attendance/'+k] = null; count++; }
+                    if (logDate >= start && logDate <= end) { updates['trash/'+k] = log; updates['attendance/'+k] = null; count++; }
                 });
                 if(count > 0) { await db.ref().update(updates); showToast(`Đã xóa ${count} dòng!`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
                 else showToast('Không tìm thấy dữ liệu', 'info');
             }
         });
     }
+
+    function loadTrash() {
+        db.ref('trash').on('value', snap => {
+            const tbody = document.getElementById('trash-body'); tbody.innerHTML = ""; const data = snap.val();
+            if (!data) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Thùng rác trống</td></tr>"; return; }
+            Object.entries(data).forEach(([key, log]) => {
+                const info = getUserInfo(log.id);
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
+                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:#666">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+            });
+        });
+    }
+    
+    function restoreLog(key) {
+        db.ref('trash/' + key).once('value', snap => {
+            if(snap.val()) {
+                db.ref('attendance/' + key).set(snap.val()).then(() => {
+                    db.ref('trash/' + key).remove();
+                    showToast('Đã khôi phục', 'success');
+                });
+            }
+        });
+    }
+    function permDeleteLog(key) { showConfirmDialog('Xóa vĩnh viễn? Không thể lấy lại!', () => { db.ref('trash/' + key).remove(); showToast('Đã xóa vĩnh viễn', 'success'); }); }
+    function emptyTrash() { showConfirmDialog('Dọn sạch thùng rác?', () => { db.ref('trash').remove(); showToast('Đã dọn sạch','success'); }); }
 
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody'); tbody.innerHTML = "";
@@ -513,9 +581,7 @@
         for(const [k, v] of Object.entries(usersCache)) { if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Trùng Mã NV', 'error'); }
         db.ref('users/'+id).set({ name, code }).then(() => { showToast('Lưu thành công', 'success'); resetForm(); });
     }
-    function triggerDeleteUser() {
-        showConfirmDialog('Xóa nhân viên này?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa', 'success'); resetForm(); });
-    }
+    function triggerDeleteUser() { showConfirmDialog('Xóa nhân viên này?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa', 'success'); resetForm(); }); }
     function resetForm() {
         document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value="";
         document.getElementById('btn-del-user').classList.add('hidden');
