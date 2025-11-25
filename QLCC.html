@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Chấm Công UTC</title>
+    <title>Hệ Thống Quản Lý Chấm Công UTC (V6 Final)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -12,153 +12,86 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* === 2. CSS STYLES (GIAO DIỆN) === */
+        /* 2. CSS STYLES */
         :root {
-            --primary: #2563eb;       /* Xanh chủ đạo */
-            --primary-dark: #1e40af;  /* Xanh đậm (Hover) */
-            --bg-body: #f3f4f6;       /* Nền trang */
-            --bg-card: #ffffff;       /* Nền khung */
-            --text-main: #111827;     /* Chữ chính */
-            --text-sub: #6b7280;      /* Chữ phụ */
-            --danger: #ef4444;        /* Màu đỏ */
-            --success: #10b981;       /* Màu xanh lá */
-            --warning: #f59e0b;       /* Màu cam */
-            --border: #e5e7eb;        /* Màu viền */
+            --primary: #2563eb; --primary-dark: #1e40af; --bg-body: #f3f4f6;
+            --bg-card: #ffffff; --text-main: #111827; --text-sub: #6b7280;
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b; --border: #e5e7eb;
         }
-
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; padding: 0; height: 100vh; overflow: hidden; }
 
-        /* --- LOGIN SCREEN --- */
-        #login-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            display: flex; justify-content: center; align-items: center;
-        }
-        .login-card {
-            background: white; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); text-align: center;
-        }
+        /* LOGIN SCREEN */
+        #login-overlay { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); display: flex; justify-content: center; align-items: center; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
         .login-logo { font-size: 3rem; color: var(--primary); margin-bottom: 10px; }
-        .login-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
-        
         .tab-group { display: flex; background: #f3f4f6; padding: 5px; border-radius: 8px; margin-bottom: 25px; }
-        .tab-btn {
-            flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer;
-            font-weight: 600; color: var(--text-sub); border-radius: 6px; transition: 0.3s;
-        }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-weight: 600; color: var(--text-sub); border-radius: 6px; transition: 0.3s; }
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
         .form-section { display: none; animation: fadeIn 0.3s ease; }
         .form-section.active { display: block; }
 
-        /* --- MAIN APP LAYOUT --- */
+        /* MAIN APP */
         #app-container { display: none; height: 100vh; flex-direction: column; }
         #app-container.active { display: flex; }
-
-        /* Header */
-        .app-header {
-            background: white; padding: 0 30px; height: 70px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
+        .app-header { background: white; padding: 0 30px; height: 70px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .brand { font-size: 1.25rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .user-profile { display: flex; align-items: center; gap: 15px; }
-        .user-info { text-align: right; }
-        .user-name { font-weight: 600; font-size: 0.95rem; }
-        .user-role { font-size: 0.8rem; color: var(--text-sub); }
-
-        /* Content Area */
         .main-content { flex: 1; overflow-y: auto; padding: 30px; }
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* --- CARDS & UI ELEMENTS --- */
+        /* UI ELEMENTS */
         .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); margin-bottom: 25px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-
-        /* Inputs & Buttons */
+        .card-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        
         .form-group { margin-bottom: 15px; text-align: left; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 5px; }
-        .form-control {
-            width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
-            font-size: 0.95rem; transition: 0.2s; outline: none;
-        }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
-            font-size: 0.95rem; width: 100%;
-        }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem; width: 100%; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; width: auto; }
-        
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { background: #f9fafb; }
-
-        /* Admin Navigation Bar */
-        .nav-pills { display: flex; gap: 10px; margin-bottom: 25px; }
-        .nav-item {
-            padding: 10px 20px; background: white; border: 1px solid var(--border); border-radius: 50px;
-            cursor: pointer; font-weight: 600; color: var(--text-sub); transition: 0.2s; display: flex; align-items: center; gap: 8px;
-        }
-        .nav-item:hover { background: #f9fafb; color: var(--primary); }
-        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
-
-        /* Table Styling */
+        
+        /* TABLE & BADGES */
         .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; background: white; }
         th { background: #f9fafb; text-align: left; padding: 15px; font-size: 0.8rem; text-transform: uppercase; color: var(--text-sub); font-weight: 700; position: sticky; top: 0; }
-        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.95rem; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: #f9fafb; }
-
-        /* Badges */
+        td { padding: 15px; border-bottom: 1px solid var(--border); vertical-align: middle; }
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
         .badge-id { background: #e0f2fe; color: #0369a1; }
         .badge-code { background: #f3e8ff; color: #7e22ce; }
         .badge-warn { background: #fee2e2; color: #b91c1c; }
         .badge-new { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
-        .badge-success { background: #dcfce7; color: #15803d; }
+        
+        /* NAV PILLS */
+        .nav-pills { display: flex; gap: 10px; margin-bottom: 25px; }
+        .nav-item { padding: 10px 20px; background: white; border: 1px solid var(--border); border-radius: 50px; cursor: pointer; font-weight: 600; color: var(--text-sub); display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
 
-        /* Modal Popup */
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000;
-            justify-content: center; align-items: center; backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: white; width: 420px; padding: 30px; border-radius: 16px; text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: slideDown 0.4s ease;
-        }
-        .modal-icon { font-size: 4rem; color: var(--warning); margin-bottom: 15px; }
-
-        /* Utility */
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 420px; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideDown 0.4s ease; }
+        
         .hidden { display: none !important; }
         .flex-row { display: flex; gap: 15px; }
         .flex-col-1 { flex: 1; }
         .flex-col-2 { flex: 2; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        @media (max-width: 768px) {
-            .flex-row { flex-direction: column; }
-            .nav-pills { overflow-x: auto; padding-bottom: 10px; }
-            .nav-item { white-space: nowrap; }
-        }
     </style>
 </head>
 <body>
 
 <div id="new-id-modal" class="modal-overlay">
     <div class="modal-content">
-        <div class="modal-icon"><i class="fa-solid fa-fingerprint"></i></div>
-        <h2 style="margin: 0 0 10px 0; color: var(--text-main)">Phát Hiện Vân Tay Mới</h2>
-        <h1 id="modal-id" style="font-size: 2.5rem; margin: 10px 0; color: var(--primary)">--</h1>
-        <p style="color: var(--text-sub); margin-bottom: 20px;">Hệ thống đã tự động ghi nhận giờ chấm công.<br>Bạn có muốn thêm thông tin nhân viên này ngay?</p>
+        <div style="font-size: 4rem; color: #f59e0b; margin-bottom: 15px;"><i class="fa-solid fa-fingerprint"></i></div>
+        <h2 style="margin: 0 0 10px 0;">Phát Hiện Vân Tay Mới</h2>
+        <h1 id="modal-id" style="font-size: 2.5rem; margin: 10px 0; color: #2563eb">--</h1>
+        <p style="color: #6b7280; margin-bottom: 20px;">Hệ thống đã tự động ghi nhận giờ chấm công.<br>Bạn có muốn thêm thông tin nhân viên này ngay?</p>
         <div class="flex-row">
             <button class="btn btn-primary" onclick="acceptNewID()"><i class="fa-solid fa-user-plus"></i> Thêm Ngay</button>
             <button class="btn btn-outline" onclick="closeModal()">Bỏ Qua</button>
@@ -170,36 +103,20 @@
     <div class="login-card">
         <div class="login-logo"><i class="fa-solid fa-clock"></i></div>
         <div class="login-title">Hệ Thống Chấm Công</div>
-        
         <div class="tab-group">
             <button class="tab-btn active" onclick="switchLoginTab('emp')">Nhân Viên</button>
             <button class="tab-btn" onclick="switchLoginTab('admin')">Quản Trị Viên</button>
         </div>
-
         <div id="form-emp" class="form-section active">
             <div class="form-group">
-                <label class="form-label">Chọn tên của bạn</label>
-                <select id="login-select" class="form-control">
-                    <option value="">-- Đang tải danh sách... --</option>
-                </select>
+                <select id="login-select" class="form-control"><option value="">-- Đang tải danh sách... --</option></select>
             </div>
-            <button class="btn btn-primary" onclick="loginEmp()">
-                Xem Lịch Sử <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <button class="btn btn-primary" onclick="loginEmp()">Xem Lịch Sử <i class="fa-solid fa-arrow-right"></i></button>
         </div>
-
         <div id="form-admin" class="form-section">
-            <div class="form-group">
-                <label class="form-label">Tên đăng nhập</label>
-                <input type="text" id="user" class="form-control" placeholder="Ví dụ: UTC">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Mật khẩu</label>
-                <input type="password" id="pass" class="form-control" placeholder="••••••">
-            </div>
-            <button class="btn btn-primary" onclick="loginAdmin()">
-                Đăng Nhập <i class="fa-solid fa-lock"></i>
-            </button>
+            <div class="form-group"><input type="text" id="user" class="form-control" placeholder="Tên đăng nhập (UTC)"></div>
+            <div class="form-group"><input type="password" id="pass" class="form-control" placeholder="Mật khẩu"></div>
+            <button class="btn btn-primary" onclick="loginAdmin()">Đăng Nhập <i class="fa-solid fa-lock"></i></button>
         </div>
     </div>
 </div>
@@ -207,25 +124,20 @@
 <div id="app-container">
     <header class="app-header">
         <div class="brand"><i class="fa-solid fa-clock"></i> UTC Timekeeper</div>
-        <div class="user-profile">
-            <div class="user-info">
-                <div class="user-name" id="display-name">Guest</div>
-                <div class="user-role" id="display-role">Unknown</div>
+        <div style="display:flex; align-items:center; gap:15px">
+            <div style="text-align:right">
+                <div id="display-name" style="font-weight:600">Guest</div>
+                <div id="display-role" style="font-size:0.8rem; color:#6b7280">Unknown</div>
             </div>
-            <button class="btn btn-sm btn-danger" onclick="location.reload()" title="Đăng xuất">
-                <i class="fa-solid fa-power-off"></i>
-            </button>
+            <button class="btn btn-sm btn-danger" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </header>
 
     <main class="main-content">
         <div class="container">
-            
             <div id="view-emp" class="hidden">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title"><i class="fa-regular fa-calendar-check"></i> Lịch Sử Chấm Công Cá Nhân</div>
-                    </div>
+                    <div class="card-header"><div class="card-title"><i class="fa-regular fa-calendar-check"></i> Lịch Sử Chấm Công</div></div>
                     <div class="table-container">
                         <table id="emp-table">
                             <thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead>
@@ -237,15 +149,9 @@
 
             <div id="view-admin" class="hidden">
                 <div class="nav-pills">
-                    <div class="nav-item active" onclick="openAdminTab('live', this)">
-                        <i class="fa-solid fa-chart-line"></i> Giám Sát
-                    </div>
-                    <div class="nav-item" onclick="openAdminTab('salary', this)">
-                        <i class="fa-solid fa-money-bill-wave"></i> Tính Lương
-                    </div>
-                    <div class="nav-item" onclick="openAdminTab('users', this)">
-                        <i class="fa-solid fa-users"></i> Nhân Sự
-                    </div>
+                    <div class="nav-item active" onclick="openAdminTab('live', this)"><i class="fa-solid fa-chart-line"></i> Giám Sát</div>
+                    <div class="nav-item" onclick="openAdminTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+                    <div class="nav-item" onclick="openAdminTab('users', this)"><i class="fa-solid fa-users"></i> Nhân Sự</div>
                 </div>
 
                 <div id="tab-live">
@@ -256,15 +162,7 @@
                         </div>
                         <div class="table-container">
                             <table id="live-table">
-                                <thead>
-                                    <tr>
-                                        <th width="25%">Thời Gian</th>
-                                        <th width="10%">ID</th>
-                                        <th width="15%">Mã NV</th>
-                                        <th>Họ Tên</th>
-                                        <th width="10%" style="text-align:center">Hành Động</th>
-                                    </tr>
-                                </thead>
+                                <thead><tr><th>Thời Gian</th><th>ID</th><th>Mã NV</th><th>Họ Tên</th><th style="text-align:center">Hành Động</th></tr></thead>
                                 <tbody id="live-body"></tbody>
                             </table>
                         </div>
@@ -273,43 +171,26 @@
 
                 <div id="tab-salary" class="hidden">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="card-title"><i class="fa-solid fa-filter"></i> Bộ Lọc & Công Cụ</div>
-                        </div>
+                        <div class="card-header"><div class="card-title"><i class="fa-solid fa-filter"></i> Bộ Lọc & Công Cụ</div></div>
                         <div class="flex-row">
-                            <div class="form-group flex-col-1">
-                                <label class="form-label">Chọn Tháng</label>
-                                <input type="month" id="month-filter" class="form-control">
-                            </div>
-                            <div class="form-group flex-col-1">
-                                <label class="form-label">Lương / Ngày (VNĐ)</label>
-                                <input type="number" id="salary-val" class="form-control" value="500000">
-                            </div>
+                            <div class="form-group flex-col-1"><label class="form-label">Chọn Tháng</label><input type="month" id="month-filter" class="form-control"></div>
+                            <div class="form-group flex-col-1"><label class="form-label">Lương / Ngày</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
                         </div>
-                        <div class="flex-row" style="margin-top: 10px;">
-                            <button class="btn btn-primary flex-col-1" onclick="calcSalary()">
-                                <i class="fa-solid fa-calculator"></i> Tính Lương
-                            </button>
-                            <button class="btn btn-success flex-col-1" onclick="exportExcel()">
-                                <i class="fa-solid fa-file-excel"></i> Xuất Excel
-                            </button>
-                            <button class="btn btn-danger flex-col-1" onclick="deleteMonth()">
-                                <i class="fa-solid fa-trash"></i> Xóa Dữ Liệu Tháng
-                            </button>
+                        <div class="flex-row" style="margin-top:10px">
+                            <button class="btn btn-primary flex-col-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
+                            <button class="btn btn-success flex-col-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
+                            <button class="btn btn-danger flex-col-1" onclick="deleteMonth()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu Tháng</button>
                         </div>
                     </div>
-
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title"><i class="fa-solid fa-table-list"></i> Kết Quả Bảng Lương</div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--success);">
-                                Tổng Chi: <span id="total-money">0 đ</span>
-                            </div>
+                            <div style="font-weight:700; color:#10b981">Tổng Chi: <span id="total-money">0 đ</span></div>
                         </div>
                         <div class="table-container">
                             <table id="salary-table">
                                 <thead><tr><th>Mã NV</th><th>Họ Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead>
-                                <tbody><tr><td colspan="4" style="text-align:center">Vui lòng chọn tháng và bấm Tính Lương</td></tr></tbody>
+                                <tbody><tr><td colspan="4" style="text-align:center">Vui lòng bấm Tính Lương</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -319,57 +200,34 @@
                     <div class="flex-row">
                         <div class="flex-col-1">
                             <div class="card">
-                                <div class="card-header">
-                                    <div class="card-title"><i class="fa-solid fa-user-pen"></i> Thông Tin Nhân Viên</div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">ID Vân Tay (Từ thiết bị)</label>
-                                    <input type="number" id="inp-id" class="form-control" placeholder="VD: 1">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Mã Nhân Viên (Quản lý)</label>
-                                    <input type="text" id="inp-code" class="form-control" placeholder="VD: NV001">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Họ và Tên</label>
-                                    <input type="text" id="inp-name" class="form-control" placeholder="VD: Nguyễn Văn A">
-                                </div>
+                                <div class="card-header"><div class="card-title"><i class="fa-solid fa-user-pen"></i> Thông Tin Nhân Viên</div></div>
+                                <div class="form-group"><label class="form-label">ID Vân Tay</label><input type="number" id="inp-id" class="form-control" placeholder="VD: 1"></div>
+                                <div class="form-group"><label class="form-label">Mã Nhân Viên</label><input type="text" id="inp-code" class="form-control" placeholder="VD: NV001"></div>
+                                <div class="form-group"><label class="form-label">Họ và Tên</label><input type="text" id="inp-name" class="form-control" placeholder="VD: Nguyễn Văn A"></div>
                                 <div class="flex-row">
-                                    <button class="btn btn-primary flex-col-1" onclick="saveUser()">
-                                        <i class="fa-solid fa-save"></i> Lưu
-                                    </button>
-                                    <button class="btn btn-danger flex-col-1 hidden" id="btn-del-user" onclick="delUser()">
-                                        <i class="fa-solid fa-trash"></i> Xóa
-                                    </button>
+                                    <button class="btn btn-primary flex-col-1" onclick="saveUser()"><i class="fa-solid fa-save"></i> Lưu</button>
+                                    <button class="btn btn-danger flex-col-1 hidden" id="btn-del-user" onclick="delUser()"><i class="fa-solid fa-trash"></i> Xóa</button>
                                 </div>
                                 <button class="btn btn-outline" style="margin-top:10px" onclick="resetForm()">Làm mới</button>
                             </div>
                         </div>
-
                         <div class="flex-col-2">
                             <div class="card">
-                                <div class="card-header">
-                                    <div class="card-title"><i class="fa-solid fa-users"></i> Danh Sách Hiện Có</div>
-                                </div>
-                                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
-                                    <table id="users-list">
-                                        <thead><tr><th>ID</th><th>Mã NV</th><th>Họ Tên</th></tr></thead>
-                                        <tbody></tbody>
-                                    </table>
+                                <div class="card-header"><div class="card-title"><i class="fa-solid fa-users"></i> Danh Sách</div></div>
+                                <div class="table-container" style="max-height:500px; overflow-y:auto">
+                                    <table id="users-list"><thead><tr><th>ID</th><th>Mã NV</th><th>Họ Tên</th></tr></thead><tbody></tbody></table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-            </div> </div>
+            </div>
+        </div>
     </main>
 </div>
 
 <script>
-    // --------------------------------------------------------
-    // CẤU HÌNH FIREBASE (ĐIỀN API KEY CỦA BẠN VÀO ĐÂY)
-    // --------------------------------------------------------
+    // 1. CONFIG FIREBASE
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -379,8 +237,6 @@
         messagingSenderId: "...",
         appId: "..."
     };
-
-    // Khởi tạo Firebase
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -388,19 +244,18 @@
     let usersCache = {};
     let reportData = [];
     let newID = null;
-    let processedNewIDs = new Set();
+    let lastAutoLogTime = {}; // Lưu thời gian log cuối của từng ID để chống lặp
+    let currentRole = 'Guest'; // Theo dõi quyền hiện tại
 
-    // --------------------------------------------------------
-    // HÀM TIỆN ÍCH (UTILS)
-    // --------------------------------------------------------
+    // --- UTILS ---
     function getCurrentDateTime() {
         const now = new Date();
-        const d = String(now.getDate()).padStart(2, '0');
-        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2,'0');
+        const m = String(now.getMonth()+1).padStart(2,'0');
         const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
+        const h = String(now.getHours()).padStart(2,'0');
+        const min = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
         return `${d}/${m}/${y} ${h}:${min}:${s}`;
     }
 
@@ -411,71 +266,69 @@
         return { name: u.name, code: u.code || "---" };
     }
 
-    // --------------------------------------------------------
-    // LOGIC DỮ LIỆU & SỰ KIỆN (DATA HANDLING)
-    // --------------------------------------------------------
-    
-    // 1. Lắng nghe dữ liệu User thay đổi
+    // --- DATA HANDLING ---
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {};
-        renderLoginDropdown(); 
-        // Nếu đang ở tab Nhân sự, vẽ lại bảng ngay
-        if (document.getElementById('view-admin').classList.contains('hidden') === false) {
-             if (!document.getElementById('tab-users').classList.contains('hidden')) renderUserList();
-             loadMonitor(); // Cập nhật tên ở bảng giám sát
+        renderLoginDropdown();
+        if (currentRole === 'Admin') {
+            if (!document.getElementById('tab-users').classList.contains('hidden')) renderUserList();
+            loadMonitor();
         }
     });
 
-    // 2. Lắng nghe ID Mới (New Enroll)
+    // --- XỬ LÝ NEW ID & AUTO LOG ---
     db.ref('new_enroll').on('value', snap => {
         const val = snap.val();
         if (val) {
             newID = val;
+            const now = Date.now();
             
-            // Tự động log chấm công nếu chưa xử lý
-            if (!processedNewIDs.has(val)) {
+            // LOGIC CHỐNG LẶP (Chỉ log 1 lần mỗi 60 giây cho cùng 1 ID)
+            if (!lastAutoLogTime[val] || (now - lastAutoLogTime[val] > 60000)) {
                 db.ref('attendance').push({
                     id: val,
                     timestamp: getCurrentDateTime(),
                     auto_generated: true
                 });
-                processedNewIDs.add(val);
+                lastAutoLogTime[val] = now;
             }
 
-            // Hiện Popup
-            document.getElementById('modal-id').innerText = newID;
-            document.getElementById('new-id-modal').style.display = 'flex';
+            // CHỈ HIỆN POPUP NẾU LÀ ADMIN
+            if (currentRole === 'Admin') {
+                document.getElementById('modal-id').innerText = newID;
+                document.getElementById('new-id-modal').style.display = 'flex';
+            }
         } else {
             document.getElementById('new-id-modal').style.display = 'none';
         }
     });
 
-    // Xử lý Popup
     function acceptNewID() {
         closeModal();
-        // Nếu đang là Admin -> Chuyển sang tab nhân sự và điền form
-        if (!document.getElementById('view-admin').classList.contains('hidden')) {
-            openAdminTab('users', document.querySelectorAll('.nav-item')[2]);
-            document.getElementById('inp-id').value = newID;
-            document.getElementById('inp-code').focus();
-        }
+        openAdminTab('users', document.querySelectorAll('.nav-item')[2]);
+        document.getElementById('inp-id').value = newID;
+        document.getElementById('inp-code').focus();
         db.ref('new_enroll').remove();
     }
-
     function closeModal() {
         document.getElementById('new-id-modal').style.display = 'none';
         db.ref('new_enroll').remove();
     }
 
-    // --------------------------------------------------------
-    // LOGIC ĐĂNG NHẬP (AUTH)
-    // --------------------------------------------------------
+    // --- CÁC HÀM XỬ LÝ NHANH TỪ MONITOR ---
+    function quickAdd(id) {
+        // Chuyển sang tab Nhân sự và điền sẵn ID
+        openAdminTab('users', document.querySelectorAll('.nav-item')[2]);
+        document.getElementById('inp-id').value = id;
+        document.getElementById('inp-code').focus();
+    }
+
+    // --- AUTH ---
     function switchLoginTab(type) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-        
         event.target.classList.add('active');
-        document.getElementById('form-' + type).classList.add('active');
+        document.getElementById('form-'+type).classList.add('active');
     }
 
     function renderLoginDropdown() {
@@ -494,21 +347,19 @@
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
         if (u === 'UTC' && p === 'admin') {
+            currentRole = 'Admin'; // SET QUYỀN ADMIN
             enterApp('Quản Trị Viên', 'Admin', 'view-admin');
-            
-            // Khởi tạo dữ liệu Admin ngay lập tức
             renderUserList();
             openAdminTab('live', document.querySelector('.nav-item')); 
             loadMonitor();
-        } else {
-            alert('❌ Sai tên đăng nhập hoặc mật khẩu!');
-        }
+        } else alert('❌ Sai tên đăng nhập hoặc mật khẩu!');
     }
 
     function loginEmp() {
         const id = document.getElementById('login-select').value;
         if (!id) return alert('Vui lòng chọn tên!');
         const info = getUserInfo(id);
+        currentRole = 'Emp'; // SET QUYỀN NHÂN VIÊN
         enterApp(info.name, 'Nhân Viên', 'view-emp');
         loadEmpHistory(id);
     }
@@ -518,30 +369,22 @@
         document.getElementById('app-container').classList.add('active');
         document.getElementById('display-name').innerText = name;
         document.getElementById('display-role').innerText = role;
-        
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
         document.getElementById(viewId).classList.remove('hidden');
     }
 
-    // --------------------------------------------------------
-    // LOGIC ADMIN DASHBOARD
-    // --------------------------------------------------------
+    // --- ADMIN TABS ---
     function openAdminTab(tabName, btn) {
-        // Ẩn tất cả tab nội dung
         document.getElementById('tab-live').classList.add('hidden');
         document.getElementById('tab-salary').classList.add('hidden');
         document.getElementById('tab-users').classList.add('hidden');
+        document.getElementById('tab-'+tabName).classList.remove('hidden');
         
-        // Hiện tab được chọn
-        document.getElementById('tab-' + tabName).classList.remove('hidden');
-
-        // Style nút bấm
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-
-        // Refresh dữ liệu nếu cần
-        if (tabName === 'users') renderUserList();
+        if(btn) btn.classList.add('active');
+        
+        if(tabName === 'users') renderUserList();
     }
 
     // --- TAB 1: GIÁM SÁT ---
@@ -550,18 +393,22 @@
             const tbody = document.getElementById('live-body');
             tbody.innerHTML = "";
             const data = snap.val();
-            if (!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px'>Chưa có dữ liệu</td></tr>"; return; }
+            if (!data) { tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Chưa có dữ liệu</td></tr>"; return; }
 
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
                 
-                // Xử lý hiển thị tên
-                let nameHtml = info.name 
-                    ? `<b>${info.name}</b>` 
-                    : `<span class="badge badge-warn">Chưa đăng ký</span>`;
-                
-                if (log.auto_generated) {
-                    nameHtml += ` <span class="badge badge-new" style="margin-left:5px">Mới quét</span>`;
+                // Logic hiển thị Tên & Nút Quick Add
+                let nameHtml = "";
+                let actionHtml = `<button class="btn btn-sm btn-danger" onclick="delLog('${key}')"><i class="fa-solid fa-trash"></i></button>`;
+
+                if (info.name) {
+                    nameHtml = `<b>${info.name}</b>`;
+                    if (log.auto_generated) nameHtml += ` <span class="badge badge-new" style="margin-left:5px">Mới</span>`;
+                } else {
+                    nameHtml = `<span class="badge badge-warn">Chưa đăng ký</span>`;
+                    // THÊM NÚT "THÊM NHANH" NẾU CHƯA CÓ TÊN
+                    actionHtml = `<button class="btn btn-sm btn-primary" onclick="quickAdd('${log.id}')" title="Thêm nhân viên"><i class="fa-solid fa-user-plus"></i></button> ` + actionHtml;
                 }
 
                 tbody.innerHTML += `
@@ -570,21 +417,19 @@
                         <td><span class="badge badge-id">${log.id}</span></td>
                         <td><span class="badge badge-code">${info.code}</span></td>
                         <td>${nameHtml}</td>
-                        <td style="text-align:center">
-                            <button class="btn btn-sm btn-danger" onclick="delLog('${key}')"><i class="fa-solid fa-trash"></i></button>
-                        </td>
+                        <td style="text-align:center">${actionHtml}</td>
                     </tr>`;
             });
         });
     }
-    function delLog(key) { if (confirm('Bạn chắc chắn muốn xóa dòng này?')) db.ref('attendance/' + key).remove(); }
+    function delLog(key) { if(confirm('Xóa dòng này?')) db.ref('attendance/'+key).remove(); }
 
-    // --- TAB 2: TÍNH LƯƠNG ---
+    // --- TAB 2: LƯƠNG ---
     async function calcSalary() {
         const mInput = document.getElementById('month-filter').value;
         const salary = document.getElementById('salary-val').value;
-        if (!mInput) return alert('⚠️ Vui lòng chọn tháng!');
-        const [yFilter, mFilter] = mInput.split('-');
+        if (!mInput) return alert('⚠️ Chọn tháng!');
+        const [yF, mF] = mInput.split('-');
 
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
@@ -593,25 +438,23 @@
         reportData = [];
         let total = 0;
 
-        if (!data) return tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Không có dữ liệu chấm công.</td></tr>";
+        if(!data) return tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>Không có dữ liệu.</td></tr>";
 
         let stats = {};
         Object.values(data).forEach(log => {
             let dateStr = log.timestamp.split(' ')[0];
             let y, m, d;
-            // Xử lý cả 2 định dạng ngày (- và /)
             if (dateStr.includes('-')) [y, m, d] = dateStr.split('-');
             else [d, m, y] = dateStr.split('/');
             
-            if (parseInt(y) == parseInt(yFilter) && parseInt(m) == parseInt(mFilter)) {
-                if (!stats[log.id]) stats[log.id] = new Set();
+            if (parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) {
+                if(!stats[log.id]) stats[log.id] = new Set();
                 stats[log.id].add(d);
             }
         });
 
-        if (Object.keys(stats).length === 0) {
-            tbody.innerHTML = `<tr><td colspan='4' style='text-align:center; color:var(--danger)'>Không tìm thấy dữ liệu trong tháng ${mFilter}/${yFilter}</td></tr>`;
-            return;
+        if(Object.keys(stats).length === 0) {
+            tbody.innerHTML = `<tr><td colspan='4' style='text-align:center; color:var(--danger)'>Không có dữ liệu tháng ${mF}/${yF}</td></tr>`; return;
         }
 
         Object.keys(stats).forEach(id => {
@@ -619,73 +462,50 @@
             const money = days * salary;
             total += money;
             const info = getUserInfo(id);
-            
-            reportData.push({
-                "Mã NV": info.code,
-                "Họ Tên": info.name || `ID: ${id}`,
-                "Ngày Công": days,
-                "Lương Cơ Bản": salary,
-                "Thực Lĩnh": money
-            });
-
-            tbody.innerHTML += `
-                <tr>
-                    <td><span class="badge badge-code">${info.code}</span></td>
-                    <td>${info.name || 'ID: ' + id}</td>
-                    <td><b>${days}</b></td>
-                    <td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td>
-                </tr>`;
+            reportData.push({ "Mã NV": info.code, "Họ Tên": info.name || `ID: ${id}`, "Ngày Công": days, "Lương": money });
+            tbody.innerHTML += `<tr><td><span class="badge badge-code">${info.code}</span></td><td>${info.name || 'ID: '+id}</td><td><b>${days}</b></td><td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
     }
 
     function exportExcel() {
-        if (!reportData.length) return alert('⚠️ Hãy bấm "Tính Lương" trước khi xuất file!');
+        if(!reportData.length) return alert('⚠️ Bấm Tính Lương trước!');
         const ws = XLSX.utils.json_to_sheet(reportData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Luong_Thang");
+        XLSX.utils.book_append_sheet(wb, ws, "Luong");
         XLSX.writeFile(wb, "BangLuong.xlsx");
     }
 
     async function deleteMonth() {
         const mInput = document.getElementById('month-filter').value;
-        if (!mInput) return alert('Chọn tháng cần xóa!');
-        const [yFilter, mFilter] = mInput.split('-');
+        if(!mInput) return alert('Chọn tháng!');
+        const [yF, mF] = mInput.split('-');
+        if(!confirm(`⚠️ XÓA TOÀN BỘ dữ liệu tháng ${mF}/${yF}?`)) return;
 
-        if (!confirm(`⚠️ CẢNH BÁO: Bạn sắp xóa TOÀN BỘ dữ liệu tháng ${mFilter}/${yFilter}?\nHành động này không thể hoàn tác!`)) return;
-        
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
-        if (!data) return alert('Không có dữ liệu.');
-
+        if(!data) return alert('Không có dữ liệu.');
+        
         let updates = {};
         Object.entries(data).forEach(([key, log]) => {
             let dateStr = log.timestamp.split(' ')[0];
             let y, m;
             if (dateStr.includes('-')) [y, m] = dateStr.split('-');
             else [_, m, y] = dateStr.split('/');
-            
-            if (parseInt(y) == parseInt(yFilter) && parseInt(m) == parseInt(mFilter)) {
-                updates['attendance/' + key] = null;
-            }
+            if(parseInt(y)==parseInt(yF) && parseInt(m)==parseInt(mF)) updates['attendance/'+key] = null;
         });
         await db.ref().update(updates);
-        alert('✅ Đã xóa dữ liệu tháng thành công!');
+        alert('✅ Đã xóa!');
         document.getElementById('salary-table').querySelector('tbody').innerHTML = "";
     }
 
-    // --- TAB 3: QUẢN LÝ NHÂN SỰ (CHECK TRÙNG) ---
+    // --- TAB 3: USER ---
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody');
         tbody.innerHTML = "";
         Object.keys(usersCache).forEach(id => {
             const info = getUserInfo(id);
-            tbody.innerHTML += `
-                <tr onclick="fillForm('${id}')" style="cursor:pointer">
-                    <td><span class="badge badge-id">${id}</span></td>
-                    <td><span class="badge badge-code">${info.code}</span></td>
-                    <td>${info.name}</td>
-                </tr>`;
+            tbody.innerHTML += `<tr onclick="fillForm('${id}')" style="cursor:pointer"><td><span class="badge badge-id">${id}</span></td><td><span class="badge badge-code">${info.code}</span></td><td>${info.name}</td></tr>`;
         });
     }
 
@@ -701,73 +521,48 @@
         const id = document.getElementById('inp-id').value.trim();
         const name = document.getElementById('inp-name').value.trim();
         const code = document.getElementById('inp-code').value.trim();
+        if (!id || !name) return alert('⚠️ Nhập ID và Tên!');
 
-        if (!id || !name) return alert('⚠️ Vui lòng nhập ID và Tên!');
-
-        // Check Trùng Mã NV
+        // Check trùng Mã NV
         for (const [key, val] of Object.entries(usersCache)) {
-            if (key === id) continue; // Bỏ qua chính nó
+            if (key === id) continue;
             const existingCode = (typeof val === 'object' && val.code) ? val.code : "";
-            if (code !== "" && existingCode !== "" && code.toUpperCase() === existingCode.toUpperCase()) {
-                return alert(`⛔ LỖI: Mã NV '${code}' đã được dùng bởi ${val.name || 'User khác'}!`);
-            }
+            if (code !== "" && existingCode !== "" && code.toUpperCase() === existingCode.toUpperCase()) return alert(`⛔ Mã '${code}' đã trùng!`);
         }
 
-        // Check Trùng ID (Ghi đè)
         if (usersCache[id]) {
-            const currentInfo = getUserInfo(id);
-            if (!confirm(`⚠️ ID ${id} đang thuộc về: ${currentInfo.name}.\nBạn có muốn cập nhật thông tin không?`)) return;
+            if (!confirm(`⚠️ ID ${id} đã tồn tại. Cập nhật?`)) return;
         }
 
-        db.ref('users/' + id).set({ name: name, code: code })
-            .then(() => {
-                alert('✅ Lưu thành công!');
-                resetForm();
-            })
-            .catch(e => alert('Lỗi: ' + e));
+        db.ref('users/'+id).set({ name: name, code: code }).then(()=>{ alert('✅ Lưu thành công!'); resetForm(); });
     }
 
     function delUser() {
         const id = document.getElementById('inp-id').value;
-        if (confirm('❌ Bạn chắc chắn xóa nhân viên này?')) {
-            db.ref('users/' + id).remove();
-            resetForm();
-        }
+        if(confirm('❌ Xóa nhân viên này?')) { db.ref('users/'+id).remove(); resetForm(); }
     }
-
     function resetForm() {
-        document.getElementById('inp-id').value = "";
-        document.getElementById('inp-name').value = "";
-        document.getElementById('inp-code').value = "";
+        document.getElementById('inp-id').value = ""; document.getElementById('inp-name').value = ""; document.getElementById('inp-code').value = "";
         document.getElementById('btn-del-user').classList.add('hidden');
     }
 
-    // --- VIEW: NHÂN VIÊN ---
+    // --- VIEW USER ---
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody');
             tb.innerHTML = "";
             const data = snap.val();
-            if (data) {
+            if(data) {
                 Object.values(data).reverse().forEach(log => {
-                    if (log.id == id) {
-                        tb.innerHTML += `
-                            <tr>
-                                <td>${log.timestamp}</td>
-                                <td><span class="badge badge-success"><i class="fa-solid fa-check"></i> Thành công</span></td>
-                            </tr>`;
-                    }
+                    if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge badge-success"><i class="fa-solid fa-check"></i> Thành công</span></td></tr>`;
                 });
-            } else {
-                tb.innerHTML = "<tr><td colspan='2' style='text-align:center'>Bạn chưa chấm công lần nào.</td></tr>";
             }
         });
     }
 
-    // Set Default Month
+    // Default Date
     const d = new Date();
-    document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-
+    document.getElementById('month-filter').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 </script>
 </body>
 </html>
