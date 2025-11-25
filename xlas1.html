@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (Liquid Glass Edition)</title>
+    <title>Chấm Công UTC (Ultra Glass Edition)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -13,197 +13,213 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* === LIQUID GLASS THEME (CSS) === */
+        /* === ULTRA GLASS THEME (Based on your CSS) === */
         :root {
-            /* Màu chủ đạo Neon */
-            --primary: #00d2ff; 
-            --primary-light: rgba(0, 210, 255, 0.2); 
-            
-            /* Màu nền và kính */
-            --bg-body: #0f0c29; /* Nền tối */
-            --bg-glass: rgba(255, 255, 255, 0.1); /* Kính trong suốt */
-            --bg-glass-hover: rgba(255, 255, 255, 0.2);
-            
-            /* Màu chữ */
+            --primary: #c084fc; /* Tím pastel hợp với style kính mới */
+            --primary-glow: rgba(192, 132, 252, 0.4);
             --text-main: #ffffff;
-            --text-sub: rgba(255, 255, 255, 0.7);
-            
-            /* Viền kính */
-            --border: rgba(255, 255, 255, 0.2);
-            
-            /* Trạng thái */
-            --danger: #ff4b4b; 
-            --success: #00ff88; 
-            --warning: #ffcc00;
-            
-            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --radius: 20px;
+            --text-sub: rgba(255, 255, 255, 0.8);
+            --danger: #ff6b6b;
+            --success: #51cf66;
+            --font-main: 'Inter', sans-serif;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-body); 
+            font-family: var(--font-main); 
+            background: #1e1b4b; /* Nền xanh đen sâu thẳm */
             color: var(--text-main); 
             margin: 0; 
             height: 100vh; 
             display: flex; 
             overflow: hidden; 
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
         }
 
-        /* --- BACKGROUND BLOBS ANIMATION --- */
+        /* --- 1. BACKGROUND BLOBS --- */
         .background-blobs {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
         }
         .blob {
-            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
-            animation: moveBlob 10s infinite alternate;
+            position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.6;
+            animation: moveBlob 15s infinite alternate ease-in-out;
         }
-        .blob-1 { top: 10%; left: 20%; width: 300px; height: 300px; background: #7b4397; background: linear-gradient(to right, #dc2430, #7b4397); }
-        .blob-2 { bottom: 20%; right: 20%; width: 350px; height: 350px; background: #00d2ff; background: linear-gradient(to right, #3a7bd5, #00d2ff); animation-duration: 15s; }
-        .blob-3 { bottom: 10%; left: 10%; width: 200px; height: 200px; background: #ff9966; animation-duration: 12s; }
-        @keyframes moveBlob { from { transform: translate(0, 0); } to { transform: translate(40px, 40px); } }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #4c1d95; }
+        .blob-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #be185d; animation-duration: 20s; }
+        .blob-3 { top: 40%; left: 40%; width: 400px; height: 400px; background: #0f766e; animation-duration: 18s; opacity: 0.4; }
+        @keyframes moveBlob { from { transform: translate(0, 0) scale(1); } to { transform: translate(30px, -30px) scale(1.1); } }
 
-        /* --- GLASS MIXIN --- */
+        /* --- 2. THE NEW GLASSMORPHISM CLASS (CORE) --- */
+        /* Đây là đoạn CSS bạn cung cấp, áp dụng cho các khối chính */
         .glass-panel {
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-top: 1px solid rgba(255,255,255,0.4);
-            box-shadow: var(--shadow);
+            /* Các thuộc tính gốc bạn gửi */
+            backdrop-filter: blur(41px) saturate(17%);
+            -webkit-backdrop-filter: blur(41px) saturate(17%);
+            background: rgba(254, 252, 232, 0.03);
+            border-radius: 50px;
+            border: 10px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 2px 6px 28px 0 rgba(59, 7, 100, 0.3),
+                        inset 0 0 0px rgba(216, 180, 254, 0),
+                        inset 0px 0px 4px 2px rgba(255, 255, 255, 0.25);
+            
+            /* Sửa lỗi: Cần position relative để chứa pseudo-elements */
+            position: relative;
+            overflow: hidden; /* Cắt góc bo tròn để nội dung không lòi ra */
+            transition: transform 0.3s ease;
         }
 
-        /* SIDEBAR */
+        /* Reflection overlay 1 */
+        .glass-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 40px; /* Nhỏ hơn parent border-radius xíu */
+            background: linear-gradient(to left top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%); z-index: 1;
+        }
+
+        /* Reflection overlay 2 */
+        .glass-panel::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 40px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%); z-index: 1;
+        }
+
+        /* QUAN TRỌNG: Đảm bảo nội dung bên trong nổi lên trên lớp kính để bấm được */
+        .glass-panel > * {
+            position: relative;
+            z-index: 5; 
+        }
+
+        /* --- 3. LAYOUT STRUCTURE --- */
+        /* Sidebar dạng nổi (Floating) */
         .sidebar { 
-            width: 260px; 
-            display: flex; flex-direction: column; padding: 25px; z-index: 50; transition: 0.3s; 
-            background: rgba(0,0,0,0.2); /* Sidebar tối hơn chút */
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
+            width: 280px; 
+            margin: 20px; 
+            margin-right: 0; /* Cách main content */
+            display: flex; flex-direction: column; padding: 30px; 
+            z-index: 50; 
         }
         body.role-emp .sidebar { display: none !important; }
-        @media (max-width: 768px) { .sidebar { display: none !important; } }
 
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; margin-bottom: 40px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .nav-link { padding: 14px 16px; margin-bottom: 8px; border-radius: 12px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
-        .nav-link:hover { background: var(--bg-glass-hover); color: white; transform: translateX(5px); }
-        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 700; border: 1px solid var(--primary); box-shadow: 0 0 15px var(--primary-light); }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+        /* Main Content */
+        .main-content { 
+            flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 10;
+            padding: 20px;
+        }
+        
         .top-bar { 
-            height: 70px; 
-            display: flex; align-items: center; justify-content: space-between; padding: 0 24px; 
-            border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+            height: 80px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 30px; 
+            /* Topbar cũng dùng style kính */
+            border-radius: 50px; /* Style con nhộng */
         }
-        .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
-
-        /* MOBILE NAV */
-        .bottom-nav { display: none; }
-        @media (max-width: 768px) {
-            .top-bar { padding: 0 16px; }
-            .content-scroll { padding: 16px 16px 100px 16px; }
-            body.role-admin .bottom-nav {
-                display: flex; position: fixed; bottom: 15px; left: 15px; right: 15px; height: 65px; width: auto;
-                background: rgba(20, 20, 30, 0.85); backdrop-filter: blur(20px);
-                border: 1px solid var(--border); border-radius: 20px;
-                justify-content: space-around; align-items: center; z-index: 100;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            }
-            .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; flex: 1; opacity: 0.7; }
-            .b-nav-item.active { color: var(--primary); opacity: 1; text-shadow: 0 0 10px var(--primary); }
+        
+        .content-scroll { 
+            flex: 1; overflow-y: auto; padding-right: 10px; 
+            /* Tùy chỉnh thanh cuộn cho đẹp */
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) transparent;
         }
 
-        /* COMPONENTS */
+        /* Card container bên trong */
         .card { 
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-top: 1px solid rgba(255,255,255,0.3);
-            border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); 
-            color: var(--text-main);
+            padding: 30px; margin-bottom: 24px; color: var(--text-main);
         }
-        h3 { margin: 0 0 16px 0; font-size: 1.2rem; font-weight: 700; color: white; }
+
+        /* --- RESPONSIVE MOBILE FIX --- */
+        @media (max-width: 768px) {
+            .sidebar { display: none !important; }
+            .main-content { padding: 10px; }
+            /* Mobile thì giảm độ dày viền và góc bo để đỡ tốn diện tích */
+            .glass-panel {
+                border-width: 4px;
+                border-radius: 30px;
+                padding: 20px !important; /* Force padding nhỏ lại */
+            }
+            .top-bar { padding: 0 20px; height: 70px; margin-bottom: 15px; }
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 15px; left: 15px; right: 15px; height: 70px;
+                z-index: 100; justify-content: space-around; align-items: center;
+            }
+        }
+        .bottom-nav { display: none; } /* PC ẩn */
+
+        /* --- 4. UI ELEMENTS --- */
+        .logo { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 40px; text-shadow: 0 0 15px rgba(255,255,255,0.5); display: flex; align-items: center; gap: 10px; }
         
-        .btn { padding: 10px 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; justify-content: center; backdrop-filter: blur(4px); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .btn-primary { background: var(--primary); color: #000; border: none; box-shadow: 0 0 15px var(--primary-light); }
-        .btn-danger { background: rgba(255, 75, 75, 0.2); border-color: var(--danger); color: var(--danger); }
+        .nav-link { padding: 16px 20px; margin-bottom: 8px; border-radius: 20px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s; border: 1px solid transparent; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
+        .nav-link.active { 
+            background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent); 
+            color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.3); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn { padding: 12px 24px; border-radius: 30px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; justify-content: center; backdrop-filter: blur(5px); color: #fff; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .btn-primary { background: linear-gradient(135deg, #a855f7, #ec4899); box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+        .btn-danger { background: rgba(255, 99, 99, 0.15); border: 1px solid var(--danger); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: white; }
-        .btn-outline { background: rgba(255,255,255,0.1); color: white; }
-        .btn-outline:hover { background: rgba(255,255,255,0.3); }
+        .btn-outline { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
 
-        /* INPUTS */
         .form-control { 
-            width: 100%; padding: 12px 16px; border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            background: rgba(0, 0, 0, 0.2); /* Input tối hơn */
-            color: white; outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.3s; 
+            width: 100%; padding: 14px 20px; border-radius: 20px; 
+            border: 2px solid rgba(255,255,255,0.1); 
+            background: rgba(0, 0, 0, 0.2); color: white; outline: none; font-size: 1rem; margin-bottom: 16px; transition: 0.3s; 
         }
-        .form-control:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); box-shadow: 0 0 0 2px var(--primary-light); }
-        /* Fix icon lịch/đồng hồ màu trắng */
-        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-
-        /* TABLES */
-        .table-responsive { border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; background: rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 16px; background: rgba(255,255,255,0.05); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); }
-        td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; font-size: 0.9rem; }
-        .compact-main { font-weight: 600; color: white; }
-        .compact-sub { color: rgba(255,255,255,0.5); }
-        .compact-time { color: var(--primary); }
-        @media (max-width: 768px) { table { min-width: 100% !important; } th, td { padding: 12px 10px; } }
-
-        /* BADGES */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .badge-id { background: var(--primary); color: #000; }
-        .badge-green { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
-        .badge-red { background: rgba(255, 75, 75, 0.2); color: #ff4b4b; border: 1px solid #ff4b4b; }
-        .badge-yellow { background: rgba(255, 204, 0, 0.2); color: #ffcc00; border: 1px solid #ffcc00; }
-
-        /* SETTINGS & MODAL */
-        .settings-item { 
-            background: rgba(255,255,255,0.05); border: 1px solid transparent; 
-            color: white; padding: 16px; border-radius: 16px; 
-        }
-        .settings-item:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
-        .settings-icon { background: rgba(255,255,255,0.1); color: var(--primary); }
+        .form-control:focus { border-color: #c084fc; background: rgba(0,0,0,0.4); box-shadow: 0 0 15px rgba(192, 132, 252, 0.2); }
         
-        .overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
+        /* Table Styles */
+        .table-responsive { border-radius: 30px; overflow: hidden; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 18px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+
+        /* Badges */
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 10px rgba(0,0,0,0.2); text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-id { background: #fff; color: #000; }
+        .badge-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
+        .badge-red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
+        
+        /* Modal & Overlays */
+        .overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: none; } /* Mặc định ẩn, JS sẽ bật flex */
+        .overlay.active { display: flex; } /* Class kích hoạt */
+        
         .modal-box { 
-            background: rgba(20, 20, 30, 0.8); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.2); border-top: 1px solid rgba(255,255,255,0.5);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); color: white;
-            padding: 30px; border-radius: 24px;
+            width: 90%; max-width: 400px; text-align: center;
+            animation: floatUp 0.4s ease forwards;
         }
 
-        /* LOGIN PAGE */
-        #login-page { background: var(--bg-body); }
-        .login-card { 
-            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255,255,255,0.2); border-top: 1px solid rgba(255,255,255,0.5);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); color: white;
-        }
-        .role-group { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
-        .role-btn { color: rgba(255,255,255,0.6); }
-        .role-btn.active { background: rgba(255,255,255,0.15); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        
-        /* SCROLLBAR */
+        /* Login Page */
+        #login-page { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: inherit; }
+        .login-card { width: 90%; max-width: 420px; text-align: center; }
+
+        .hidden { display: none !important; }
+        .flex-row { display: flex; gap: 15px; } .flex-1 { flex: 1; }
+        @media (max-width: 768px) { .flex-row { flex-direction: column; } }
+
+        @keyframes floatUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mobile Bottom Nav Items */
+        .b-nav-item { display: flex; flex-direction: column; align-items: center; color: rgba(255,255,255,0.5); font-size: 0.7rem; gap: 5px; cursor: pointer; }
+        .b-nav-item.active { color: #fff; text-shadow: 0 0 10px #fff; transform: scale(1.1); transition: 0.2s; }
+
+        /* Scrollbar styles */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
-
-        .hidden { display: none !important; }
-        .flex-row { display: flex; gap: 12px; } .flex-1 { flex: 1; }
         
-        /* TOAST */
-        .toast { background: rgba(30, 30, 40, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: white; }
-        .toast-msg { color: rgba(255,255,255,0.7); }
+        /* Settings Item */
+        .settings-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 18px; background: rgba(255,255,255,0.05); border-radius: 20px; 
+            margin-bottom: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .settings-item:hover { background: rgba(255,255,255,0.1); }
+        .settings-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #fff; }
+
+        .toast { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); z-index: 10001; animation: slideIn 0.3s; backdrop-filter: blur(10px); }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body>
@@ -216,56 +232,63 @@
 
 <div id="toast-container"></div>
 
-<div id="confirm-modal" class="overlay">
-    <div class="modal-box">
-        <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px; text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);"><i class="fa-solid fa-circle-exclamation"></i></div>
-        <h2 style="margin: 0 0 8px 0; color: white;">Xác Nhận</h2>
-        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">Hành động này không thể hoàn tác.</p>
+<div id="confirm-modal" class="overlay" style="position: fixed; inset: 0; z-index: 10000; justify-content: center; align-items: center;">
+    <div class="modal-box glass-panel">
+        <div style="font-size: 4rem; color: var(--danger); margin-bottom: 10px; text-shadow: 0 0 30px rgba(255,107,107,0.5);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h2 style="margin: 0 0 10px 0;">Cảnh Báo</h2>
+        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 25px; font-size: 1rem;">Hành động này không thể hoàn tác.</p>
         <div class="flex-row">
-            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">Đồng Ý</button>
+            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); box-shadow: 0 0 20px rgba(255,107,107,0.4);">Đồng Ý</button>
             <button class="btn btn-outline flex-1" onclick="closeConfirmModal()">Hủy</button>
         </div>
     </div>
 </div>
 
-<div id="new-id-modal" class="overlay">
-    <div class="modal-box">
-        <div style="font-size: 3.5rem; margin-bottom: 16px;">👋</div>
-        <h2 style="margin: 0 0 8px 0;">Vân Tay Mới</h2>
-        <h1 id="modal-id" style="font-size: 3rem; color: var(--primary); margin: 0 0 16px 0; font-weight: 800; text-shadow: 0 0 20px var(--primary);">--</h1>
-        <p style="color: var(--text-sub); margin-bottom: 24px;">Đã lưu giờ quét. Thêm tên ngay?</p>
+<div id="new-id-modal" class="overlay" style="position: fixed; inset: 0; z-index: 10000; justify-content: center; align-items: center;">
+    <div class="modal-box glass-panel">
+        <div style="font-size: 4rem; margin-bottom: 10px;">👋</div>
+        <h2 style="margin: 0 0 5px 0;">Vân Tay Mới</h2>
+        <h1 id="modal-id" style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 20px 0; font-weight: 800;">--</h1>
+        <p style="color: var(--text-sub); margin-bottom: 30px;">Đã lưu vào hệ thống. Đăng ký ngay?</p>
         <div class="flex-row">
-            <button class="btn btn-primary flex-1" onclick="acceptNewID()">Thêm Ngay</button>
-            <button class="btn btn-outline flex-1" onclick="closeNewID()">Để Sau</button>
+            <button class="btn btn-primary flex-1" onclick="acceptNewID()">Đăng Ký</button>
+            <button class="btn btn-outline flex-1" onclick="closeNewID()">Bỏ Qua</button>
         </div>
     </div>
 </div>
 
 <div id="login-page">
-    <div class="login-card">
-        <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 16px; text-shadow: 0 0 20px var(--primary);"><i class="fa-solid fa-fingerprint"></i></div>
-        <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
-        <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Liquid Glass UI v2.0</p>
-        <div class="role-group">
-            <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
-            <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
+    <div class="login-card glass-panel">
+        <div style="font-size: 4rem; color: #fff; margin-bottom: 10px; text-shadow: 0 0 30px rgba(255,255,255,0.6);"><i class="fa-solid fa-fingerprint"></i></div>
+        <h2 style="margin-bottom: 5px; font-size: 1.8rem;">UTC Timekeeper</h2>
+        <p style="color: var(--text-sub); margin-bottom: 35px; font-size: 0.9rem;">Ultra Liquid Glass Interface</p>
+        
+        <div style="background: rgba(0,0,0,0.3); border-radius: 50px; padding: 5px; display: flex; margin-bottom: 25px;">
+            <button class="role-btn active" onclick="switchRole('emp')" style="flex:1; padding: 10px; border-radius: 40px; border:none; background: rgba(255,255,255,0.2); color:white; font-weight:600; cursor:pointer;">Nhân Viên</button>
+            <button class="role-btn" onclick="switchRole('admin')" style="flex:1; padding: 10px; border-radius: 40px; border:none; background: transparent; color:rgba(255,255,255,0.6); font-weight:600; cursor:pointer;">Quản Trị</button>
         </div>
+
         <div id="form-emp">
-            <select id="login-select" class="form-control" style="background: rgba(0,0,0,0.3);"><option>Đang tải...</option></select>
-            <label class="remember-check" style="display:flex; align-items:center; gap:8px; margin-bottom:15px; color:var(--text-sub); cursor:pointer"><input type="checkbox" id="remember-emp"> Ghi nhớ tôi</label>
-            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
+            <select id="login-select" class="form-control" style="appearance: none;"><option>Đang tải dữ liệu...</option></select>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px; color:rgba(255,255,255,0.7); font-size:0.9rem; cursor:pointer; justify-content:center;">
+                <input type="checkbox" id="remember-emp" style="accent-color: #c084fc; width: 16px; height: 16px;"> Ghi nhớ tôi
+            </label>
+            <button class="btn btn-primary" style="width:100%; padding: 15px;" onclick="loginEmp()">Truy Cập Hệ Thống</button>
         </div>
+
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
-            <label class="remember-check" style="display:flex; align-items:center; gap:8px; margin-bottom:15px; color:var(--text-sub); cursor:pointer"><input type="checkbox" id="remember-admin"> Ghi nhớ đăng nhập</label>
-            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px; color:rgba(255,255,255,0.7); font-size:0.9rem; cursor:pointer; justify-content:center;">
+                <input type="checkbox" id="remember-admin" style="accent-color: #c084fc; width: 16px; height: 16px;"> Ghi nhớ đăng nhập
+            </label>
+            <button class="btn btn-primary" style="width:100%; padding: 15px;" onclick="loginAdmin()">Đăng Nhập Admin</button>
         </div>
     </div>
 </div>
 
-<nav class="sidebar" id="main-sidebar">
-    <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
+<nav class="sidebar glass-panel" id="main-sidebar">
+    <div class="logo"><i class="fa-solid fa-clock" style="color:#c084fc"></i> UTC Time</div>
     <div class="nav-link active" id="pc-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
     <div class="nav-link" id="pc-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
     <div class="nav-link" id="pc-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
@@ -274,21 +297,21 @@
 </nav>
 
 <div class="main-content">
-    <div class="top-bar">
-        <button class="btn btn-outline" style="width: auto; padding: 8px; opacity:0; pointer-events:none"><i class="fa-solid fa-moon"></i></button>
-        <div style="display: flex; gap: 16px; align-items: center;">
+    <div class="top-bar glass-panel">
+        <div style="font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Dashboard</div>
+        <div style="display: flex; gap: 20px; align-items: center;">
             <div style="text-align: right;">
-                <div id="display-name" style="font-weight: 600; font-size: 0.9rem;">Guest</div>
-                <div id="display-role" style="font-size: 0.75rem; color: var(--primary);">User</div>
+                <div id="display-name" style="font-weight: 700; font-size: 1rem;">Guest</div>
+                <div id="display-role" style="font-size: 0.75rem; color: #c084fc; text-transform: uppercase;">User</div>
             </div>
-            <button class="btn btn-danger" style="width: auto; padding: 8px;" onclick="logout()" title="Đăng xuất"><i class="fa-solid fa-power-off"></i></button>
+            <button class="btn btn-danger" style="width: 45px; height: 45px; padding: 0; border-radius: 50%;" onclick="logout()" title="Đăng xuất"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </div>
 
     <div class="content-scroll">
         <div id="view-emp" class="hidden">
-            <div class="card">
-                <h3>📅 Lịch Sử Của Bạn</h3>
+            <div class="card glass-panel">
+                <h3>📅 Lịch Sử Chấm Công</h3>
                 <div class="table-responsive">
                     <table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table>
                 </div>
@@ -296,105 +319,111 @@
         </div>
 
         <div id="view-admin" class="hidden">
+            
             <div id="tab-dashboard" class="tab-content">
                 <div class="flex-row">
-                    <div class="card flex-1">
+                    <div class="card glass-panel flex-1">
                         <h3>Tỷ Lệ Hôm Nay</h3>
-                        <div style="position:relative; height:200px">
+                        <div style="position:relative; height:220px; display: flex; justify-content: center;">
                             <canvas id="chartPie"></canvas>
                         </div>
                     </div>
-                    <div class="card flex-1">
+                    <div class="card glass-panel flex-1">
                         <h3>Thống Kê 7 Ngày</h3>
-                        <div style="position:relative; height:200px">
+                        <div style="position:relative; height:220px">
                             <canvas id="chartBar"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div id="tab-live" class="tab-content hidden">
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+                <div class="card glass-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
                         <h3>Giám Sát Realtime</h3>
-                        <div style="display:flex; align-items:center; gap:8px"><span style="font-size:0.8rem; color:var(--text-sub)">Giờ làm:</span><input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:6px"></div>
+                        <div style="display:flex; align-items:center; gap:10px"><span style="font-size:0.9rem; color:var(--text-sub)">Giờ vào:</span><input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:8px 15px"></div>
                     </div>
                     <div class="table-responsive">
                         <table id="live-table">
-                            <thead><tr><th width="45%">Nhân Viên</th><th width="40%">Chi Tiết</th><th width="15%" style="text-align:center">Xóa</th></tr></thead>
+                            <thead><tr><th width="40%">Nhân Viên</th><th width="45%">Thời Gian & Trạng Thái</th><th width="15%" style="text-align:center">Xóa</th></tr></thead>
                             <tbody id="live-body"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
             <div id="tab-salary" class="tab-content hidden">
-                <div class="card">
+                <div class="card glass-panel">
                     <div class="flex-row">
-                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600; color:var(--text-sub)">Từ ngày:</label><input type="date" id="date-start" class="form-control"></div>
-                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600; color:var(--text-sub)">Đến ngày:</label><input type="date" id="date-end" class="form-control"></div>
-                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600; color:var(--text-sub)">Lương/Ngày:</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:700; margin-bottom: 5px; display: block;">Từ ngày:</label><input type="date" id="date-start" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:700; margin-bottom: 5px; display: block;">Đến ngày:</label><input type="date" id="date-end" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:700; margin-bottom: 5px; display: block;">Lương/Ngày (VND):</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
                     </div>
-                    <div class="flex-row" style="margin-top:10px">
+                    <div class="flex-row" style="margin-top:15px">
                         <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
                         <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
-                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
+                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Dọn Dữ Liệu</button>
                     </div>
                 </div>
-                <div class="card">
-                    <h3>Kết Quả: <span id="total-money" style="color:var(--success); text-shadow: 0 0 10px rgba(0,255,136,0.5)">0 đ</span></h3>
-                    <div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div>
+                <div class="card glass-panel">
+                    <h3>Tổng Chi Lương: <span id="total-money" style="color:#4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);">0 đ</span></h3>
+                    <div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã NV</th><th>Họ Tên</th><th>Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
+
             <div id="tab-users" class="tab-content hidden">
                 <div class="flex-row">
-                    <div class="card flex-1">
-                        <h3>Thông Tin</h3>
-                        <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
-                        <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
+                    <div class="card glass-panel flex-1">
+                        <h3>Thông Tin Nhân Viên</h3>
+                        <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay (Ví dụ: 101)">
+                        <input type="text" id="inp-code" class="form-control" placeholder="Mã Nhân Viên (Ví dụ: NV01)">
                         <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
                         <div class="flex-row">
-                            <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
+                            <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu Thông Tin</button>
                             <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="triggerDeleteUser()">Xóa</button>
                         </div>
-                        <button class="btn btn-outline" style="width:100%; margin-top:12px" onclick="resetForm()">Làm mới</button>
+                        <button class="btn btn-outline" style="width:100%; margin-top:15px; border-radius: 30px;" onclick="resetForm()">Làm mới form</button>
                     </div>
-                    <div class="card flex-1">
+                    <div class="card glass-panel flex-1">
                         <h3>Danh Sách</h3>
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;"><table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table></div>
+                        <div class="table-responsive" style="max-height: 450px; overflow-y: auto;"><table id="users-list"><thead><tr><th>ID</th><th>Mã</th><th>Tên</th></tr></thead><tbody></tbody></table></div>
                     </div>
                 </div>
             </div>
+
             <div id="tab-settings" class="tab-content hidden">
-                <div class="card">
-                    <h3>Cài Đặt</h3>
+                <div class="card glass-panel" style="max-width: 600px; margin: 0 auto;">
+                    <h3>Cài Đặt Hệ Thống</h3>
                     <div class="settings-list">
                         <div class="settings-item" onclick="openTrashView()">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-trash-can"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Thùng Rác</div><div style="font-size:0.8rem; color:var(--text-sub)">Khôi phục dữ liệu đã xóa</div></div>
+                                <div><div style="font-weight:700;">Thùng Rác Dữ Liệu</div><div style="font-size:0.8rem; color:rgba(255,255,255,0.6)">Khôi phục hoặc xóa vĩnh viễn</div></div>
                             </div>
-                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                            <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.4)"></i>
                         </div>
-                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo: 0909xxx', 'info')">
+                        <div class="settings-item" onclick="showToast('Liên hệ Zalo: 0909xxx để được hỗ trợ', 'info')">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-headset"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Hỗ trợ lỗi và bảo trì</div></div>
+                                <div><div style="font-weight:700;">Hỗ Trợ Kỹ Thuật</div><div style="font-size:0.8rem; color:rgba(255,255,255,0.6)">Báo lỗi hoặc yêu cầu tính năng</div></div>
                             </div>
-                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                            <i class="fa-solid fa-chevron-right" style="color:rgba(255,255,255,0.4)"></i>
                         </div>
                         <div class="settings-item">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-code-branch"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v2.0 (Liquid Glass)</div></div>
+                                <div><div style="font-weight:700;">Phiên Bản</div><div style="font-size:0.8rem; color:rgba(255,255,255,0.6)">v3.0 Ultra Glass</div></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div id="tab-trash-detail" class="tab-content hidden">
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                        <div style="display:flex; align-items:center; gap:10px"><button class="btn btn-outline" style="padding:6px 10px" onclick="openTab('settings')"><i class="fa-solid fa-arrow-left"></i></button><h3 style="margin:0; color:var(--danger)">Thùng Rác</h3></div>
-                        <button class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px" onclick="emptyTrash()">Dọn sạch</button>
+                <div class="card glass-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                        <div style="display:flex; align-items:center; gap:15px"><button class="btn btn-outline" style="padding:10px 15px; border-radius:50%" onclick="openTab('settings')"><i class="fa-solid fa-arrow-left"></i></button><h3 style="margin:0; color:var(--danger)">Thùng Rác</h3></div>
+                        <button class="btn btn-danger" style="font-size:0.9rem" onclick="emptyTrash()">Dọn sạch tất cả</button>
                     </div>
                     <div class="table-responsive"><table id="trash-table"><thead><tr><th>Nhân Viên</th><th>Thời Gian</th><th style="text-align:center">Thao Tác</th></tr></thead><tbody id="trash-body"></tbody></table></div>
                 </div>
@@ -403,18 +432,19 @@
     </div>
 </div>
 
-<div class="bottom-nav" id="mobile-nav">
-    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
-    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
-    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
-    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
-    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
+<div class="bottom-nav glass-panel" id="mobile-nav">
+    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie" style="font-size: 1.2rem;"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video" style="font-size: 1.2rem;"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave" style="font-size: 1.2rem;"></i><span>Lương</span></div>
+    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users" style="font-size: 1.2rem;"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear" style="font-size: 1.2rem;"></i><span>Cài Đặt</span></div>
 </div>
 
 <script>
+    // --- JS LOGIC (GIỮ NGUYÊN NHƯNG CẬP NHẬT CHART STYLE) ---
     // 1. CONFIG
     const firebaseConfig = {
-        apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
+        apiKey: "API_KEY_CUA_BAN", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
         databaseURL: "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com",
         projectId: "quanlychamcong-9dacd",
@@ -431,36 +461,38 @@
 
     // AUTO LOGIN
     (function checkAutoLogin() {
-        const saved = localStorage.getItem('utc_session_v21');
+        const saved = localStorage.getItem('utc_session_v3');
         if (saved) {
             try {
                 const s = JSON.parse(saved);
                 if (s.role === 'Admin') loginAdmin(true);
                 else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
-            } catch(e) { localStorage.removeItem('utc_session_v21'); }
+            } catch(e) { localStorage.removeItem('utc_session_v3'); }
         }
     })();
 
     // HELPERS
     function showToast(msg, type='info') {
-        const container=document.getElementById('toast-container'); const toast=document.createElement('div'); toast.className=`toast ${type}`;
-        let icon=type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
-        toast.innerHTML=`${icon}<div><div class="toast-title">${type==='error'?'Lỗi':type==='success'?'Thành công':'Thông báo'}</div><div class="toast-msg">${msg}</div></div>`;
+        const container=document.getElementById('toast-container'); const toast=document.createElement('div'); toast.className=`toast`;
+        let icon=type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:#c084fc"></i>';
+        toast.innerHTML=`<div style="display:flex; align-items:center; gap:15px">${icon} <span style="font-weight:500">${msg}</span></div>`;
         container.appendChild(toast); setTimeout(()=>toast.remove(),3000);
     }
+    
     function showConfirmDialog(msg, callback) { document.getElementById('confirm-msg').innerText=msg; document.getElementById('confirm-modal').style.display='flex'; confirmCallback=callback; }
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display='none'; confirmCallback=null; }
     document.getElementById('btn-confirm-yes').onclick=function(){ if(confirmCallback) confirmCallback(); closeConfirmModal(); };
-    
+
     function getCurrentDateTime() { const now=new Date(); return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`; }
     function getUserInfo(id) { const u=usersCache[id]; if(!u)return{name:null,code:"---"}; if(typeof u==='string')return{name:u,code:"---"}; return{name:u.name,code:u.code||"---"}; }
 
-    // CORE LOGIC
+    // CORE
     db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
         if (val) {
             newID = val;
             if (!processedNewIDs.has(val)) {
+                // Check dupes
                 const lastLogSnap = await db.ref('attendance').orderByChild('id').equalTo(String(val)).limitToLast(1).once('value');
                 const lastLogData = lastLogSnap.val();
                 let isDuplicate = false;
@@ -483,44 +515,45 @@
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {}; renderLoginDropdown();
         if (currentRole === 'Admin') { renderUserList(); loadMonitor(); loadTrash(); }
-        if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v21')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
+        if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v3')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
     });
 
-    // AUTH & ROLE CSS CONTROL
+    // AUTH
     function switchRole(role) {
-        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
+        document.querySelectorAll('.role-btn').forEach(b => { 
+            b.style.background = 'transparent'; b.style.color='rgba(255,255,255,0.6)'; 
+        });
+        event.target.style.background = 'rgba(255,255,255,0.2)'; event.target.style.color='white';
         document.getElementById('form-emp').classList.add('hidden'); document.getElementById('form-admin').classList.add('hidden');
         document.getElementById('form-' + role).classList.remove('hidden');
     }
-    function renderLoginDropdown() { const sel=document.getElementById('login-select'); sel.innerHTML='<option value="">-- Chọn tên --</option>'; Object.keys(usersCache).forEach(id => { const i=getUserInfo(id); if(i.name) { const opt=document.createElement('option'); opt.value=id; opt.text=i.name; sel.appendChild(opt); }}); }
+    function renderLoginDropdown() { const sel=document.getElementById('login-select'); sel.innerHTML='<option value="">-- Chọn tên của bạn --</option>'; Object.keys(usersCache).forEach(id => { const i=getUserInfo(id); if(i.name) { const opt=document.createElement('option'); opt.value=id; opt.text=i.name; sel.appendChild(opt); }}); }
     
     async function loginAdmin(isAuto=false) {
         if(isAuto) { setAppMode('Admin'); return; }
         const u=document.getElementById('user').value; const p=document.getElementById('pass').value;
         const snap=await db.ref('settings/admin_password').once('value');
         if(u==='UTC' && p===(snap.val()||'admin')) {
-            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Admin'}));
+            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v3', JSON.stringify({role:'Admin'}));
             setAppMode('Admin');
-        } else showToast('Sai thông tin!','error');
+        } else showToast('Sai tên đăng nhập hoặc mật khẩu!','error');
     }
     function loginEmp(isAuto=false, autoId=null) {
         const id=isAuto?autoId:document.getElementById('login-select').value;
-        if(!id) return showToast('Vui lòng chọn tên','error');
+        if(!id) return showToast('Vui lòng chọn tên nhân viên','error');
         const info=getUserInfo(id);
-        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Emp',id:id}));
+        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v3', JSON.stringify({role:'Emp',id:id}));
         setAppMode('Emp', info.name); loadEmpHistory(id);
     }
-    function logout() { localStorage.removeItem('utc_session_v21'); location.reload(); }
+    function logout() { localStorage.removeItem('utc_session_v3'); location.reload(); }
 
     function setAppMode(role, name="Quản Trị") {
         currentRole = role;
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('display-name').innerText = name;
         document.getElementById('display-role').innerText = role === 'Admin' ? 'Admin' : 'Nhân Viên';
-        
         document.body.classList.remove('role-admin', 'role-emp');
         document.body.classList.add(role === 'Admin' ? 'role-admin' : 'role-emp');
-
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
         
@@ -540,7 +573,6 @@
         if(target) target.classList.remove('hidden');
         
         document.querySelectorAll('.nav-link, .b-nav-item').forEach(el => el.classList.remove('active'));
-        
         const pcBtn = document.getElementById('pc-' + tabName);
         const mobBtn = document.getElementById('mob-' + tabName);
         if(pcBtn) pcBtn.classList.add('active');
@@ -560,16 +592,16 @@
         let late = 0, onTime = 0, daysCount = {};
         logs.forEach(log => { const [date, time] = log.timestamp.split(' '); if(time > workTime) late++; else onTime++; daysCount[date] = (daysCount[date]||0)+1; });
         
-        // Config Chart Colors for Dark Theme
-        Chart.defaults.color = '#ffffff';
+        // Chart Style
+        Chart.defaults.color = '#fff';
         Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
         if(chartPie) chartPie.destroy();
-        chartPie = new Chart(document.getElementById('chartPie'), { type: 'doughnut', data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#00ff88', '#ff4b4b'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: {color:'white'} } } } });
+        chartPie = new Chart(document.getElementById('chartPie'), { type: 'doughnut', data: { labels: ['Đúng Giờ', 'Đi Muộn'], datasets: [{ data: [onTime, late], backgroundColor: ['#4ade80', '#f87171'], borderWidth: 0, hoverOffset: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 20 } } } } });
         
         if(chartBar) chartBar.destroy();
         const labels = Object.keys(daysCount).slice(-5);
-        chartBar = new Chart(document.getElementById('chartBar'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#00d2ff', borderRadius: 6 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: {color: 'rgba(255,255,255,0.1)'} }, x: { grid: {display: false} } } } });
+        chartBar = new Chart(document.getElementById('chartBar'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Lượt Chấm', data: labels.map(d=>daysCount[d]), backgroundColor: '#c084fc', borderRadius: 50, barThickness: 20 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: {color: 'rgba(255,255,255,0.05)'} }, x: { grid: {display: false} } } } });
     }
 
     function loadMonitor() {
@@ -580,21 +612,21 @@
             Object.entries(data).reverse().forEach(([key, log]) => {
                 const info = getUserInfo(log.id); const [datePart, timePart] = log.timestamp.split(' ');
                 const isLate = timePart > workTime;
-                let nameHtml = info.name ? `<div class="compact-main">${info.name}</div>` : `<span class="badge badge-yellow" style="margin-bottom:2px">Chưa ĐK</span>`;
-                let subHtml = !info.name ? `<div style="margin-top:4px"><button class="btn btn-outline" style="padding:2px 8px; font-size:0.65rem; height:auto" onclick="quickAdd('${log.id}')">➕ Thêm</button></div>` : `<div class="compact-sub">${info.code !== "---" ? info.code : `ID: ${log.id}`}</div>`;
-                if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
+                let subHtml = !info.name ? `<button class="btn btn-outline" style="padding:4px 10px; font-size:0.7rem; margin-top:5px; border-radius:15px" onclick="quickAdd('${log.id}')">➕ Thêm</button>` : `<div style="font-size:0.75rem; color:rgba(255,255,255,0.5)">${info.code}</div>`;
+                if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#facc15; font-size:0.8rem"></i>`;
                 let statusBadge = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
-                let timeHtml = `<div class="compact-cell"><div class="compact-time">${timePart} <span style="font-weight:400; color:rgba(255,255,255,0.5); font-size:0.7rem">(${datePart.substr(0,5)})</span></div><div style="margin-top:2px">${statusBadge}</div></div>`;
-                tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
+                let timeHtml = `<div style="display:flex; flex-direction:column; gap:4px"> <span style="font-size:1.1rem; font-weight:700; color:#c084fc">${timePart}</span> <div style="display:flex; gap:5px; align-items:center">${statusBadge} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5)">${datePart.substr(0,5)}</span></div> </div>`;
+                tbody.innerHTML += `<tr><td><div>${nameHtml}</div>${subHtml}</td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:10px; width:35px; height:35px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             });
         });
     }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
-    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
+    function triggerDeleteLog(key) { showConfirmDialog('Chuyển dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
 
     async function calcSalary() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value; const salary = document.getElementById('salary-val').value;
-        if (!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
+        if (!dStart || !dEnd) return showToast('Vui lòng chọn ngày bắt đầu và kết thúc!','error');
         const start = new Date(dStart); start.setHours(0,0,0,0); const end = new Date(dEnd); end.setHours(23,59,59,999);
         const snap = await db.ref('attendance').once('value'); const data = snap.val();
         const tbody = document.getElementById('salary-table').querySelector('tbody'); tbody.innerHTML = "";
@@ -610,16 +642,16 @@
             const info = getUserInfo(id); if (!info.name || !info.code || info.code === "---") return;
             const days = stats[id].size; const money = days * salary; total += money;
             window.tempReport.push({ "Mã": info.code, "Tên": info.name, "Công": days, "Tiền": money });
-            tbody.innerHTML += `<tr><td><span class="badge badge-id">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:var(--success); font-weight:600">${money.toLocaleString()}</td></tr>`;
+            tbody.innerHTML += `<tr><td><span class="badge badge-id">${info.code}</span></td><td>${info.name}</td><td><b>${days}</b></td><td style="color:#4ade80; font-weight:700">${money.toLocaleString()}</td></tr>`;
         });
         document.getElementById('total-money').innerText = total.toLocaleString() + ' đ';
-        if(window.tempReport.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu.</td></tr>";
+        if(window.tempReport.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px; color:rgba(255,255,255,0.5)'>Không có dữ liệu trong khoảng này.</td></tr>";
     }
-    function exportExcel() { if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu!', 'error'); const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file...', 'success'); }
+    function exportExcel() { if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu để xuất!', 'error'); const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file Excel...', 'success'); }
     function triggerDeleteData() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value;
-        if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        showConfirmDialog(`Chuyển dữ liệu từ ${dStart} đến ${dEnd} vào thùng rác?`, async () => {
+        if(!dStart || !dEnd) return showToast('Chọn khoảng ngày cần xóa!', 'error');
+        showConfirmDialog(`Dọn sạch dữ liệu chấm công từ ${dStart} đến ${dEnd} vào thùng rác?`, async () => {
             const start = new Date(dStart); start.setHours(0,0,0,0); const end = new Date(dEnd); end.setHours(23,59,59,999);
             const snap = await db.ref('attendance').once('value'); const data = snap.val();
             if(data) {
@@ -629,68 +661,46 @@
                     const logDate = new Date(`${yyyy}-${mm}-${dd}`);
                     if (logDate >= start && logDate <= end) { updates['trash/'+k] = log; updates['attendance/'+k] = null; count++; }
                 });
-                if(count > 0) { await db.ref().update(updates); showToast(`Đã xóa ${count} dòng!`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
-                else showToast('Không tìm thấy dữ liệu', 'info');
+                if(count > 0) { await db.ref().update(updates); showToast(`Đã dọn ${count} bản ghi!`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
+                else showToast('Không tìm thấy dữ liệu trong khoảng này', 'info');
             }
         });
     }
 
+    // TRASH & USERS
     function loadTrash() {
         db.ref('trash').on('value', snap => {
             const tbody = document.getElementById('trash-body'); tbody.innerHTML = ""; const data = snap.val();
-            if (!data) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Thùng rác trống</td></tr>"; return; }
+            if (!data) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:rgba(255,255,255,0.5); padding:20px'>Thùng rác trống</td></tr>"; return; }
             Object.entries(data).forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
                 let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
-                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px; border-radius:50%" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px; border-radius:50%" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
             });
         });
     }
     
-    function restoreLog(key) {
-        db.ref('trash/' + key).once('value', snap => {
-            if(snap.val()) {
-                db.ref('attendance/' + key).set(snap.val()).then(() => {
-                    db.ref('trash/' + key).remove();
-                    showToast('Đã khôi phục', 'success');
-                });
-            }
-        });
-    }
-    function permDeleteLog(key) { showConfirmDialog('Xóa vĩnh viễn? Không thể lấy lại!', () => { db.ref('trash/' + key).remove(); showToast('Đã xóa vĩnh viễn', 'success'); }); }
-    function emptyTrash() { showConfirmDialog('Dọn sạch thùng rác?', () => { db.ref('trash').remove(); showToast('Đã dọn sạch','success'); }); }
+    function restoreLog(key) { db.ref('trash/' + key).once('value', snap => { if(snap.val()) { db.ref('attendance/' + key).set(snap.val()).then(() => { db.ref('trash/' + key).remove(); showToast('Đã khôi phục', 'success'); }); } }); }
+    function permDeleteLog(key) { showConfirmDialog('Xóa vĩnh viễn? Dữ liệu này sẽ mất hoàn toàn!', () => { db.ref('trash/' + key).remove(); showToast('Đã xóa vĩnh viễn', 'success'); }); }
+    function emptyTrash() { showConfirmDialog('Bạn có chắc chắn muốn làm sạch thùng rác?', () => { db.ref('trash').remove(); showToast('Đã dọn sạch thùng rác','success'); }); }
 
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody'); tbody.innerHTML = "";
         Object.keys(usersCache).forEach(id => {
             const info = getUserInfo(id);
-            tbody.innerHTML += `<tr onclick="fillForm('${id}')" style="cursor:pointer"><td><span class="badge badge-id">${id}</span></td><td>${info.code}</td><td>${info.name}</td></tr>`;
+            tbody.innerHTML += `<tr onclick="fillForm('${id}')" style="cursor:pointer; transition:0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'"><td><span class="badge badge-id">${id}</span></td><td>${info.code}</td><td>${info.name}</td></tr>`;
         });
     }
-    function fillForm(id) {
-        const info = getUserInfo(id);
-        document.getElementById('inp-id').value = id; document.getElementById('inp-code').value = info.code !== "---" ? info.code : "";
-        document.getElementById('inp-name').value = info.name; document.getElementById('btn-del-user').classList.remove('hidden');
-    }
+    function fillForm(id) { const info = getUserInfo(id); document.getElementById('inp-id').value = id; document.getElementById('inp-code').value = info.code !== "---" ? info.code : ""; document.getElementById('inp-name').value = info.name; document.getElementById('btn-del-user').classList.remove('hidden'); }
     function saveUser() {
         const id = document.getElementById('inp-id').value; const name = document.getElementById('inp-name').value; const code = document.getElementById('inp-code').value;
-        if(!id || !name) return showToast('Thiếu thông tin!', 'error');
-        for(const [k, v] of Object.entries(usersCache)) { if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Trùng Mã NV', 'error'); }
-        db.ref('users/'+id).set({ name, code }).then(() => { showToast('Lưu thành công', 'success'); resetForm(); });
+        if(!id || !name) return showToast('Vui lòng nhập ID và Tên!','error');
+        for(const [k, v] of Object.entries(usersCache)) { if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Mã nhân viên đã tồn tại!', 'error'); }
+        db.ref('users/'+id).set({ name, code }).then(() => { showToast('Đã lưu thông tin nhân viên', 'success'); resetForm(); });
     }
-    function triggerDeleteUser() { showConfirmDialog('Xóa nhân viên này?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa', 'success'); resetForm(); }); }
-    function resetForm() {
-        document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value="";
-        document.getElementById('btn-del-user').classList.add('hidden');
-    }
-    function loadEmpHistory(id) {
-        db.ref('attendance').limitToLast(50).on('value', snap => {
-            const tb = document.querySelector('#emp-table tbody'); tb.innerHTML = ""; const data = snap.val();
-            if(data) Object.values(data).reverse().forEach(log => {
-                if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge badge-green">Thành công</span></td></tr>`;
-            });
-        });
-    }
+    function triggerDeleteUser() { showConfirmDialog('Xóa nhân viên này khỏi hệ thống?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa nhân viên', 'success'); resetForm(); }); }
+    function resetForm() { document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value=""; document.getElementById('btn-del-user').classList.add('hidden'); }
+    function loadEmpHistory(id) { db.ref('attendance').limitToLast(50).on('value', snap => { const tb = document.querySelector('#emp-table tbody'); tb.innerHTML = ""; const data = snap.val(); if(data) Object.values(data).reverse().forEach(log => { if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge badge-green">Thành công</span></td></tr>`; }); }); }
 
     const today = new Date(); const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     document.getElementById('date-start').valueAsDate = firstDay; document.getElementById('date-end').valueAsDate = today;
