@@ -3,122 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Chấm Công & Tính Lương</title>
+    <title>Hệ Thống Chấm Công UTC</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
         
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2, h3 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        /* LOGIN SCREEN STYLES */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-box {
+            background: white; padding: 30px; border-radius: 10px; width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
+        }
+        .login-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .login-tab { flex: 1; padding: 10px; cursor: pointer; color: #777; font-weight: bold; }
+        .login-tab.active { color: #1a73e8; border-bottom: 3px solid #1a73e8; }
+        .login-form { display: none; }
+        .login-form.active { display: block; }
         
-        /* Toolbar Styles */
-        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; background: #e8f0fe; padding: 15px; border-radius: 8px; margin-bottom: 20px; align-items: center; justify-content: space-between; }
-        .group-control { display: flex; gap: 10px; align-items: center; }
-        
-        input, button, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
-        button { cursor: pointer; font-weight: bold; transition: 0.2s; color: white; border: none; }
-        .btn-calc { background: var(--primary); }
-        .btn-excel { background: var(--success); }
-        .btn-import { background: #607d8b; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        /* MAIN DASHBOARD STYLES */
+        .app-container { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .app-container.active { display: block; }
 
-        /* Table Styles */
-        .table-wrapper { overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        thead { background-color: var(--primary); color: white; }
+        /* Header Bar */
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .logout-btn { background: #ea4335; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* Common Elements */
+        input, button, select { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { cursor: pointer; font-weight: bold; color: white; border: none; }
+        .btn-blue { background: #1a73e8; } .btn-green { background: #34a853; }
+        
+        /* Table */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #1a73e8; color: white; }
         tr:hover { background-color: #f8f9fa; }
-        
-        .badge { padding: 4px 8px; background: var(--success); color: white; border-radius: 4px; font-size: 0.85em; }
-        .tab-buttons { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .tab-btn { background: none; color: #555; padding: 10px 20px; border-radius: 0; border-bottom: 3px solid transparent; }
-        .tab-btn.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
 
-        /* Hidden inputs */
-        #fileInput { display: none; }
-        .section { display: none; }
-        .section.active { display: block; }
+        /* Specific for Admin/User Views */
+        .admin-view, .emp-view { display: none; }
+        .admin-view.show, .emp-view.show { display: block; }
         
-        /* Summary Box */
-        .summary-box { display: flex; gap: 20px; margin-top: 20px; justify-content: flex-end; font-size: 1.1em; font-weight: bold; color: #333; }
+        /* Layout columns */
+        .row { display: flex; gap: 20px; }
+        .col-2 { flex: 2; } .col-1 { flex: 1; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+
+        /* Tabs inside Admin */
+        .sub-tabs { margin-bottom: 15px; }
+        .sub-tab-btn { padding: 8px 15px; border: none; background: #eee; cursor: pointer; margin-right: 5px; border-radius: 5px; }
+        .sub-tab-btn.active { background: #1a73e8; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Hệ Thống Quản Lý Chấm Công</h2>
-
-    <div class="tab-buttons">
-        <button class="tab-btn active" onclick="switchTab('live')">🔴 Giám sát trực tiếp</button>
-        <button class="tab-btn" onclick="switchTab('report')">📊 Báo cáo & Lương</button>
-    </div>
-
-    <div id="live-section" class="section active">
-        <div class="toolbar">
-            <div>Trạng thái: <span id="conn-status" style="font-weight:bold; color:orange">Đang kết nối...</span></div>
-            <div>Mới nhất: <span id="last-updated">-</span></div>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr><th>Thời Gian</th><th>ID</th><th>Họ và Tên</th></tr>
-                </thead>
-                <tbody id="live-body">
-                    <tr><td colspan="3" style="text-align:center">Đang tải dữ liệu...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="report-section" class="section">
-        <div class="toolbar">
-            <div class="group-control">
-                <label>Chọn tháng:</label>
-                <input type="month" id="filter-month">
-                <label>Lương/Ngày (VND):</label>
-                <input type="number" id="daily-salary" value="500000" style="width: 100px;">
-                <button class="btn-calc" onclick="calculateReport()">🔍 Tính Lương</button>
-            </div>
-            <div class="group-control">
-                <button class="btn-excel" onclick="exportToExcel()">📥 Xuất Excel</button>
-                <button class="btn-import" onclick="document.getElementById('fileInput').click()">📤 Nhập Excel</button>
-                <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="importFromExcel(this)">
-            </div>
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="color:#1a73e8; margin-top:0">HỆ THỐNG CHẤM CÔNG</h2>
+        <div class="login-tabs">
+            <div class="login-tab active" onclick="switchLoginTab('emp')">Nhân Viên</div>
+            <div class="login-tab" onclick="switchLoginTab('admin')">Quản Trị Viên</div>
         </div>
 
-        <div class="table-wrapper">
-            <table id="report-table">
-                <thead>
-                    <tr>
-                        <th>ID Nhân Viên</th>
-                        <th>Họ Tên</th>
-                        <th>Số ngày công</th>
-                        <th>Tổng Lương (Dự kiến)</th>
-                        <th>Chi tiết ngày</th>
-                    </tr>
-                </thead>
-                <tbody id="report-body">
-                    <tr><td colspan="5" style="text-align:center">Vui lòng chọn tháng và bấm Tính Lương</td></tr>
-                </tbody>
-            </table>
+        <div id="login-form-emp" class="login-form active">
+            <p>Nhập ID Vân Tay của bạn để xem công</p>
+            <input type="number" id="login-emp-id" placeholder="Ví dụ: 1">
+            <button class="btn-blue" onclick="loginAsEmployee()">Xem Chấm Công</button>
         </div>
-        
-        <div class="summary-box">
-            <span>Tổng nhân sự: <span id="total-staff" style="color:var(--primary)">0</span></span>
-            <span>Tổng chi lương: <span id="total-payout" style="color:var(--success)">0 đ</span></span>
+
+        <div id="login-form-admin" class="login-form">
+            <input type="text" id="login-admin-user" placeholder="Tên đăng nhập (UTC)">
+            <input type="password" id="login-admin-pass" placeholder="Mật khẩu">
+            <button class="btn-blue" onclick="loginAsAdmin()">Đăng Nhập Admin</button>
         </div>
+        <p id="login-error" style="color:red; display:none; font-size: 0.9em; margin-top:5px"></p>
     </div>
 </div>
 
+<div id="main-app" class="app-container">
+    
+    <div class="header-bar">
+        <div>
+            <h3 style="margin:0" id="welcome-msg">Xin chào</h3>
+            <small id="role-badge" style="background:#eee; padding:2px 6px; border-radius:4px">Role</small>
+        </div>
+        <button class="logout-btn" onclick="logout()">Đăng Xuất</button>
+    </div>
+
+    <div id="view-employee" class="emp-view">
+        <div class="card">
+            <h4>📅 Lịch Sử Chấm Công Của Bạn</h4>
+            <table>
+                <thead><tr><th>Thời Gian</th><th>ID</th><th>Trạng Thái</th></tr></thead>
+                <tbody id="emp-history-body">
+                    <tr><td colspan="3">Đang tải dữ liệu...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view-admin" class="admin-view">
+        <div class="sub-tabs">
+            <button class="sub-tab-btn active" onclick="switchAdminTab('live')">🔴 Giám Sát</button>
+            <button class="sub-tab-btn" onclick="switchAdminTab('report')">📊 Báo Cáo & Lương</button>
+            <button class="sub-tab-btn" onclick="switchAdminTab('manage')">👥 Nhân Sự</button>
+        </div>
+
+        <div id="adm-tab-live" style="display:block">
+            <div class="card">
+                <h4>Hoạt động gần đây (Tất cả nhân viên)</h4>
+                <table>
+                    <thead><tr><th>Thời Gian</th><th>ID</th><th>Họ Tên</th></tr></thead>
+                    <tbody id="adm-live-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="adm-tab-report" style="display:none">
+            <div class="card" style="display:flex; gap:10px; align-items:flex-end">
+                <div style="flex:1"><label>Chọn tháng:</label><input type="month" id="filter-month"></div>
+                <div style="flex:1"><label>Lương/Ngày:</label><input type="number" id="salary-input" value="500000"></div>
+                <button class="btn-blue" style="width:auto; height:42px" onclick="calcSalary()">Tính Lương</button>
+                <button class="btn-green" style="width:auto; height:42px" onclick="exportExcel()">Xuất Excel</button>
+            </div>
+            <div class="card">
+                <table id="salary-table">
+                    <thead><tr><th>ID</th><th>Họ Tên</th><th>Số Công</th><th>Tổng Lương</th></tr></thead>
+                    <tbody id="salary-body"><tr><td colspan="4">Chọn tháng để xem</td></tr></tbody>
+                </table>
+                <div style="text-align:right; margin-top:10px; font-weight:bold">Tổng chi: <span id="total-payout" style="color:green">0 đ</span></div>
+            </div>
+        </div>
+
+        <div id="adm-tab-manage" style="display:none">
+            <div class="row">
+                <div class="col-1 card">
+                    <h4>Thêm / Sửa Nhân Viên</h4>
+                    <input type="number" id="inp-id" placeholder="ID Vân Tay">
+                    <input type="text" id="inp-name" placeholder="Họ Tên">
+                    <button class="btn-green" onclick="saveUser()">Lưu</button>
+                </div>
+                <div class="col-2 card">
+                    <h4>Danh Sách</h4>
+                    <table id="user-list-table">
+                        <thead><tr><th>ID</th><th>Tên</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <script>
-    // ================= CẤU HÌNH (THAY ĐỔI API KEY CỦA BẠN TẠI ĐÂY) =================
+    // === CẤU HÌNH FIREBASE ===
     const firebaseConfig = {
-        apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
+        apiKey: "API_KEY_CUA_BAN", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
         databaseURL: "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com",
         projectId: "quanlychamcong-9dacd",
@@ -126,196 +174,223 @@
         messagingSenderId: "...",
         appId: "..."
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // --- BIẾN TOÀN CỤC ---
-    let fullDataCache = []; // Lưu trữ dữ liệu tải về để xử lý
-    let reportData = [];    // Lưu trữ kết quả tính toán
 
-    // ================= PHẦN 1: LOGIC REALTIME (GIÁM SÁT) =================
-    const liveRef = db.ref('attendance').limitToLast(50);
-    const connectedRef = db.ref(".info/connected");
+    // === BIẾN TOÀN CỤC ===
+    let usersCache = {};
+    let currentUser = null; // Lưu ID nhân viên hoặc 'admin'
+    let reportData = []; // Dữ liệu excel
 
-    connectedRef.on("value", (snap) => {
-        const statusEl = document.getElementById("conn-status");
-        statusEl.innerText = snap.val() ? "● Online" : "● Offline";
-        statusEl.style.color = snap.val() ? "green" : "red";
-    });
-
-    liveRef.on('value', (snapshot) => {
-        const tbody = document.getElementById('live-body');
-        const data = snapshot.val();
-        tbody.innerHTML = "";
+    // === 1. XỬ LÝ ĐĂNG NHẬP ===
+    function switchLoginTab(type) {
+        document.querySelectorAll('.login-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
         
-        if (!data) {
-            tbody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Chưa có dữ liệu</td></tr>";
-            return;
+        event.target.classList.add('active');
+        document.getElementById(`login-form-${type}`).classList.add('active');
+        document.getElementById('login-error').style.display = 'none';
+    }
+
+    // Đăng nhập Admin
+    function loginAsAdmin() {
+        const u = document.getElementById('login-admin-user').value;
+        const p = document.getElementById('login-admin-pass').value;
+
+        if (u === "UTC" && p === "admin") {
+            currentUser = 'admin';
+            enterApp('Quản Trị Viên', 'Admin', 'view-admin');
+            loadAdminData();
+        } else {
+            showError("Sai tên đăng nhập hoặc mật khẩu!");
         }
+    }
 
-        const arr = Object.values(data).reverse(); // Đảo ngược để thấy mới nhất
-        if(arr.length > 0) document.getElementById('last-updated').innerText = arr[0].timestamp;
+    // Đăng nhập Nhân viên
+    function loginAsEmployee() {
+        const id = document.getElementById('login-emp-id').value;
+        if (!id) return showError("Vui lòng nhập ID!");
 
-        arr.forEach(log => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="color:#555; font-family:monospace">${log.timestamp}</td>
-                <td><span class="badge">${log.id}</span></td>
-                <td style="font-weight:bold">${log.name}</td>
-            `;
-            tbody.appendChild(tr);
+        // Kiểm tra xem ID có tồn tại trong hệ thống không (Optional)
+        db.ref('users/' + id).once('value', snap => {
+            const name = snap.val() || "Nhân viên " + id;
+            currentUser = id;
+            enterApp(name, 'Nhân Viên', 'view-employee');
+            loadEmployeeData(id);
         });
-    });
-
-    // ================= PHẦN 2: LOGIC BÁO CÁO & TÍNH LƯƠNG =================
-    
-    // Hàm chuyển đổi chuỗi ngày giờ ESP32 (DD/MM/YYYY HH:mm:ss) sang Date Object
-    function parseDate(str) {
-        // Giả sử định dạng là: 25/11/2025 14:30:00 hoặc 14:30:00 25/11/2025
-        // Cần tách chuỗi để lấy ngày tháng năm chính xác
-        try {
-            const parts = str.split(' ');
-            let datePart = parts[0].includes('/') ? parts[0] : parts[1];
-            const [d, m, y] = datePart.split('/');
-            return new Date(`${y}-${m}-${d}`);
-        } catch (e) {
-            return null; // Lỗi định dạng
-        }
     }
 
-    // Hàm lấy tất cả dữ liệu (Chỉ chạy khi bấm nút Tính Lương để tiết kiệm băng thông)
-    async function fetchAllData() {
-        const snapshot = await db.ref('attendance').once('value');
-        const data = snapshot.val();
-        return data ? Object.values(data) : [];
-    }
-
-    async function calculateReport() {
-        const monthInput = document.getElementById('filter-month').value; // yyyy-mm
-        const salaryPerDay = parseInt(document.getElementById('daily-salary').value) || 0;
+    function enterApp(name, role, viewId) {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('main-app').classList.add('active');
+        document.getElementById('welcome-msg').innerText = "Xin chào, " + name;
+        document.getElementById('role-badge').innerText = role;
         
-        if (!monthInput) { alert("Vui lòng chọn tháng cần xem!"); return; }
-
-        const tbody = document.getElementById('report-body');
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Đang tính toán...</td></tr>";
-
-        // 1. Tải dữ liệu
-        const logs = await fetchAllData();
-        
-        // 2. Lọc theo tháng & Gom nhóm theo ID
-        const employeeMap = {}; // Key: ID, Value: { name, days: Set() }
-        const [year, month] = monthInput.split('-');
-
-        logs.forEach(log => {
-            const dateObj = parseDate(log.timestamp);
-            if (dateObj && dateObj.getFullYear() == year && (dateObj.getMonth() + 1) == month) {
-                const dayStr = `${dateObj.getDate()}/${dateObj.getMonth()+1}`;
-                
-                if (!employeeMap[log.id]) {
-                    employeeMap[log.id] = { name: log.name, days: new Set() };
-                }
-                employeeMap[log.id].days.add(dayStr);
-            }
-        });
-
-        // 3. Hiển thị kết quả
-        tbody.innerHTML = "";
-        let totalStaff = 0;
-        let totalMoney = 0;
-        reportData = []; // Reset biến toàn cục để dùng cho xuất Excel
-
-        for (const [id, info] of Object.entries(employeeMap)) {
-            const workDays = info.days.size;
-            const salary = workDays * salaryPerDay;
-            totalStaff++;
-            totalMoney += salary;
-
-            // Lưu dữ liệu để xuất excel
-            reportData.push({
-                "ID": id,
-                "Họ Tên": info.name,
-                "Số ngày công": workDays,
-                "Lương ngày": salaryPerDay,
-                "Tổng Lương": salary,
-                "Chi tiết ngày": Array.from(info.days).join(', ')
-            });
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="badge">${id}</span></td>
-                <td>${info.name}</td>
-                <td style="font-weight:bold; color:var(--primary)">${workDays} ngày</td>
-                <td style="font-weight:bold; color:var(--success)">${salary.toLocaleString('vi-VN')} đ</td>
-                <td style="font-size:0.85em; color:#666">${Array.from(info.days).join(', ')}</td>
-            `;
-            tbody.appendChild(tr);
-        }
-
-        if (totalStaff === 0) tbody.innerHTML = "<tr><td colspan='5' style='text-align:center'>Không tìm thấy dữ liệu trong tháng này.</td></tr>";
-
-        document.getElementById('total-staff').innerText = totalStaff;
-        document.getElementById('total-payout').innerText = totalMoney.toLocaleString('vi-VN') + " đ";
+        // Ẩn tất cả view, hiện view phù hợp
+        document.querySelectorAll('.admin-view, .emp-view').forEach(el => el.classList.remove('show'));
+        document.getElementById(viewId).classList.add('show');
     }
 
-    // ================= PHẦN 3: EXCEL (XUẤT & NHẬP) =================
-    
-    // Xuất Excel từ bảng báo cáo
-    function exportToExcel() {
-        if (reportData.length === 0) {
-            alert("Chưa có dữ liệu để xuất. Vui lòng bấm 'Tính Lương' trước.");
-            return;
-        }
-        
-        const ws = XLSX.utils.json_to_sheet(reportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "BangLuong");
-        XLSX.writeFile(wb, "BaoCao_ChamCong.xlsx");
+    function logout() {
+        location.reload(); // Cách đơn giản nhất để reset
     }
 
-    // Nhập Excel và đẩy lên Firebase
-    function importFromExcel(input) {
-        const file = input.files[0];
-        if (!file) return;
+    function showError(msg) {
+        const err = document.getElementById('login-error');
+        err.innerText = msg;
+        err.style.display = 'block';
+    }
 
-        if(!confirm("Bạn có chắc chắn muốn nhập dữ liệu này vào hệ thống? Dữ liệu sẽ được thêm vào Database.")) return;
+    // === 2. LOGIC CHO NHÂN VIÊN ===
+    function loadEmployeeData(myId) {
+        const tbody = document.getElementById('emp-history-body');
+        // Lấy 100 bản ghi mới nhất để lọc
+        db.ref('attendance').limitToLast(100).on('value', snap => {
+            tbody.innerHTML = "";
+            const data = snap.val();
+            if(!data) { tbody.innerHTML = "<tr><td colspan='3'>Chưa có dữ liệu</td></tr>"; return; }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const json = XLSX.utils.sheet_to_json(worksheet);
-
-            // Giả sử file Excel có cột: timestamp, id, name
+            const logs = Object.values(data).reverse();
             let count = 0;
-            json.forEach(row => {
-                // Kiểm tra sơ bộ dữ liệu
-                if(row.timestamp && row.id && row.name) {
-                    db.ref('attendance').push(row);
+            logs.forEach(log => {
+                // Chỉ hiện log có ID trùng với ID đăng nhập
+                if (log.id == myId) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${log.timestamp}</td>
+                            <td><span style="background:#e8f0fe; padding:2px 5px; border-radius:3px">${log.id}</span></td>
+                            <td style="color:green">✔ Đã chấm công</td>
+                        </tr>
+                    `;
                     count++;
                 }
             });
-            
-            alert(`Đã nhập thành công ${count} bản ghi!`);
-            input.value = ""; // Reset input
-        };
-        reader.readAsArrayBuffer(file);
+            if(count === 0) tbody.innerHTML = "<tr><td colspan='3'>Bạn chưa chấm công lần nào.</td></tr>";
+        });
     }
 
-    // --- TIỆN ÍCH UI ---
-    function switchTab(tabName) {
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    // === 3. LOGIC CHO ADMIN ===
+    
+    // Tải danh sách User (cache)
+    db.ref('users').on('value', snap => {
+        usersCache = snap.val() || {};
+        renderUserList();
+    });
+
+    function loadAdminData() {
+        // Tab Live Monitor
+        db.ref('attendance').limitToLast(20).on('value', snap => {
+            const tbody = document.getElementById('adm-live-body');
+            tbody.innerHTML = "";
+            const data = snap.val();
+            if(!data) return;
+
+            Object.values(data).reverse().forEach(log => {
+                const name = usersCache[log.id] || "Chưa đặt tên";
+                tbody.innerHTML += `<tr><td>${log.timestamp}</td><td>${log.id}</td><td><b>${name}</b></td></tr>`;
+            });
+        });
+    }
+
+    function switchAdminTab(tab) {
+        // Ẩn hết các div con của admin
+        document.getElementById('adm-tab-live').style.display = 'none';
+        document.getElementById('adm-tab-report').style.display = 'none';
+        document.getElementById('adm-tab-manage').style.display = 'none';
         
-        document.getElementById(tabName + '-section').classList.add('active');
+        // Reset active button
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
+
+        // Hiện div được chọn
+        document.getElementById('adm-tab-' + tab).style.display = 'block';
+    }
+
+    // --- Tính năng quản lý user ---
+    function renderUserList() {
+        const tbody = document.querySelector('#user-list-table tbody');
+        tbody.innerHTML = "";
+        Object.keys(usersCache).forEach(id => {
+            tbody.innerHTML += `<tr onclick="fillForm('${id}', '${usersCache[id]}')" style="cursor:pointer"><td>${id}</td><td>${usersCache[id]}</td></tr>`;
+        });
+    }
+
+    function saveUser() {
+        const id = document.getElementById('inp-id').value;
+        const name = document.getElementById('inp-name').value;
+        if(id && name) {
+            db.ref('users/' + id).set(name);
+            alert("Đã lưu!");
+            document.getElementById('inp-id').value = "";
+            document.getElementById('inp-name').value = "";
+        }
     }
     
-    // Mặc định chọn tháng hiện tại
-    const today = new Date();
-    document.getElementById('filter-month').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+    function fillForm(id, name) {
+        document.getElementById('inp-id').value = id;
+        document.getElementById('inp-name').value = name;
+    }
+
+    // --- Tính năng Lương (Giống code cũ nhưng tích hợp) ---
+    async function calcSalary() {
+        const month = document.getElementById('filter-month').value;
+        const salary = document.getElementById('salary-input').value;
+        if(!month) return alert("Chọn tháng!");
+
+        const tbody = document.getElementById('salary-body');
+        tbody.innerHTML = "<tr><td colspan='4'>Đang tính toán...</td></tr>";
+
+        const snap = await db.ref('attendance').once('value');
+        const data = snap.val();
+        
+        // Logic tính toán
+        let stats = {};
+        const [y, m] = month.split('-');
+        
+        if(data) {
+            Object.values(data).forEach(log => {
+                // Parse date format: DD/MM/YYYY HH:mm:ss
+                try {
+                    let parts = log.timestamp.split(' ')[0].split('/'); // [DD, MM, YYYY]
+                    if(parts[2] == y && parts[1] == m) {
+                        if(!stats[log.id]) stats[log.id] = new Set();
+                        stats[log.id].add(parts[0]); // Thêm ngày vào Set
+                    }
+                } catch(e){}
+            });
+        }
+
+        tbody.innerHTML = "";
+        reportData = [];
+        let total = 0;
+
+        Object.keys(stats).forEach(id => {
+            const days = stats[id].size;
+            const money = days * salary;
+            const name = usersCache[id] || "Unknown";
+            total += money;
+
+            reportData.push({ID: id, Name: name, Days: days, Salary: money});
+
+            tbody.innerHTML += `<tr><td>${id}</td><td>${name}</td><td>${days}</td><td>${money.toLocaleString()} đ</td></tr>`;
+        });
+        
+        document.getElementById('total-payout').innerText = total.toLocaleString() + " đ";
+        if(reportData.length == 0) tbody.innerHTML = "<tr><td colspan='4'>Không có dữ liệu tháng này</td></tr>";
+    }
+
+    function exportExcel() {
+        if(reportData.length == 0) return alert("Chưa có dữ liệu!");
+        const ws = XLSX.utils.json_to_sheet(reportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Luong");
+        XLSX.writeFile(wb, "BangLuong.xlsx");
+    }
+
+    // Mặc định tháng hiện tại
+    const d = new Date();
+    document.getElementById('filter-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+
 </script>
 
 </body>
