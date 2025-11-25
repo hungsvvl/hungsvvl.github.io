@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (V20 - Final Fix)</title>
+    <title>Chấm Công UTC (V21 Fixed)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -29,30 +29,37 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s; }
 
-        /* SIDEBAR */
+        /* SIDEBAR (PC) */
         .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; transition: 0.3s; }
+        /* Ẩn sidebar nếu body có class role-emp (Nhân viên) hoặc trên mobile */
+        body.role-emp .sidebar { display: none !important; }
+        @media (max-width: 768px) { .sidebar { display: none !important; } }
+
         .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
         .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
         .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
-        /* MAIN */
+        /* MAIN CONTENT */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
 
-        /* MOBILE NAV */
-        .bottom-nav { display: none !important; } 
+        /* === MOBILE BOTTOM NAV (FIXED LOGIC) === */
+        .bottom-nav { display: none; } /* Mặc định ẩn trên PC */
+
         @media (max-width: 768px) {
-            .sidebar { display: none !important; }
             .top-bar { padding: 0 16px; }
             .content-scroll { padding: 16px 16px 90px 16px; }
-            .bottom-nav {
-                display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+            
+            /* Chỉ hiện Menu dưới khi là Mobile VÀ là Admin */
+            body.role-admin .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
                 background: var(--bg-card); border-top: 1px solid var(--border);
                 justify-content: space-around; align-items: center; z-index: 100;
                 padding-bottom: env(safe-area-inset-bottom);
             }
+            
             .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; flex: 1; }
             .b-nav-item.active { color: var(--primary); }
         }
@@ -66,19 +73,22 @@
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
         .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
-        .btn-soft { background: var(--primary-light); color: var(--primary); }
         .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
         /* TABLES */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 100%; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.9rem; }
+        /* Compact Table for Mobile */
         .compact-cell { display: flex; flex-direction: column; gap: 2px; }
         .compact-main { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
         .compact-sub { font-size: 0.75rem; color: var(--text-sub); }
         .compact-time { font-family: monospace; font-weight: 700; color: var(--primary); }
+        @media (max-width: 768px) { table { min-width: 100% !important; } th, td { padding: 10px 8px; } }
+
+        /* BADGES */
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .badge-id { background: var(--primary-light); color: var(--primary); }
         .badge-green { background: #dcfce7; color: #166534; }
@@ -169,11 +179,11 @@
 
 <nav class="sidebar" id="main-sidebar">
     <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
-    <div class="nav-link active" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
-    <div class="nav-link" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
-    <div class="nav-link" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
-    <div class="nav-link" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
-    <div class="nav-link" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
+    <div class="nav-link active" id="pc-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
+    <div class="nav-link" id="pc-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
+    <div class="nav-link" id="pc-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" id="pc-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+    <div class="nav-link" id="pc-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
 </nav>
 
 <div class="main-content">
@@ -192,7 +202,9 @@
         <div id="view-emp" class="hidden">
             <div class="card">
                 <h3>📅 Lịch Sử Của Bạn</h3>
-                <div class="table-responsive"><table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive">
+                    <table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table>
+                </div>
             </div>
         </div>
 
@@ -209,7 +221,12 @@
                         <h3>Giám Sát Realtime</h3>
                         <div style="display:flex; align-items:center; gap:8px"><span style="font-size:0.8rem; color:var(--text-sub)">Giờ làm:</span><input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:6px"></div>
                     </div>
-                    <div class="table-responsive"><table id="live-table"><thead><tr><th width="45%">Nhân Viên</th><th width="40%">Chi Tiết</th><th width="15%" style="text-align:center">Xóa</th></tr></thead><tbody id="live-body"></tbody></table></div>
+                    <div class="table-responsive">
+                        <table id="live-table">
+                            <thead><tr><th width="45%">Nhân Viên</th><th width="40%">Chi Tiết</th><th width="15%" style="text-align:center">Xóa</th></tr></thead>
+                            <tbody id="live-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div id="tab-salary" class="tab-content hidden">
@@ -260,7 +277,7 @@
                             </div>
                             <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
                         </div>
-                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo: 0394590931', 'info')">
+                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo: 0909xxx', 'info')">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-headset"></i></div>
                                 <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Hỗ trợ lỗi và bảo trì</div></div>
@@ -270,7 +287,7 @@
                         <div class="settings-item">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-code-branch"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v20.0 (Final)</div></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v21.0 (Stable)</div></div>
                             </div>
                         </div>
                     </div>
@@ -290,11 +307,11 @@
 </div>
 
 <div class="bottom-nav" id="mobile-nav">
-    <div class="b-nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
-    <div class="b-nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
-    <div class="b-nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
-    <div class="b-nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
-    <div class="b-nav-item" onclick="openTab('settings', this)"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
+    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
 </div>
 
 <script>
@@ -317,13 +334,13 @@
 
     // AUTO LOGIN
     (function checkAutoLogin() {
-        const saved = localStorage.getItem('utc_session_v20');
+        const saved = localStorage.getItem('utc_session_v21');
         if (saved) {
             try {
                 const s = JSON.parse(saved);
                 if (s.role === 'Admin') loginAdmin(true);
                 else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
-            } catch(e) { localStorage.removeItem('utc_session_v20'); }
+            } catch(e) { localStorage.removeItem('utc_session_v21'); }
         }
     })();
 
@@ -337,9 +354,14 @@
     function showConfirmDialog(msg, callback) { document.getElementById('confirm-msg').innerText=msg; document.getElementById('confirm-modal').style.display='flex'; confirmCallback=callback; }
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display='none'; confirmCallback=null; }
     document.getElementById('btn-confirm-yes').onclick=function(){ if(confirmCallback) confirmCallback(); closeConfirmModal(); };
+    
+    function toggleTheme() {
+        const body = document.body;
+        if (body.getAttribute('data-theme') === 'dark') body.removeAttribute('data-theme');
+        else body.setAttribute('data-theme', 'dark');
+    }
     function getCurrentDateTime() { const now=new Date(); return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`; }
     function getUserInfo(id) { const u=usersCache[id]; if(!u)return{name:null,code:"---"}; if(typeof u==='string')return{name:u,code:"---"}; return{name:u.name,code:u.code||"---"}; }
-    function toggleTheme() { const body = document.body; body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark'); }
 
     // CORE LOGIC
     db.ref('new_enroll').on('value', async (snap) => {
@@ -352,8 +374,7 @@
                 let isDuplicate = false;
                 if(lastLogData) {
                     const k = Object.keys(lastLogData)[0];
-                    const [d, t] = lastLogData[k].timestamp.split(' ');
-                    const [day, month, year] = d.split('/');
+                    const [d, t] = lastLogData[k].timestamp.split(' '); const [day, month, year] = d.split('/');
                     if ((new Date() - new Date(`${year}-${month}-${day}T${t}`)) < 60000) isDuplicate = true;
                 }
                 if (!isDuplicate) {
@@ -370,10 +391,10 @@
     db.ref('users').on('value', snap => {
         usersCache = snap.val() || {}; renderLoginDropdown();
         if (currentRole === 'Admin') { renderUserList(); loadMonitor(); loadTrash(); }
-        if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v20')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
+        if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v21')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
     });
 
-    // AUTH & LAYOUT FIX
+    // AUTH & ROLE CSS CONTROL
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden'); document.getElementById('form-admin').classList.add('hidden');
@@ -382,61 +403,57 @@
     function renderLoginDropdown() { const sel=document.getElementById('login-select'); sel.innerHTML='<option value="">-- Chọn tên --</option>'; Object.keys(usersCache).forEach(id => { const i=getUserInfo(id); if(i.name) { const opt=document.createElement('option'); opt.value=id; opt.text=i.name; sel.appendChild(opt); }}); }
     
     async function loginAdmin(isAuto=false) {
-        if(isAuto) { enterApp('Quản Trị', 'Admin', 'view-admin'); return; }
+        if(isAuto) { setAppMode('Admin'); return; }
         const u=document.getElementById('user').value; const p=document.getElementById('pass').value;
         const snap=await db.ref('settings/admin_password').once('value');
         if(u==='UTC' && p===(snap.val()||'admin')) {
-            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v20', JSON.stringify({role:'Admin'}));
-            enterApp('Quản Trị', 'Admin', 'view-admin'); 
+            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Admin'}));
+            setAppMode('Admin');
         } else showToast('Sai thông tin!','error');
     }
     function loginEmp(isAuto=false, autoId=null) {
         const id=isAuto?autoId:document.getElementById('login-select').value;
         if(!id) return showToast('Vui lòng chọn tên','error');
         const info=getUserInfo(id);
-        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v20', JSON.stringify({role:'Emp',id:id}));
-        enterApp(info.name || "Đang tải...", 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
+        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v21', JSON.stringify({role:'Emp',id:id}));
+        setAppMode('Emp', info.name); loadEmpHistory(id);
     }
-    function logout() { localStorage.removeItem('utc_session_v20'); location.reload(); }
+    function logout() { localStorage.removeItem('utc_session_v21'); location.reload(); }
 
-    // === FIXED: HIDE MOBILE NAV FOR EMPLOYEES ===
-    function enterApp(name, role, viewId) {
-        currentRole = role; // Set Role Global
+    function setAppMode(role, name="Quản Trị") {
+        currentRole = role;
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('display-name').innerText = name;
-        document.getElementById('display-role').innerText = role;
+        document.getElementById('display-role').innerText = role === 'Admin' ? 'Admin' : 'Nhân Viên';
+        
+        // Xóa class cũ và thêm class mới để CSS xử lý
+        document.body.classList.remove('role-admin', 'role-emp');
+        document.body.classList.add(role === 'Admin' ? 'role-admin' : 'role-emp');
+
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
-        document.getElementById(viewId).classList.remove('hidden');
         
-        const sidebar = document.getElementById('main-sidebar');
-        const mobNav = document.getElementById('mobile-nav');
-        
-        if(role === 'Admin') {
-            sidebar.style.display = ''; // Reset PC style
-            if(window.innerWidth <= 768) mobNav.style.display = 'flex'; // Show on Mobile
+        if (role === 'Admin') {
+            document.getElementById('view-admin').classList.remove('hidden');
             openTab('dashboard');
         } else {
-            sidebar.style.display = 'none';
-            mobNav.style.display = 'none'; // HIDE ON MOBILE
+            document.getElementById('view-emp').classList.remove('hidden');
         }
     }
 
-    function openTab(tabName, btnElement) {
+    // TABS
+    function openTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         const contentId = (tabName === 'trash' || tabName === 'settings') ? (tabName==='trash'?'tab-trash-detail':'tab-settings') : 'tab-' + tabName;
         const target = document.getElementById(contentId);
         if(target) target.classList.remove('hidden');
         
-        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
-
-        const map = { 'dashboard':0, 'live':1, 'salary':2, 'users':3, 'settings':4, 'trash':4 };
-        const pcLink = document.querySelectorAll('.sidebar .nav-link')[map[tabName]];
-        const mobLink = document.querySelectorAll('.bottom-nav .b-nav-item')[map[tabName]];
+        document.querySelectorAll('.nav-link, .b-nav-item').forEach(el => el.classList.remove('active'));
         
-        if(pcLink) pcLink.classList.add('active');
-        if(mobLink) mobLink.classList.add('active');
+        const pcBtn = document.getElementById('pc-' + tabName);
+        const mobBtn = document.getElementById('mob-' + tabName);
+        if(pcBtn) pcBtn.classList.add('active');
+        if(mobBtn) mobBtn.classList.add('active');
 
         if(tabName === 'dashboard') updateDashboard();
         if(tabName === 'live') loadMonitor();
@@ -445,7 +462,7 @@
     }
     function openTrashView() { openTab('trash'); }
 
-    // FUNCTIONS
+    // FEATURES
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value'); const data = snap.val() || {};
         const logs = Object.values(data); const workTime = "08:00:00"; 
@@ -475,8 +492,8 @@
             });
         });
     }
-    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
+    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
 
     async function calcSalary() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value; const salary = document.getElementById('salary-val').value;
@@ -521,7 +538,6 @@
         });
     }
 
-    // === FIXED RESTORE LOGIC ===
     function loadTrash() {
         db.ref('trash').on('value', snap => {
             const tbody = document.getElementById('trash-body'); tbody.innerHTML = ""; const data = snap.val();
@@ -544,14 +560,7 @@
             }
         });
     }
-    
-    function permDeleteLog(key) {
-        showConfirmDialog('Xóa vĩnh viễn? Không thể lấy lại!', () => {
-            db.ref('trash/' + key).remove();
-            showToast('Đã xóa vĩnh viễn', 'success');
-        });
-    }
-    
+    function permDeleteLog(key) { showConfirmDialog('Xóa vĩnh viễn? Không thể lấy lại!', () => { db.ref('trash/' + key).remove(); showToast('Đã xóa vĩnh viễn', 'success'); }); }
     function emptyTrash() { showConfirmDialog('Dọn sạch thùng rác?', () => { db.ref('trash').remove(); showToast('Đã dọn sạch','success'); }); }
 
     function renderUserList() {
