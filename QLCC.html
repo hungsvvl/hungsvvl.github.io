@@ -3,87 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Công UTC</title>
+    <title>Hệ Thống Chấm Công Chuyên Nghiệp</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+        :root {
+            --primary: #2563eb;    /* Xanh dương đậm */
+            --bg-body: #f1f5f9;    /* Xám nền */
+            --bg-card: #ffffff;    /* Trắng nền thẻ */
+            --text-main: #1e293b;  /* Đen xám chữ */
+            --text-sub: #64748b;   /* Xám nhạt chữ */
+            --success: #10b981;    /* Xanh lá */
+            --danger: #ef4444;     /* Đỏ */
+        }
+
+        body { font-family: 'Roboto', sans-serif; background: var(--bg-body); margin: 0; padding: 0; color: var(--text-main); }
         
-        /* LOGIN SCREEN STYLES */
+        /* === 1. LOGIN SCREEN === */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             display: flex; justify-content: center; align-items: center; z-index: 9999;
         }
         .login-box {
-            background: white; padding: 30px; border-radius: 10px; width: 350px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
+            background: white; padding: 40px; border-radius: 16px; width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center;
         }
-        .login-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .login-tab { flex: 1; padding: 10px; cursor: pointer; color: #777; font-weight: bold; }
-        .login-tab.active { color: #1a73e8; border-bottom: 3px solid #1a73e8; }
-        .login-form { display: none; }
+        .login-tabs { display: flex; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; }
+        .login-tab { flex: 1; padding: 12px; cursor: pointer; color: var(--text-sub); font-weight: 600; transition: 0.3s; }
+        .login-tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .login-form { display: none; animation: fadeIn 0.3s; }
         .login-form.active { display: block; }
         
-        /* MAIN DASHBOARD STYLES */
-        .app-container { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        /* === 2. MAIN APP LAYOUT === */
+        .app-container { display: none; max-width: 1200px; margin: 0 auto; padding: 20px; }
         .app-container.active { display: block; }
 
-        /* Header Bar */
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .logout-btn { background: #ea4335; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        /* Header */
+        .header-bar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--primary); color: white; padding: 15px 25px; 
+            border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        .logout-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
 
-        /* Common Elements */
-        input, button, select { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-        button { cursor: pointer; font-weight: bold; color: white; border: none; }
-        .btn-blue { background: #1a73e8; } .btn-green { background: #34a853; }
+        /* Cards (Khung chứa nội dung) */
+        .card { 
+            background: var(--bg-card); padding: 25px; border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .card h4 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+
+        /* Inputs & Buttons */
+        input, button, select { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { cursor: pointer; font-weight: 600; border: none; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
         
-        /* Table */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #1a73e8; color: white; }
-        tr:hover { background-color: #f8f9fa; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-group { display: flex; gap: 10px; } /* Nhóm nút nằm ngang */
 
-        /* Specific for Admin/User Views */
-        .admin-view, .emp-view { display: none; }
-        .admin-view.show, .emp-view.show { display: block; }
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8fafc; color: var(--text-sub); font-weight: 700; text-transform: uppercase; font-size: 0.85em; padding: 15px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+        tr:hover { background-color: #f8fafc; }
         
-        /* Layout columns */
-        .row { display: flex; gap: 20px; }
-        .col-2 { flex: 2; } .col-1 { flex: 1; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        /* Admin Navigation */
+        .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav-item { 
+            padding: 12px 20px; background: white; border-radius: 8px; cursor: pointer; 
+            font-weight: 600; color: var(--text-sub); border: 1px solid #e2e8f0; transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-item:hover { background: #f8fafc; }
+        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
 
-        /* Tabs inside Admin */
-        .sub-tabs { margin-bottom: 15px; }
-        .sub-tab-btn { padding: 8px 15px; border: none; background: #eee; cursor: pointer; margin-right: 5px; border-radius: 5px; }
-        .sub-tab-btn.active { background: #1a73e8; color: white; }
+        /* === POPUP THÔNG BÁO ID MỚI === */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: white; padding: 30px; border-radius: 16px; width: 400px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: slideDown 0.4s;
+        }
+        .modal-icon { font-size: 50px; margin-bottom: 15px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Ẩn hiện các View */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
     </style>
 </head>
 <body>
 
+<div id="new-id-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">🔔</div>
+        <h2 style="color: var(--primary); margin:0">Phát hiện Vân Tay Mới!</h2>
+        <p style="color: var(--text-sub)">Hệ thống vừa nhận được tín hiệu từ ID:</p>
+        <h1 id="modal-id-display" style="font-size: 3em; margin: 10px 0; color: var(--text-main)">--</h1>
+        <p>Bạn có muốn đặt tên cho nhân viên này ngay không?</p>
+        <div class="btn-group">
+            <button class="btn-success" onclick="acceptNewID()">✅ Có, Đặt tên ngay</button>
+            <button class="btn-danger" onclick="closeNewIDModal()">❌ Không, Bỏ qua</button>
+        </div>
+    </div>
+</div>
+
 <div id="login-overlay">
     <div class="login-box">
-        <h2 style="color:#1a73e8; margin-top:0">HỆ THỐNG CHẤM CÔNG</h2>
+        <h2 style="color:var(--primary); margin-top:0">CHẤM CÔNG UTC</h2>
         <div class="login-tabs">
             <div class="login-tab active" onclick="switchLoginTab('emp')">Nhân Viên</div>
-            <div class="login-tab" onclick="switchLoginTab('admin')">Quản Trị Viên</div>
+            <div class="login-tab" onclick="switchLoginTab('admin')">Quản Trị</div>
         </div>
 
         <div id="login-form-emp" class="login-form active">
-            <p>Nhập ID Vân Tay của bạn để xem công</p>
-            <input type="number" id="login-emp-id" placeholder="Ví dụ: 1">
-            <button class="btn-blue" onclick="loginAsEmployee()">Xem Chấm Công</button>
+            <input type="number" id="login-emp-id" placeholder="Nhập ID Vân Tay của bạn...">
+            <button class="btn-primary" onclick="loginAsEmployee()">Xem Lịch Sử</button>
         </div>
 
         <div id="login-form-admin" class="login-form">
             <input type="text" id="login-admin-user" placeholder="Tên đăng nhập (UTC)">
             <input type="password" id="login-admin-pass" placeholder="Mật khẩu">
-            <button class="btn-blue" onclick="loginAsAdmin()">Đăng Nhập Admin</button>
+            <button class="btn-primary" onclick="loginAsAdmin()">Đăng Nhập Admin</button>
         </div>
-        <p id="login-error" style="color:red; display:none; font-size: 0.9em; margin-top:5px"></p>
+        <div id="login-error" style="color:var(--danger); display:none; margin-top:10px; font-size:0.9em"></div>
     </div>
 </div>
 
@@ -91,76 +150,86 @@
     
     <div class="header-bar">
         <div>
-            <h3 style="margin:0" id="welcome-msg">Xin chào</h3>
-            <small id="role-badge" style="background:#eee; padding:2px 6px; border-radius:4px">Role</small>
+            <h3 style="margin:0; font-size: 1.2em" id="welcome-msg">Xin chào</h3>
+            <span id="role-badge" style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px; font-size:0.8em">User</span>
         </div>
-        <button class="logout-btn" onclick="logout()">Đăng Xuất</button>
+        <button class="logout-btn" onclick="logout()">Đăng Xuất ➔</button>
     </div>
 
-    <div id="view-employee" class="emp-view">
+    <div id="view-employee" class="view-section">
         <div class="card">
-            <h4>📅 Lịch Sử Chấm Công Của Bạn</h4>
+            <h4>📅 Lịch Sử Chấm Công Cá Nhân</h4>
             <table>
                 <thead><tr><th>Thời Gian</th><th>ID</th><th>Trạng Thái</th></tr></thead>
-                <tbody id="emp-history-body">
-                    <tr><td colspan="3">Đang tải dữ liệu...</td></tr>
-                </tbody>
+                <tbody id="emp-history-body"><tr><td colspan="3">Đang tải...</td></tr></tbody>
             </table>
         </div>
     </div>
 
-    <div id="view-admin" class="admin-view">
-        <div class="sub-tabs">
-            <button class="sub-tab-btn active" onclick="switchAdminTab('live')">🔴 Giám Sát</button>
-            <button class="sub-tab-btn" onclick="switchAdminTab('report')">📊 Báo Cáo & Lương</button>
-            <button class="sub-tab-btn" onclick="switchAdminTab('manage')">👥 Nhân Sự</button>
+    <div id="view-admin" class="view-section">
+        <div class="admin-nav">
+            <div class="nav-item active" onclick="switchAdminTab('live', this)">📊 Giám Sát</div>
+            <div class="nav-item" onclick="switchAdminTab('report', this)">💰 Tính Lương</div>
+            <div class="nav-item" onclick="switchAdminTab('manage', this)">👥 Nhân Sự</div>
         </div>
 
-        <div id="adm-tab-live" style="display:block">
+        <div id="adm-tab-live" class="view-section active">
             <div class="card">
-                <h4>Hoạt động gần đây (Tất cả nhân viên)</h4>
+                <h4>🔴 Hoạt Động Thời Gian Thực</h4>
                 <table>
-                    <thead><tr><th>Thời Gian</th><th>ID</th><th>Họ Tên</th></tr></thead>
+                    <thead><tr><th width="30%">Thời Gian</th><th width="10%">ID</th><th>Họ Tên</th></tr></thead>
                     <tbody id="adm-live-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="adm-tab-report" style="display:none">
-            <div class="card" style="display:flex; gap:10px; align-items:flex-end">
-                <div style="flex:1"><label>Chọn tháng:</label><input type="month" id="filter-month"></div>
-                <div style="flex:1"><label>Lương/Ngày:</label><input type="number" id="salary-input" value="500000"></div>
-                <button class="btn-blue" style="width:auto; height:42px" onclick="calcSalary()">Tính Lương</button>
-                <button class="btn-green" style="width:auto; height:42px" onclick="exportExcel()">Xuất Excel</button>
+        <div id="adm-tab-report" class="view-section">
+            <div class="card">
+                <h4>Bộ Lọc & Tính Toán</h4>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div style="flex:1"><label><b>Tháng:</b></label><input type="month" id="filter-month"></div>
+                    <div style="flex:1"><label><b>Lương/Ngày:</b></label><input type="number" id="salary-input" value="500000"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="calcSalary()">🔍 Tính Lương</button>
+                    <button class="btn-success" onclick="exportExcel()">📥 Xuất Excel</button>
+                </div>
             </div>
             <div class="card">
+                <h4>Kết Quả</h4>
                 <table id="salary-table">
-                    <thead><tr><th>ID</th><th>Họ Tên</th><th>Số Công</th><th>Tổng Lương</th></tr></thead>
-                    <tbody id="salary-body"><tr><td colspan="4">Chọn tháng để xem</td></tr></tbody>
+                    <thead><tr><th>ID</th><th>Họ Tên</th><th>Công</th><th>Thực Lĩnh</th></tr></thead>
+                    <tbody id="salary-body"><tr><td colspan="4" style="text-align:center">Vui lòng chọn tháng và bấm Tính Lương</td></tr></tbody>
                 </table>
-                <div style="text-align:right; margin-top:10px; font-weight:bold">Tổng chi: <span id="total-payout" style="color:green">0 đ</span></div>
+                <h3 style="text-align:right; margin-top:20px; color:var(--success)">Tổng Chi: <span id="total-payout">0 đ</span></h3>
             </div>
         </div>
 
-        <div id="adm-tab-manage" style="display:none">
-            <div class="row">
-                <div class="col-1 card">
-                    <h4>Thêm / Sửa Nhân Viên</h4>
-                    <input type="number" id="inp-id" placeholder="ID Vân Tay">
-                    <input type="text" id="inp-name" placeholder="Họ Tên">
-                    <button class="btn-green" onclick="saveUser()">Lưu</button>
+        <div id="adm-tab-manage" class="view-section">
+            <div style="display:flex; gap:20px;">
+                <div class="card" style="flex:1; height:fit-content">
+                    <h4>📝 Thông Tin Nhân Viên</h4>
+                    <label>ID Vân Tay:</label>
+                    <input type="number" id="inp-id" placeholder="Nhập ID (Ví dụ: 1)">
+                    <label>Họ và Tên:</label>
+                    <input type="text" id="inp-name" placeholder="Nhập tên nhân viên">
+                    
+                    <button class="btn-primary" onclick="saveUser()">💾 Lưu Thông Tin</button>
+                    <button class="btn-danger" id="btn-delete" style="display:none; margin-top:10px" onclick="deleteUser()">🗑️ Xóa Nhân Viên Này</button>
                 </div>
-                <div class="col-2 card">
-                    <h4>Danh Sách</h4>
-                    <table id="user-list-table">
-                        <thead><tr><th>ID</th><th>Tên</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
+
+                <div class="card" style="flex:2;">
+                    <h4>Danh Sách Hiện Có</h4>
+                    <div style="max-height:400px; overflow-y:auto">
+                        <table id="user-list-table">
+                            <thead><tr><th>ID</th><th>Tên Nhân Viên</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -179,139 +248,153 @@
 
     // === BIẾN TOÀN CỤC ===
     let usersCache = {};
-    let currentUser = null; // Lưu ID nhân viên hoặc 'admin'
-    let reportData = []; // Dữ liệu excel
+    let reportData = [];
+    let newIDDetected = null; // Lưu ID mới tạm thời
 
-    // === 1. XỬ LÝ ĐĂNG NHẬP ===
+    // ================= 1. XỬ LÝ SỰ KIỆN ID MỚI (QUAN TRỌNG) =================
+    db.ref('new_enroll').on('value', snap => {
+        const val = snap.val();
+        if (val) {
+            // Có ID mới -> Hiện Popup
+            newIDDetected = val;
+            document.getElementById('modal-id-display').innerText = val;
+            document.getElementById('new-id-modal').style.display = 'flex';
+        } else {
+            document.getElementById('new-id-modal').style.display = 'none';
+        }
+    });
+
+    function acceptNewID() {
+        // 1. Tắt popup
+        document.getElementById('new-id-modal').style.display = 'none';
+        
+        // 2. Chuyển ngay sang tab Quản Lý Nhân Sự (Nếu đang là Admin)
+        if(document.getElementById('view-admin').style.display !== 'none') { // Chỉ chuyển nếu đang login admin
+            // Kích hoạt tab Manage
+            const manageTabBtn = document.querySelectorAll('.nav-item')[2];
+            switchAdminTab('manage', manageTabBtn);
+            
+            // 3. Điền sẵn thông tin
+            document.getElementById('inp-id').value = newIDDetected;
+            document.getElementById('inp-name').value = ""; // Reset tên để nhập mới
+            document.getElementById('inp-name').focus();
+        }
+        
+        // 4. Xóa tín hiệu new_enroll trên Firebase để không hiện lại
+        db.ref('new_enroll').remove();
+    }
+
+    function closeNewIDModal() {
+        // Chỉ tắt popup và xóa trên database
+        db.ref('new_enroll').remove();
+        document.getElementById('new-id-modal').style.display = 'none';
+    }
+
+    // ================= 2. LOGIC ĐĂNG NHẬP =================
     function switchLoginTab(type) {
         document.querySelectorAll('.login-tab').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.login-form').forEach(el => el.classList.remove('active'));
-        
         event.target.classList.add('active');
         document.getElementById(`login-form-${type}`).classList.add('active');
         document.getElementById('login-error').style.display = 'none';
     }
 
-    // Đăng nhập Admin
     function loginAsAdmin() {
         const u = document.getElementById('login-admin-user').value;
         const p = document.getElementById('login-admin-pass').value;
-
         if (u === "UTC" && p === "admin") {
-            currentUser = 'admin';
-            enterApp('Quản Trị Viên', 'Admin', 'view-admin');
+            setupApp('Quản Trị Viên', 'Admin', 'view-admin');
             loadAdminData();
         } else {
             showError("Sai tên đăng nhập hoặc mật khẩu!");
         }
     }
 
-    // Đăng nhập Nhân viên
     function loginAsEmployee() {
         const id = document.getElementById('login-emp-id').value;
         if (!id) return showError("Vui lòng nhập ID!");
-
-        // Kiểm tra xem ID có tồn tại trong hệ thống không (Optional)
         db.ref('users/' + id).once('value', snap => {
             const name = snap.val() || "Nhân viên " + id;
-            currentUser = id;
-            enterApp(name, 'Nhân Viên', 'view-employee');
+            setupApp(name, 'Nhân Viên', 'view-employee');
             loadEmployeeData(id);
         });
     }
 
-    function enterApp(name, role, viewId) {
+    function setupApp(name, role, viewId) {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('main-app').classList.add('active');
         document.getElementById('welcome-msg').innerText = "Xin chào, " + name;
         document.getElementById('role-badge').innerText = role;
         
-        // Ẩn tất cả view, hiện view phù hợp
-        document.querySelectorAll('.admin-view, .emp-view').forEach(el => el.classList.remove('show'));
-        document.getElementById(viewId).classList.add('show');
-    }
+        // Ẩn tất cả view con
+        document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+        // Hiện view chính (Admin hoặc Employee)
+        document.getElementById(viewId).style.display = 'block';
 
-    function logout() {
-        location.reload(); // Cách đơn giản nhất để reset
+        // Nếu là admin, mặc định active tab đầu tiên
+        if(role === 'Admin') {
+             document.getElementById('adm-tab-live').style.display = 'block';
+        }
     }
 
     function showError(msg) {
-        const err = document.getElementById('login-error');
-        err.innerText = msg;
-        err.style.display = 'block';
+        const el = document.getElementById('login-error');
+        el.innerText = msg;
+        el.style.display = 'block';
     }
+    function logout() { location.reload(); }
 
-    // === 2. LOGIC CHO NHÂN VIÊN ===
-    function loadEmployeeData(myId) {
-        const tbody = document.getElementById('emp-history-body');
-        // Lấy 100 bản ghi mới nhất để lọc
-        db.ref('attendance').limitToLast(100).on('value', snap => {
-            tbody.innerHTML = "";
-            const data = snap.val();
-            if(!data) { tbody.innerHTML = "<tr><td colspan='3'>Chưa có dữ liệu</td></tr>"; return; }
-
-            const logs = Object.values(data).reverse();
-            let count = 0;
-            logs.forEach(log => {
-                // Chỉ hiện log có ID trùng với ID đăng nhập
-                if (log.id == myId) {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${log.timestamp}</td>
-                            <td><span style="background:#e8f0fe; padding:2px 5px; border-radius:3px">${log.id}</span></td>
-                            <td style="color:green">✔ Đã chấm công</td>
-                        </tr>
-                    `;
-                    count++;
-                }
-            });
-            if(count === 0) tbody.innerHTML = "<tr><td colspan='3'>Bạn chưa chấm công lần nào.</td></tr>";
-        });
-    }
-
-    // === 3. LOGIC CHO ADMIN ===
+    // ================= 3. LOGIC ADMIN =================
     
-    // Tải danh sách User (cache)
-    db.ref('users').on('value', snap => {
-        usersCache = snap.val() || {};
-        renderUserList();
-    });
+    // Chuyển Tab Admin
+    function switchAdminTab(tabName, btnElement) {
+        // Ẩn tất cả tab nội dung
+        document.getElementById('adm-tab-live').style.display = 'none';
+        document.getElementById('adm-tab-report').style.display = 'none';
+        document.getElementById('adm-tab-manage').style.display = 'none';
+        
+        // Bỏ active class ở menu
+        if(btnElement) {
+             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+             btnElement.classList.add('active');
+        } else {
+            // Trường hợp gọi từ code (không click)
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            // Giả định thứ tự: Live(0), Report(1), Manage(2)
+            if(tabName === 'manage') document.querySelectorAll('.nav-item')[2].classList.add('active');
+        }
 
+        // Hiện tab được chọn
+        document.getElementById('adm-tab-' + tabName).style.display = 'block';
+    }
+
+    // Tải dữ liệu Admin
     function loadAdminData() {
-        // Tab Live Monitor
+        // Cache users
+        db.ref('users').on('value', snap => {
+            usersCache = snap.val() || {};
+            renderUserList();
+        });
+
+        // Live Monitor
         db.ref('attendance').limitToLast(20).on('value', snap => {
             const tbody = document.getElementById('adm-live-body');
             tbody.innerHTML = "";
             const data = snap.val();
             if(!data) return;
-
             Object.values(data).reverse().forEach(log => {
-                const name = usersCache[log.id] || "Chưa đặt tên";
-                tbody.innerHTML += `<tr><td>${log.timestamp}</td><td>${log.id}</td><td><b>${name}</b></td></tr>`;
+                const name = usersCache[log.id] || `<span style="color:red; font-style:italic">Chưa đặt tên</span>`;
+                tbody.innerHTML += `<tr><td>${log.timestamp}</td><td><span style="background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; font-weight:bold">${log.id}</span></td><td>${name}</td></tr>`;
             });
         });
     }
 
-    function switchAdminTab(tab) {
-        // Ẩn hết các div con của admin
-        document.getElementById('adm-tab-live').style.display = 'none';
-        document.getElementById('adm-tab-report').style.display = 'none';
-        document.getElementById('adm-tab-manage').style.display = 'none';
-        
-        // Reset active button
-        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-
-        // Hiện div được chọn
-        document.getElementById('adm-tab-' + tab).style.display = 'block';
-    }
-
-    // --- Tính năng quản lý user ---
+    // Quản lý User
     function renderUserList() {
         const tbody = document.querySelector('#user-list-table tbody');
         tbody.innerHTML = "";
         Object.keys(usersCache).forEach(id => {
-            tbody.innerHTML += `<tr onclick="fillForm('${id}', '${usersCache[id]}')" style="cursor:pointer"><td>${id}</td><td>${usersCache[id]}</td></tr>`;
+            tbody.innerHTML += `<tr onclick="editUser('${id}', '${usersCache[id]}')" style="cursor:pointer"><td><b>${id}</b></td><td>${usersCache[id]}</td></tr>`;
         });
     }
 
@@ -320,41 +403,56 @@
         const name = document.getElementById('inp-name').value;
         if(id && name) {
             db.ref('users/' + id).set(name);
-            alert("Đã lưu!");
-            document.getElementById('inp-id').value = "";
-            document.getElementById('inp-name').value = "";
+            alert("Đã lưu thông tin nhân viên!");
+            resetForm();
+        } else {
+            alert("Vui lòng nhập đủ ID và Tên");
         }
     }
     
-    function fillForm(id, name) {
-        document.getElementById('inp-id').value = id;
-        document.getElementById('inp-name').value = name;
+    function deleteUser() {
+        const id = document.getElementById('inp-id').value;
+        if(confirm("Chắc chắn xóa nhân viên này?")) {
+            db.ref('users/' + id).remove();
+            resetForm();
+        }
     }
 
-    // --- Tính năng Lương (Giống code cũ nhưng tích hợp) ---
+    function editUser(id, name) {
+        document.getElementById('inp-id').value = id;
+        document.getElementById('inp-name').value = name;
+        document.getElementById('btn-delete').style.display = 'inline-block';
+    }
+
+    function resetForm() {
+        document.getElementById('inp-id').value = "";
+        document.getElementById('inp-name').value = "";
+        document.getElementById('btn-delete').style.display = 'none';
+    }
+
+    // Tính Lương (Giữ nguyên logic cũ)
     async function calcSalary() {
         const month = document.getElementById('filter-month').value;
         const salary = document.getElementById('salary-input').value;
-        if(!month) return alert("Chọn tháng!");
+        if(!month) return alert("Vui lòng chọn tháng!");
 
         const tbody = document.getElementById('salary-body');
         tbody.innerHTML = "<tr><td colspan='4'>Đang tính toán...</td></tr>";
 
         const snap = await db.ref('attendance').once('value');
         const data = snap.val();
-        
-        // Logic tính toán
         let stats = {};
         const [y, m] = month.split('-');
         
         if(data) {
             Object.values(data).forEach(log => {
-                // Parse date format: DD/MM/YYYY HH:mm:ss
                 try {
-                    let parts = log.timestamp.split(' ')[0].split('/'); // [DD, MM, YYYY]
-                    if(parts[2] == y && parts[1] == m) {
+                    // Xử lý ngày tháng format DD/MM/YYYY
+                    let dStr = log.timestamp.split(' ')[0];
+                    let [dd, mm, yy] = dStr.split('/');
+                    if(yy == y && mm == m) {
                         if(!stats[log.id]) stats[log.id] = new Set();
-                        stats[log.id].add(parts[0]); // Thêm ngày vào Set
+                        stats[log.id].add(dd);
                     }
                 } catch(e){}
             });
@@ -363,18 +461,14 @@
         tbody.innerHTML = "";
         reportData = [];
         let total = 0;
-
         Object.keys(stats).forEach(id => {
             const days = stats[id].size;
             const money = days * salary;
             const name = usersCache[id] || "Unknown";
             total += money;
-
             reportData.push({ID: id, Name: name, Days: days, Salary: money});
-
-            tbody.innerHTML += `<tr><td>${id}</td><td>${name}</td><td>${days}</td><td>${money.toLocaleString()} đ</td></tr>`;
+            tbody.innerHTML += `<tr><td>${id}</td><td>${name}</td><td style="font-weight:bold">${days}</td><td style="color:var(--success); font-weight:bold">${money.toLocaleString()} đ</td></tr>`;
         });
-        
         document.getElementById('total-payout').innerText = total.toLocaleString() + " đ";
         if(reportData.length == 0) tbody.innerHTML = "<tr><td colspan='4'>Không có dữ liệu tháng này</td></tr>";
     }
@@ -387,11 +481,25 @@
         XLSX.writeFile(wb, "BangLuong.xlsx");
     }
 
-    // Mặc định tháng hiện tại
+    // ================= 4. LOGIC NHÂN VIÊN =================
+    function loadEmployeeData(myId) {
+        const tbody = document.getElementById('emp-history-body');
+        db.ref('attendance').limitToLast(50).on('value', snap => {
+            tbody.innerHTML = "";
+            const data = snap.val();
+            if(!data) return;
+            Object.values(data).reverse().forEach(log => {
+                if(log.id == myId) {
+                    tbody.innerHTML += `<tr><td>${log.timestamp}</td><td><b>${log.id}</b></td><td style="color:var(--success)">✔ Thành công</td></tr>`;
+                }
+            });
+        });
+    }
+
+    // Set tháng mặc định
     const d = new Date();
     document.getElementById('filter-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
 </script>
-
 </body>
 </html>
