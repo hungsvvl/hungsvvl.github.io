@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (V17 Stable)</title>
+    <title>Chấm Công UTC (V18 - Thùng Rác)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -17,7 +17,7 @@
         :root {
             --primary: #4f46e5; --primary-light: #eef2ff; --bg-body: #f3f4f6; --bg-card: #ffffff;
             --text-main: #1f2937; --text-sub: #6b7280; --border: #e5e7eb;
-            --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b; --info: #3b82f6;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --radius: 12px;
         }
 
@@ -64,7 +64,9 @@
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
+        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
+        .btn-soft { background: var(--primary-light); color: var(--primary); }
         .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
@@ -73,7 +75,6 @@
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 0.9rem; }
-        /* Mobile Table */
         .compact-cell { display: flex; flex-direction: column; gap: 2px; }
         .compact-main { font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
         .compact-sub { font-size: 0.75rem; color: var(--text-sub); }
@@ -96,7 +97,6 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: popIn 0.3s; }
         
-        /* LOGIN STYLE */
         #login-page { position: fixed; inset: 0; z-index: 10000; background: var(--bg-body); display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-card { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
         .role-group { display: flex; background: var(--bg-body); padding: 4px; border-radius: 10px; margin-bottom: 24px; }
@@ -119,10 +119,10 @@
 <div id="confirm-modal" class="overlay">
     <div class="modal-box">
         <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;"><i class="fa-solid fa-circle-exclamation"></i></div>
-        <h2 style="margin: 0 0 8px 0;">Xác Nhận</h2>
-        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">Hành động này không thể hoàn tác.</p>
+        <h2 style="margin: 0 0 8px 0; color: var(--text-main);">Xác Nhận</h2>
+        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">Hành động này sẽ chuyển vào Thùng Rác.</p>
         <div class="flex-row">
-            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white;">Đồng Ý</button>
+            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white;">Xóa</button>
             <button class="btn btn-outline flex-1" onclick="closeConfirmModal()">Hủy</button>
         </div>
     </div>
@@ -146,18 +146,15 @@
         <div style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-fingerprint"></i></div>
         <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
         <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
-        
         <div class="role-group">
             <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
             <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
         </div>
-        
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
             <label class="remember-check"><input type="checkbox" id="remember-emp"> Ghi nhớ tôi</label>
             <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
         </div>
-
         <div id="form-admin" class="hidden">
             <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
             <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
@@ -172,6 +169,7 @@
     <div class="nav-link active" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
     <div class="nav-link" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
     <div class="nav-link" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" onclick="openTab('trash')"><i class="fa-solid fa-trash"></i> Thùng Rác</div>
     <div class="nav-link" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
 </nav>
 
@@ -204,7 +202,6 @@
                     <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height: 220px;"></canvas></div>
                 </div>
             </div>
-
             <div id="tab-live" class="tab-content hidden">
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
@@ -219,7 +216,6 @@
                     </div>
                 </div>
             </div>
-
             <div id="tab-salary" class="tab-content hidden">
                 <div class="card">
                     <div class="flex-row">
@@ -230,7 +226,7 @@
                     <div class="flex-row" style="margin-top:10px">
                         <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
                         <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
-                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
+                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa (Thùng Rác)</button>
                     </div>
                 </div>
                 <div class="card">
@@ -238,7 +234,20 @@
                     <div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div>
                 </div>
             </div>
-
+            <div id="tab-trash" class="tab-content hidden">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+                        <h3 style="color:var(--danger)">🗑️ Thùng Rác (Đã xóa)</h3>
+                        <button class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px" onclick="emptyTrash()">Dọn sạch thùng rác</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="trash-table">
+                            <thead><tr><th>Nhân Viên</th><th>Thời Gian</th><th style="text-align:center">Thao Tác</th></tr></thead>
+                            <tbody id="trash-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             <div id="tab-users" class="tab-content hidden">
                 <div class="flex-row">
                     <div class="card flex-1">
@@ -266,10 +275,12 @@
     <div class="b-nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
     <div class="b-nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
     <div class="b-nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" onclick="openTab('trash', this)"><i class="fa-solid fa-trash"></i><span>Rác</span></div>
     <div class="b-nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
 </div>
 
 <script>
+    // 1. CONFIG
     const firebaseConfig = {
         apiKey: "HAY_DIEN_API_KEY_CUA_BAN_VAO_DAY", 
         authDomain: "quanlychamcong-9dacd.firebaseapp.com",
@@ -286,29 +297,49 @@
     let usersCache = {}; let newID = null; let processedNewIDs = new Set(); let currentRole = 'Guest'; 
     let chartPie = null, chartBar = null; let confirmCallback = null; window.tempReport = [];
 
-    // --- AUTO LOGIN CHECK (FIXED) ---
+    // --- AUTO LOGIN ---
     (function checkAutoLogin() {
-        const saved = localStorage.getItem('utc_session_v17');
+        const saved = localStorage.getItem('utc_session_v18');
         if (saved) {
             try {
                 const s = JSON.parse(saved);
                 if (s.role === 'Admin') loginAdmin(true);
                 else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
-            } catch(e) { localStorage.removeItem('utc_session_v17'); }
+            } catch(e) { localStorage.removeItem('utc_session_v18'); }
         }
     })();
 
-    // --- DATA ---
-    db.ref('users').on('value', snap => {
-        usersCache = snap.val() || {}; renderLoginDropdown();
-        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); }
-        // Update name for auto-login User
-        if (currentRole === 'Emp') {
-            const s = JSON.parse(localStorage.getItem('utc_session_v17'));
-            if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên";
-        }
-    });
+    // --- HELPERS ---
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div'); toast.className = `toast ${type}`;
+        let title = type==='error'?'Lỗi':type==='success'?'Thành công':'Thông báo';
+        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
+        toast.innerHTML = `${icon}<div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+        container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+    }
+    function showConfirmDialog(msg, callback) {
+        document.getElementById('confirm-msg').innerText = msg;
+        document.getElementById('confirm-modal').style.display = 'flex';
+        confirmCallback = callback;
+    }
+    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; confirmCallback = null; }
+    document.getElementById('btn-confirm-yes').onclick = function() { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
 
+    function getCurrentDateTime() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2,'0'); const m = String(now.getMonth()+1).padStart(2,'0'); const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2,'0'); const min = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
+        return `${d}/${m}/${y} ${h}:${min}:${s}`;
+    }
+    function getUserInfo(id) {
+        const u = usersCache[id]; if (!u) return { name: null, code: "---" };
+        if (typeof u === 'string') return { name: u, code: "---" };
+        return { name: u.name, code: u.code || "---" };
+    }
+    function toggleTheme() { const body = document.body; body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark'); }
+
+    // --- CORE LOGIC ---
     db.ref('new_enroll').on('value', async (snap) => {
         const val = snap.val();
         if (val) {
@@ -328,14 +359,22 @@
                     processedNewIDs.add(val);
                 }
             }
-            if (currentRole === 'Admin') {
-                document.getElementById('modal-id').innerText = newID;
-                document.getElementById('new-id-modal').style.display = 'flex';
-            }
+            if (currentRole === 'Admin') { document.getElementById('modal-id').innerText = newID; document.getElementById('new-id-modal').style.display = 'flex'; }
         } else { document.getElementById('new-id-modal').style.display = 'none'; }
     });
+    function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
+    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
 
-    // --- AUTH ---
+    db.ref('users').on('value', snap => {
+        usersCache = snap.val() || {}; renderLoginDropdown();
+        if (currentRole === 'Admin') { renderUserList(); loadMonitor(); loadTrash(); }
+        if (currentRole === 'Emp') {
+            const s = JSON.parse(localStorage.getItem('utc_session_v18'));
+            if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên";
+        }
+    });
+
+    // --- LOGIN ---
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden'); document.getElementById('form-admin').classList.add('hidden');
@@ -343,27 +382,25 @@
     }
     function renderLoginDropdown() {
         const sel = document.getElementById('login-select'); sel.innerHTML = '<option value="">-- Chọn tên --</option>';
-        Object.keys(usersCache).forEach(id => {
-            const i = getUserInfo(id); if(i.name) { const opt = document.createElement('option'); opt.value = id; opt.text = i.name; sel.appendChild(opt); }
-        });
+        Object.keys(usersCache).forEach(id => { const i = getUserInfo(id); if(i.name) { const opt = document.createElement('option'); opt.value = id; opt.text = i.name; sel.appendChild(opt); }});
     }
     async function loginAdmin(isAuto = false) {
         if(isAuto) { currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); return; }
         const u = document.getElementById('user').value; const p = document.getElementById('pass').value;
         const snap = await db.ref('settings/admin_password').once('value');
         if (u === 'UTC' && p === (snap.val() || 'admin')) {
-            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v17', JSON.stringify({ role: 'Admin' }));
+            if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v18', JSON.stringify({ role: 'Admin' }));
             currentRole = 'Admin'; enterApp('Quản Trị', 'Admin', 'view-admin'); openTab('dashboard'); 
-        } else showToast('Sai thông tin đăng nhập!', 'error');
+        } else showToast('Sai thông tin!', 'error');
     }
     function loginEmp(isAuto = false, autoId = null) {
         const id = isAuto ? autoId : document.getElementById('login-select').value;
         if (!id) return showToast('Vui lòng chọn tên', 'error');
         const info = getUserInfo(id);
-        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v17', JSON.stringify({ role: 'Emp', id: id }));
+        if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v18', JSON.stringify({ role: 'Emp', id: id }));
         currentRole = 'Emp'; enterApp(info.name || "Đang tải...", 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
     }
-    function logout() { localStorage.removeItem('utc_session_v17'); location.reload(); }
+    function logout() { localStorage.removeItem('utc_session_v18'); location.reload(); }
 
     function enterApp(name, role, viewId) {
         document.getElementById('login-page').style.display = 'none';
@@ -373,60 +410,25 @@
         document.getElementById('view-admin').classList.add('hidden');
         document.getElementById(viewId).classList.remove('hidden');
         
-        // Layout Logic
         const sidebar = document.getElementById('main-sidebar');
         const mobNav = document.getElementById('mobile-nav');
-        if(role === 'Admin') {
-            sidebar.style.display = '';
-            if(window.innerWidth <= 768) mobNav.style.display = 'flex';
-        } else {
-            sidebar.style.display = 'none'; mobNav.style.display = 'none';
-        }
+        if(role === 'Admin') { sidebar.style.display = ''; if(window.innerWidth <= 768) mobNav.style.display = 'flex'; }
+        else { sidebar.style.display = 'none'; mobNav.style.display = 'none'; }
     }
 
-    // --- HELPERS ---
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div'); toast.className = `toast ${type}`;
-        let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
-        toast.innerHTML = `${icon}<div><div class="toast-title">${type==='error'?'Lỗi':'Thông báo'}</div><div class="toast-msg">${msg}</div></div>`;
-        container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
-    }
-    function showConfirmDialog(msg, callback) {
-        document.getElementById('confirm-msg').innerText = msg;
-        document.getElementById('confirm-modal').style.display = 'flex';
-        confirmCallback = callback;
-    }
-    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; confirmCallback = null; }
-    document.getElementById('btn-confirm-yes').onclick = function() { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
-    function getCurrentDateTime() {
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2,'0'); const m = String(now.getMonth()+1).padStart(2,'0'); const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2,'0'); const min = String(now.getMinutes()).padStart(2,'0'); const s = String(now.getSeconds()).padStart(2,'0');
-        return `${d}/${m}/${y} ${h}:${min}:${s}`;
-    }
-    function getUserInfo(id) {
-        const u = usersCache[id]; if (!u) return { name: null, code: "---" };
-        if (typeof u === 'string') return { name: u, code: "---" };
-        return { name: u.name, code: u.code || "---" };
-    }
-    function toggleTheme() { document.body.toggleAttribute('data-theme'); }
-    function acceptNewID() { closeNewID(); openTab('users'); document.getElementById('inp-id').value = newID; document.getElementById('inp-code').focus(); db.ref('new_enroll').remove(); }
-    function closeNewID() { document.getElementById('new-id-modal').style.display = 'none'; db.ref('new_enroll').remove(); }
-
-    // --- TABS & FEATURES ---
     function openTab(tabName, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById('tab-' + tabName).classList.remove('hidden');
         document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
-        const pcIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 2;
-        const mobIdx = ['dashboard','live','salary','users'].indexOf(tabName) + 1;
+        const pcIdx = ['dashboard','live','salary','trash','users'].indexOf(tabName) + 2;
+        const mobIdx = ['dashboard','live','salary','trash','users'].indexOf(tabName) + 1;
         if(document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`)) document.querySelector(`.sidebar .nav-link:nth-child(${pcIdx})`).classList.add('active');
         if(document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`)) document.querySelector(`.bottom-nav .b-nav-item:nth-child(${mobIdx})`).classList.add('active');
-        if(tabName === 'dashboard') updateDashboard(); if(tabName === 'live') loadMonitor(); if(tabName === 'users') renderUserList();
+        if(tabName === 'dashboard') updateDashboard(); if(tabName === 'live') loadMonitor(); if(tabName === 'trash') loadTrash(); if(tabName === 'users') renderUserList();
     }
 
+    // --- FEATURES ---
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value'); const data = snap.val() || {};
         const logs = Object.values(data); const workTime = "08:00:00"; 
@@ -452,25 +454,108 @@
                 if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
                 let statusBadge = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
                 let timeHtml = `<div class="compact-cell"><div class="compact-time">${timePart} <span style="font-weight:400; color:#999; font-size:0.7rem">(${datePart.substr(0,5)})</span></div><div style="margin-top:2px">${statusBadge}</div></div>`;
-                tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="softDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
             });
         });
     }
-    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng nhật ký này?', () => { db.ref('attendance/' + key).remove(); showToast('Đã xóa', 'success'); }); }
-    function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
+    
+    // --- TRASH SYSTEM ---
+    function softDeleteLog(key) {
+        showConfirmDialog('Chuyển dòng này vào thùng rác?', () => {
+            db.ref('attendance/' + key).once('value', snap => {
+                const data = snap.val();
+                db.ref('trash/' + key).set(data).then(() => {
+                    db.ref('attendance/' + key).remove();
+                    showToast('Đã chuyển vào thùng rác', 'success');
+                });
+            });
+        });
+    }
 
+    function triggerDeleteData() { // Xóa hàng loạt ở tab Lương
+        const dStart = document.getElementById('date-start').value;
+        const dEnd = document.getElementById('date-end').value;
+        if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
+        showConfirmDialog(`Xóa dữ liệu từ ${dStart} đến ${dEnd} vào thùng rác?`, async () => {
+            const start = new Date(dStart); start.setHours(0,0,0,0);
+            const end = new Date(dEnd); end.setHours(23,59,59,999);
+            const snap = await db.ref('attendance').once('value');
+            const data = snap.val();
+            let updates = {}; let count = 0;
+            if(data) {
+                Object.entries(data).forEach(([k, log]) => {
+                    const [dStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
+                    const logDate = new Date(`${yyyy}-${mm}-${dd}`);
+                    if (logDate >= start && logDate <= end) {
+                        updates['trash/'+k] = log; // Copy to trash
+                        updates['attendance/'+k] = null; // Delete original
+                        count++;
+                    }
+                });
+                if(count > 0) { await db.ref().update(updates); showToast(`Đã xóa ${count} dòng`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
+                else showToast('Không tìm thấy dữ liệu', 'info');
+            }
+        });
+    }
+
+    function loadTrash() {
+        db.ref('trash').on('value', snap => {
+            const tbody = document.getElementById('trash-body'); tbody.innerHTML = ""; const data = snap.val();
+            if (!data) { tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Thùng rác trống</td></tr>"; return; }
+            Object.entries(data).forEach(([key, log]) => {
+                const info = getUserInfo(log.id);
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${nameHtml} <div style="font-size:0.75rem; color:#666">${info.code}</div></td>
+                        <td>${log.timestamp}</td>
+                        <td style="text-align:center">
+                            <button class="btn btn-soft" style="padding:6px; margin-right:5px" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button class="btn btn-danger" style="padding:6px" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        });
+    }
+
+    function restoreLog(key) {
+        db.ref('trash/' + key).once('value', snap => {
+            const data = snap.val();
+            db.ref('attendance/' + key).set(data).then(() => {
+                db.ref('trash/' + key).remove();
+                showToast('Đã khôi phục', 'success');
+            });
+        });
+    }
+
+    function permDeleteLog(key) {
+        showConfirmDialog('Xóa vĩnh viễn? Không thể khôi phục!', () => {
+            db.ref('trash/' + key).remove();
+            showToast('Đã xóa vĩnh viễn', 'success');
+        });
+    }
+
+    function emptyTrash() {
+        showConfirmDialog('Làm sạch toàn bộ thùng rác?', () => {
+            db.ref('trash').remove();
+            showToast('Thùng rác đã sạch', 'success');
+        });
+    }
+
+    // --- OTHERS ---
+    function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
     async function calcSalary() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value; const salary = document.getElementById('salary-val').value;
         if (!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        const startDate = new Date(dStart); startDate.setHours(0,0,0,0); const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
+        const start = new Date(dStart); start.setHours(0,0,0,0); const end = new Date(dEnd); end.setHours(23,59,59,999);
         const snap = await db.ref('attendance').once('value'); const data = snap.val();
         const tbody = document.getElementById('salary-table').querySelector('tbody'); tbody.innerHTML = "";
         let total = 0; let stats = {}; window.tempReport = [];
         if (data) {
             Object.values(data).forEach(log => {
-                const [dStr, tStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
+                const [dStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
                 const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-                if (logDate >= startDate && logDate <= endDate) { if(!stats[log.id]) stats[log.id] = new Set(); stats[log.id].add(dStr); }
+                if (logDate >= start && logDate <= end) { if(!stats[log.id]) stats[log.id] = new Set(); stats[log.id].add(dStr); }
             });
         }
         Object.keys(stats).forEach(id => {
@@ -487,25 +572,6 @@
         const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file...', 'success');
     }
-    function triggerDeleteData() {
-        const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value;
-        if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
-        showConfirmDialog(`Xóa dữ liệu từ ${dStart} đến ${dEnd}?`, async () => {
-            const startDate = new Date(dStart); startDate.setHours(0,0,0,0); const endDate = new Date(dEnd); endDate.setHours(23,59,59,999);
-            const snap = await db.ref('attendance').once('value'); const data = snap.val();
-            if(data) {
-                let updates = {}; let count = 0;
-                Object.entries(data).forEach(([k, log]) => {
-                    const [dStr, tStr] = log.timestamp.split(' '); const [dd, mm, yyyy] = dStr.split('/');
-                    const logDate = new Date(`${yyyy}-${mm}-${dd}`);
-                    if (logDate >= startDate && logDate <= endDate) { updates['attendance/'+k] = null; count++; }
-                });
-                if(count > 0) { await db.ref().update(updates); showToast(`Đã xóa ${count} dòng!`, 'success'); document.getElementById('salary-table').querySelector('tbody').innerHTML = ""; }
-                else showToast('Không tìm thấy dữ liệu', 'info');
-            }
-        });
-    }
-
     function renderUserList() {
         const tbody = document.querySelector('#users-list tbody'); tbody.innerHTML = "";
         Object.keys(usersCache).forEach(id => {
@@ -524,13 +590,8 @@
         for(const [k, v] of Object.entries(usersCache)) { if(k !== id && v.code && code && v.code.toUpperCase() === code.toUpperCase()) return showToast('Trùng Mã NV', 'error'); }
         db.ref('users/'+id).set({ name, code }).then(() => { showToast('Lưu thành công', 'success'); resetForm(); });
     }
-    function triggerDeleteUser() {
-        showConfirmDialog('Xóa nhân viên này?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa', 'success'); resetForm(); });
-    }
-    function resetForm() {
-        document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value="";
-        document.getElementById('btn-del-user').classList.add('hidden');
-    }
+    function triggerDeleteUser() { showConfirmDialog('Xóa nhân viên này?', () => { db.ref('users/'+document.getElementById('inp-id').value).remove(); showToast('Đã xóa', 'success'); resetForm(); }); }
+    function resetForm() { document.getElementById('inp-id').value=""; document.getElementById('inp-name').value=""; document.getElementById('inp-code').value=""; document.getElementById('btn-del-user').classList.add('hidden'); }
     function loadEmpHistory(id) {
         db.ref('attendance').limitToLast(50).on('value', snap => {
             const tb = document.querySelector('#emp-table tbody'); tb.innerHTML = ""; const data = snap.val();
