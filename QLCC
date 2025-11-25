@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Chấm Công</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .status-bar {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        /* Hiệu ứng nhấp nháy cho dòng mới nhất */
+        @keyframes flash {
+            0% { background-color: #d4edda; }
+            100% { background-color: white; }
+        }
+        .new-row {
+            animation: flash 2s ease-out;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #888;
+        }
+        .badge {
+            background: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Lịch Sử Chấm Công</h2>
+    <div class="status-bar">
+        Trạng thái: <span id="conn-status" style="color:orange">Đang kết nối...</span> 
+        | Tổng số bản ghi: <span id="total-count">0</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Thời Gian</th>
+                <th>ID</th>
+                <th>Họ và Tên</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <tr><td colspan="3" class="loading">Đang tải dữ liệu từ Firebase...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // ================= CẤU HÌNH (LẤY TỪ FIREBASE CONSOLE) =================
+    // Thay thế đoạn này bằng thông tin trong Project Settings -> General -> Web App
+    const firebaseConfig = {
+        apiKey: "AIzaSyD.... (COPY TỪ CONSOLE CỦA BẠN)",
+        authDomain: "quanlychamcong-9dacd.firebaseapp.com",
+        databaseURL: "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com",
+        projectId: "quanlychamcong-9dacd",
+        storageBucket: "quanlychamcong-9dacd.appspot.com",
+        messagingSenderId: "...",
+        appId: "..."
+    };
+
+    // Khởi tạo Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // Tham chiếu đến nhánh 'attendance'
+    // limitToLast(50): Chỉ lấy 50 người chấm công gần nhất để web đỡ lag
+    const logsRef = db.ref('attendance').limitToLast(50);
+    const connectedRef = db.ref(".info/connected");
+
+    // 1. Kiểm tra trạng thái kết nối
+    connectedRef.on("value", (snap) => {
+        const statusEl = document.getElementById("conn-status");
+        if (snap.val() === true) {
+            statusEl.innerText = "Online (Real-time)";
+            statusEl.style.color = "green";
+        } else {
+            statusEl.innerText = "Mất kết nối";
+            statusEl.style.color = "red";
+        }
+    });
+
+    // 2. Lắng nghe dữ liệu (Mỗi khi ESP32 gửi lên, hàm này tự chạy)
+    logsRef.on('value', (snapshot) => {
+        const tableBody = document.getElementById('table-body');
+        const countSpan = document.getElementById('total-count');
+        const data = snapshot.val();
+
+        // Xóa nội dung cũ (loading...)
+        tableBody.innerHTML = "";
+
+        if (!data) {
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Chưa có dữ liệu chấm công.</td></tr>";
+            countSpan.innerText = 0;
+            return;
+        }
+
+        // Chuyển Object thành Array để dễ sắp xếp
+        // Firebase trả về dạng: { "key1": {...}, "key2": {...} }
+        let logArray = [];
+        Object.keys(data).forEach(key => {
+            logArray.push(data[key]);
+        });
+
+        // Sắp xếp: Mới nhất lên đầu (Dựa vào timestamp chuỗi hoặc thứ tự firebase)
+        // Vì dùng limitToLast, firebase trả về cũ -> mới. Ta đảo ngược lại (reverse)
+        logArray.reverse();
+        
+        countSpan.innerText = logArray.length;
+
+        // Vẽ từng dòng ra bảng
+        logArray.forEach((log, index) => {
+            const row = document.createElement('tr');
+            
+            // Nếu là dòng đầu tiên (mới nhất), thêm class hiệu ứng nháy
+            if (index === 0) row.classList.add('new-row');
+
+            row.innerHTML = `
+                <td>${log.timestamp}</td>
+                <td><span class="badge">${log.id}</span></td>
+                <td style="font-weight:bold; color:#2c3e50;">${log.name}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+
+</script>
+
+</body>
+</html>
