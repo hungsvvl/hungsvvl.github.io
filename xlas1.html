@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chấm Công UTC (V20 Fixed)</title>
+    <title>Chấm Công UTC (V20 - Final Fix)</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -15,97 +15,62 @@
     <style>
         /* === 2. GIAO DIỆN (CSS) === */
         :root {
-            --primary: #4f46e5; --primary-light: #e0e7ff; 
-            --bg-body: #f3f4f6; --bg-card: #ffffff;
+            --primary: #4f46e5; --primary-light: #eef2ff; --bg-body: #f3f4f6; --bg-card: #ffffff;
             --text-main: #1f2937; --text-sub: #6b7280; --border: #e5e7eb;
             --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --radius: 12px;
         }
 
-        /* DARK MODE FIXED */
         [data-theme="dark"] {
-            --primary: #818cf8;       /* Tím sáng hơn cho nền tối */
-            --primary-light: #312e81; 
-            --bg-body: #0f172a;       /* Slate 900 */
-            --bg-card: #1e293b;       /* Slate 800 */
-            --text-main: #f1f5f9;     /* Slate 100 */
-            --text-sub: #94a3b8;      /* Slate 400 */
-            --border: #334155;        /* Slate 700 */
-            --shadow: none;
+            --primary: #6366f1; --primary-light: #312e81; --bg-body: #0f172a; 
+            --bg-card: #1e293b; --text-main: #f9fafb; --text-sub: #94a3b8; --border: #334155;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: background-color 0.3s, color 0.3s;
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; overflow: hidden; transition: 0.2s; }
 
-        /* --- SIDEBAR (PC) --- */
-        .sidebar { width: 260px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; transition: 0.3s; }
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
-        .nav-link { padding: 12px 16px; margin-bottom: 5px; border-radius: 10px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        /* SIDEBAR */
+        .sidebar { width: 250px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; z-index: 50; transition: 0.3s; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-left: 10px; }
+        .nav-link { padding: 12px 16px; margin-bottom: 4px; border-radius: 8px; color: var(--text-sub); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.15s; }
         .nav-link:hover { background: var(--bg-body); color: var(--primary); }
-        .nav-link.active { background: var(--primary); color: #ffffff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        
-        /* Nếu Dark Mode, active link màu khác cho dễ nhìn */
-        [data-theme="dark"] .nav-link.active { background: var(--primary-light); color: var(--primary); }
+        .nav-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
 
-        /* --- MAIN CONTENT --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        /* MAIN */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
-        .content-scroll { flex: 1; overflow-y: auto; padding: 24px; padding-bottom: 90px; } /* Padding bottom để tránh bị menu mobile che */
+        .content-scroll { flex: 1; overflow-y: auto; padding: 24px; }
 
-        /* --- MOBILE BOTTOM NAV (QUAN TRỌNG) --- */
-        .bottom-nav { 
-            display: none; /* Mặc định ẩn trên PC */
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
-            background: var(--bg-card); border-top: 1px solid var(--border);
-            justify-content: space-around; align-items: center; z-index: 100;
-            padding-bottom: env(safe-area-inset-bottom);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-        }
-        .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; flex: 1; cursor: pointer; }
-        .b-nav-item i { font-size: 1.4rem; margin-bottom: 2px; transition: 0.2s; }
-        .b-nav-item.active { color: var(--primary); }
-        .b-nav-item.active i { transform: translateY(-3px); }
-
-        /* --- LOGIC HIỂN THỊ MENU THEO ROLE & SCREEN --- */
-        
-        /* 1. Màn hình PC (> 768px) */
-        @media (min-width: 769px) {
-            .bottom-nav { display: none !important; } /* Luôn ẩn menu dưới */
-            body.role-emp .sidebar { display: none !important; } /* Nhân viên ẩn sidebar */
-        }
-
-        /* 2. Màn hình Mobile (<= 768px) */
+        /* MOBILE NAV */
+        .bottom-nav { display: none !important; } 
         @media (max-width: 768px) {
-            .sidebar { display: none !important; } /* Luôn ẩn sidebar */
+            .sidebar { display: none !important; }
             .top-bar { padding: 0 16px; }
-            .content-scroll { padding: 16px; padding-bottom: 80px; }
-            
-            /* Chỉ hiện menu dưới nếu là Admin */
-            body.role-admin .bottom-nav { display: flex !important; }
-            /* Ẩn menu dưới nếu là Nhân viên */
-            body.role-emp .bottom-nav { display: none !important; }
+            .content-scroll { padding: 16px 16px 90px 16px; }
+            .bottom-nav {
+                display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+                background: var(--bg-card); border-top: 1px solid var(--border);
+                justify-content: space-around; align-items: center; z-index: 100;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .b-nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 0.7rem; gap: 4px; flex: 1; }
+            .b-nav-item.active { color: var(--primary); }
         }
 
-        /* --- UI COMPONENTS --- */
+        /* COMPONENTS */
         .card { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         h3 { margin: 0 0 16px 0; font-size: 1.1rem; font-weight: 600; }
         .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.15s; justify-content: center; }
         .btn:active { transform: scale(0.96); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: var(--bg-card); border-color: var(--border); color: var(--danger); }
+        .btn-danger:hover { background: #fef2f2; border-color: var(--danger); }
         .btn-outline { background: transparent; border-color: var(--border); color: var(--text-main); }
+        .btn-soft { background: var(--primary-light); color: var(--primary); }
         .form-control { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; font-size: 0.95rem; margin-bottom: 12px; transition: 0.2s; font-family: 'Inter', sans-serif; }
         .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); background: var(--bg-card); }
 
-        /* --- SETTINGS LIST --- */
-        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-body); border-radius: 12px; cursor: pointer; margin-bottom: 10px; }
-        .settings-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); }
-
-        /* --- TABLES --- */
+        /* TABLES */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 100%; }
         th { text-align: left; padding: 12px 16px; background: var(--bg-body); color: var(--text-sub); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; white-space: nowrap; position: sticky; top: 0; }
@@ -120,11 +85,18 @@
         .badge-red { background: #fee2e2; color: #991b1b; }
         .badge-yellow { background: #fef3c7; color: #92400e; }
 
-        /* --- POPUPS --- */
+        /* SETTINGS ITEMS */
+        .settings-list { display: flex; flex-direction: column; gap: 10px; }
+        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--bg-body); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .settings-item:hover { background: var(--primary-light); }
+        .settings-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--primary); }
+
+        /* TOAST & MODAL */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--bg-card); padding: 16px 20px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 5px solid var(--primary); animation: slideIn 0.3s; }
         .toast.error { border-left-color: var(--danger); } .toast.success { border-left-color: var(--success); }
         .toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; } .toast-msg { font-size: 0.8rem; color: var(--text-sub); }
+
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: var(--bg-card); padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); animation: popIn 0.3s; }
         
@@ -197,11 +169,11 @@
 
 <nav class="sidebar" id="main-sidebar">
     <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
-    <div class="nav-link active" id="pc-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
-    <div class="nav-link" id="pc-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
-    <div class="nav-link" id="pc-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
-    <div class="nav-link" id="pc-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
-    <div class="nav-link" id="pc-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
+    <div class="nav-link active" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
+    <div class="nav-link" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
+    <div class="nav-link" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+    <div class="nav-link" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
 </nav>
 
 <div class="main-content">
@@ -227,8 +199,8 @@
         <div id="view-admin" class="hidden">
             <div id="tab-dashboard" class="tab-content">
                 <div class="flex-row">
-                    <div class="card flex-1"><h3>Tỷ Lệ Hôm Nay</h3><canvas id="chartPie" style="max-height:220px"></canvas></div>
-                    <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height:220px"></canvas></div>
+                    <div class="card flex-1"><h3>Tỷ Lệ Hôm Nay</h3><canvas id="chartPie" style="max-height: 220px;"></canvas></div>
+                    <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height: 220px;"></canvas></div>
                 </div>
             </div>
             <div id="tab-live" class="tab-content hidden">
@@ -288,17 +260,17 @@
                             </div>
                             <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
                         </div>
-                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo KTV', 'info')">
+                        <div class="settings-item" onclick="showToast('Vui lòng liên hệ Zalo: 0394590931', 'info')">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-headset"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Báo lỗi & bảo trì</div></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Hỗ trợ lỗi và bảo trì</div></div>
                             </div>
                             <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
                         </div>
                         <div class="settings-item">
                             <div style="display:flex; align-items:center; gap:15px">
                                 <div class="settings-icon"><i class="fa-solid fa-code-branch"></i></div>
-                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v20.0 (Latest)</div></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v20.0 (Final)</div></div>
                             </div>
                         </div>
                     </div>
@@ -318,11 +290,11 @@
 </div>
 
 <div class="bottom-nav" id="mobile-nav">
-    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
-    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
-    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
-    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
-    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
+    <div class="b-nav-item active" onclick="openTab('dashboard', this)"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" onclick="openTab('live', this)"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" onclick="openTab('salary', this)"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" onclick="openTab('users', this)"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item" onclick="openTab('settings', this)"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
 </div>
 
 <script>
@@ -347,11 +319,15 @@
     (function checkAutoLogin() {
         const saved = localStorage.getItem('utc_session_v20');
         if (saved) {
-            try { const s = JSON.parse(saved); s.role === 'Admin' ? loginAdmin(true) : (s.role === 'Emp' && s.id && loginEmp(true, s.id)); } catch(e) { localStorage.removeItem('utc_session_v20'); }
+            try {
+                const s = JSON.parse(saved);
+                if (s.role === 'Admin') loginAdmin(true);
+                else if (s.role === 'Emp' && s.id) loginEmp(true, s.id);
+            } catch(e) { localStorage.removeItem('utc_session_v20'); }
         }
     })();
 
-    // UTILS
+    // HELPERS
     function showToast(msg, type='info') {
         const container=document.getElementById('toast-container'); const toast=document.createElement('div'); toast.className=`toast ${type}`;
         let icon=type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i>':type==='success'?'<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>':'<i class="fa-solid fa-circle-info" style="color:var(--primary)"></i>';
@@ -361,14 +337,9 @@
     function showConfirmDialog(msg, callback) { document.getElementById('confirm-msg').innerText=msg; document.getElementById('confirm-modal').style.display='flex'; confirmCallback=callback; }
     function closeConfirmModal() { document.getElementById('confirm-modal').style.display='none'; confirmCallback=null; }
     document.getElementById('btn-confirm-yes').onclick=function(){ if(confirmCallback) confirmCallback(); closeConfirmModal(); };
-    
-    function toggleTheme() {
-        const body = document.body;
-        if (body.getAttribute('data-theme') === 'dark') body.removeAttribute('data-theme');
-        else body.setAttribute('data-theme', 'dark');
-    }
     function getCurrentDateTime() { const now=new Date(); return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`; }
     function getUserInfo(id) { const u=usersCache[id]; if(!u)return{name:null,code:"---"}; if(typeof u==='string')return{name:u,code:"---"}; return{name:u.name,code:u.code||"---"}; }
+    function toggleTheme() { const body = document.body; body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark'); }
 
     // CORE LOGIC
     db.ref('new_enroll').on('value', async (snap) => {
@@ -381,7 +352,8 @@
                 let isDuplicate = false;
                 if(lastLogData) {
                     const k = Object.keys(lastLogData)[0];
-                    const [d, t] = lastLogData[k].timestamp.split(' '); const [day, month, year] = d.split('/');
+                    const [d, t] = lastLogData[k].timestamp.split(' ');
+                    const [day, month, year] = d.split('/');
                     if ((new Date() - new Date(`${year}-${month}-${day}T${t}`)) < 60000) isDuplicate = true;
                 }
                 if (!isDuplicate) {
@@ -401,7 +373,7 @@
         if (currentRole === 'Emp') { const s = JSON.parse(localStorage.getItem('utc_session_v20')); if(s) document.getElementById('display-name').innerText = getUserInfo(s.id).name || "Nhân Viên"; }
     });
 
-    // AUTH & ROLE CSS CONTROL
+    // AUTH & LAYOUT FIX
     function switchRole(role) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden'); document.getElementById('form-admin').classList.add('hidden');
@@ -410,12 +382,12 @@
     function renderLoginDropdown() { const sel=document.getElementById('login-select'); sel.innerHTML='<option value="">-- Chọn tên --</option>'; Object.keys(usersCache).forEach(id => { const i=getUserInfo(id); if(i.name) { const opt=document.createElement('option'); opt.value=id; opt.text=i.name; sel.appendChild(opt); }}); }
     
     async function loginAdmin(isAuto=false) {
-        if(isAuto) { setAppMode('Admin'); return; }
+        if(isAuto) { enterApp('Quản Trị', 'Admin', 'view-admin'); return; }
         const u=document.getElementById('user').value; const p=document.getElementById('pass').value;
         const snap=await db.ref('settings/admin_password').once('value');
         if(u==='UTC' && p===(snap.val()||'admin')) {
             if(document.getElementById('remember-admin').checked) localStorage.setItem('utc_session_v20', JSON.stringify({role:'Admin'}));
-            setAppMode('Admin');
+            enterApp('Quản Trị', 'Admin', 'view-admin'); 
         } else showToast('Sai thông tin!','error');
     }
     function loginEmp(isAuto=false, autoId=null) {
@@ -423,46 +395,48 @@
         if(!id) return showToast('Vui lòng chọn tên','error');
         const info=getUserInfo(id);
         if(!isAuto && document.getElementById('remember-emp').checked) localStorage.setItem('utc_session_v20', JSON.stringify({role:'Emp',id:id}));
-        setAppMode('Emp', info.name); loadEmpHistory(id);
+        enterApp(info.name || "Đang tải...", 'Nhân Viên', 'view-emp'); loadEmpHistory(id);
     }
     function logout() { localStorage.removeItem('utc_session_v20'); location.reload(); }
 
-    function setAppMode(role, name="Quản Trị Viên") {
-        currentRole = role;
+    // === FIXED: HIDE MOBILE NAV FOR EMPLOYEES ===
+    function enterApp(name, role, viewId) {
+        currentRole = role; // Set Role Global
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('display-name').innerText = name;
-        document.getElementById('display-role').innerText = role === 'Admin' ? 'Admin' : 'Nhân Viên';
-        
-        // CSS ROLE TOGGLE
-        document.body.classList.remove('role-admin', 'role-emp');
-        document.body.classList.add(role === 'Admin' ? 'role-admin' : 'role-emp');
-
+        document.getElementById('display-role').innerText = role;
         document.getElementById('view-emp').classList.add('hidden');
         document.getElementById('view-admin').classList.add('hidden');
+        document.getElementById(viewId).classList.remove('hidden');
         
-        if (role === 'Admin') {
-            document.getElementById('view-admin').classList.remove('hidden');
+        const sidebar = document.getElementById('main-sidebar');
+        const mobNav = document.getElementById('mobile-nav');
+        
+        if(role === 'Admin') {
+            sidebar.style.display = ''; // Reset PC style
+            if(window.innerWidth <= 768) mobNav.style.display = 'flex'; // Show on Mobile
             openTab('dashboard');
         } else {
-            document.getElementById('view-emp').classList.remove('hidden');
+            sidebar.style.display = 'none';
+            mobNav.style.display = 'none'; // HIDE ON MOBILE
         }
     }
 
-    // TABS LOGIC (FIXED ACTIVE STATE)
-    function openTab(tabName) {
+    function openTab(tabName, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        const contentId = (tabName === 'trash') ? 'tab-trash-detail' : 'tab-' + tabName;
+        const contentId = (tabName === 'trash' || tabName === 'settings') ? (tabName==='trash'?'tab-trash-detail':'tab-settings') : 'tab-' + tabName;
         const target = document.getElementById(contentId);
         if(target) target.classList.remove('hidden');
         
-        // Remove active
-        document.querySelectorAll('.nav-link, .b-nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.b-nav-item').forEach(el => el.classList.remove('active'));
+
+        const map = { 'dashboard':0, 'live':1, 'salary':2, 'users':3, 'settings':4, 'trash':4 };
+        const pcLink = document.querySelectorAll('.sidebar .nav-link')[map[tabName]];
+        const mobLink = document.querySelectorAll('.bottom-nav .b-nav-item')[map[tabName]];
         
-        // Add active (Sync PC & Mobile)
-        const pcBtn = document.getElementById('pc-' + tabName);
-        const mobBtn = document.getElementById('mob-' + tabName);
-        if(pcBtn) pcBtn.classList.add('active');
-        if(mobBtn) mobBtn.classList.add('active');
+        if(pcLink) pcLink.classList.add('active');
+        if(mobLink) mobLink.classList.add('active');
 
         if(tabName === 'dashboard') updateDashboard();
         if(tabName === 'live') loadMonitor();
@@ -471,7 +445,7 @@
     }
     function openTrashView() { openTab('trash'); }
 
-    // FEATURES
+    // FUNCTIONS
     async function updateDashboard() {
         const snap = await db.ref('attendance').limitToLast(100).once('value'); const data = snap.val() || {};
         const logs = Object.values(data); const workTime = "08:00:00"; 
@@ -501,7 +475,7 @@
             });
         });
     }
-    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng nhật ký này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
+    function triggerDeleteLog(key) { showConfirmDialog('Xóa dòng này vào thùng rác?', () => { db.ref('attendance/'+key).once('value',s=>{ db.ref('trash/'+key).set(s.val()).then(()=>{ db.ref('attendance/'+key).remove(); showToast('Đã xóa','success'); }); }); }); }
     function quickAdd(id) { openTab('users'); document.getElementById('inp-id').value = id; document.getElementById('inp-code').focus(); }
 
     async function calcSalary() {
@@ -528,7 +502,6 @@
         if(window.tempReport.length === 0) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px'>Không có dữ liệu.</td></tr>";
     }
     function exportExcel() { if(!window.tempReport || window.tempReport.length === 0) return showToast('Không có dữ liệu!', 'error'); const ws = XLSX.utils.json_to_sheet(window.tempReport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "BangLuong"); XLSX.writeFile(wb, "BangLuong.xlsx"); showToast('Đang tải file...', 'success'); }
-    
     function triggerDeleteData() {
         const dStart = document.getElementById('date-start').value; const dEnd = document.getElementById('date-end').value;
         if(!dStart || !dEnd) return showToast('Chọn khoảng ngày!', 'error');
@@ -548,6 +521,7 @@
         });
     }
 
+    // === FIXED RESTORE LOGIC ===
     function loadTrash() {
         db.ref('trash').on('value', snap => {
             const tbody = document.getElementById('trash-body'); tbody.innerHTML = ""; const data = snap.val();
@@ -555,10 +529,29 @@
             Object.entries(data).forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
                 let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
-                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:#666">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px" onclick="db.ref('attendance/'+'${key}').set({id:${log.id},timestamp:'${log.timestamp}',auto_generated:${log.auto_generated}}).then(()=>db.ref('trash/'+'${key}').remove())"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px" onclick="showConfirmDialog('Xóa vĩnh viễn?',()=>db.ref('trash/'+'${key}').remove())"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:#666">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
             });
         });
     }
+    
+    function restoreLog(key) {
+        db.ref('trash/' + key).once('value', snap => {
+            if(snap.val()) {
+                db.ref('attendance/' + key).set(snap.val()).then(() => {
+                    db.ref('trash/' + key).remove();
+                    showToast('Đã khôi phục', 'success');
+                });
+            }
+        });
+    }
+    
+    function permDeleteLog(key) {
+        showConfirmDialog('Xóa vĩnh viễn? Không thể lấy lại!', () => {
+            db.ref('trash/' + key).remove();
+            showToast('Đã xóa vĩnh viễn', 'success');
+        });
+    }
+    
     function emptyTrash() { showConfirmDialog('Dọn sạch thùng rác?', () => { db.ref('trash').remove(); showToast('Đã dọn sạch','success'); }); }
 
     function renderUserList() {
