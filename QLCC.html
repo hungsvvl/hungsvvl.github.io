@@ -715,8 +715,8 @@
         <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
         <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
         <div class="role-group">
-            <button class="role-btn active" onclick="switchRole('emp')">Nhân Viên</button>
-            <button class="role-btn" onclick="switchRole('admin')">Quản Trị</button>
+            <button class="role-btn active" onclick="switchRole('emp', event)">Nhân Viên</button>
+            <button class="role-btn" onclick="switchRole('admin', event)">Quản Trị</button>
         </div>
         <div id="form-emp">
             <select id="login-select" class="form-control"><option>Đang tải...</option></select>
@@ -900,6 +900,9 @@
     
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const attendanceRef = db.ref('attendance');
+    const attendanceRecentRef = attendanceRef.limitToLast(50);
+    const trashRef = db.ref('trash');
 
     // VARS
     let usersCache = {}; 
@@ -908,6 +911,9 @@
     let currentRole = 'Guest'; 
     let chartPie = null, chartBar = null; 
     let confirmCallback = null; 
+    let liveListener = null;
+    let empHistoryListener = null;
+    let trashListener = null;
     window.tempReport = [];
 
     // AUTO LOGIN
@@ -1024,9 +1030,9 @@
     });
 
     // AUTH & ROLE CSS CONTROL
-    function switchRole(role) {
+    function switchRole(role, evt) {
         document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active')); 
-        event.target.classList.add('active');
+        if (evt && evt.target) evt.target.classList.add('active');
         document.getElementById('form-emp').classList.add('hidden'); 
         document.getElementById('form-admin').classList.add('hidden');
         document.getElementById('form-' + role).classList.remove('hidden');
@@ -1222,27 +1228,31 @@
     }
 
     function loadMonitor() {
-        db.ref('attendance').limitToLast(50).on('value', snap => {
-            const tbody = document.getElementById('live-body'); 
-            tbody.innerHTML = ""; 
+        const ref = attendanceRecentRef;
+        if (liveListener) ref.off('value', liveListener);
+        liveListener = snap => {
+            const tbody = document.getElementById('live-body');
             const data = snap.val();
-            if (!data) { 
-                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Chưa có dữ liệu</td></tr>"; 
-                return; 
+            if (!data) {
+                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Chưa có dữ liệu</td></tr>";
+                return;
             }
             const workTime = document.getElementById('work-time').value + ":00";
+            let rows = "";
             Object.entries(data).reverse().forEach(([key, log]) => {
-                const info = getUserInfo(log.id); 
+                const info = getUserInfo(log.id);
                 const [datePart, timePart] = log.timestamp.split(' ');
                 const isLate = timePart > workTime;
-                let nameHtml = info.name ? `<div class="compact-main">${info.name}</div>` : `<span class="badge badge-yellow" style="margin-bottom:2px">Chưa ĐK</span>`;
-                let subHtml = !info.name ? `<div style="margin-top:4px"><button class="btn btn-outline" style="padding:2px 8px; font-size:0.65rem; height:auto" onclick="quickAdd('${log.id}')">➕ Thêm</button></div>` : `<div class="compact-sub">${info.code !== "---" ? info.code : `ID: ${log.id}`}</div>`;
-                if(log.auto_generated && info.name) nameHtml += ` <i class="fa-solid fa-bolt" style="color:#f59e0b; font-size:0.7rem"></i>`;
-                let statusBadge = isLate ? `<span class="badge badge-red">Muộn</span>` : `<span class="badge badge-green">OK</span>`;
-                let timeHtml = `<div class="compact-cell"><div class="compact-time">${timePart} <span style="font-weight:400; color:#999; font-size:0.7rem">(${datePart.substr(0,5)})</span></div><div style="margin-top:2px">${statusBadge}</div></div>`;
-                tbody.innerHTML += `<tr><td><div class="compact-cell">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style="text-align:center"><button class="btn btn-danger" style="padding:8px; width:32px; height:32px; border-radius:50%;" onclick="triggerDeleteLog('${key}')"><i class="fa-solid fa-trash" style="font-size:0.8rem"></i></button></td></tr>`;
+                let nameHtml = info.name ? `<div class=\"compact-main\">${info.name}</div>` : `<span class=\"badge badge-yellow\" style=\"margin-bottom:2px\">Chưa ĐK</span>`;
+                let subHtml = !info.name ? `<div style=\"margin-top:4px\"><button class=\"btn btn-outline\" style=\"padding:2px 8px; font-size:0.65rem; height:auto\" onclick=\"quickAdd('${log.id}')\">➕ Thêm</button></div>` : `<div class=\"compact-sub\">${info.code !== "---" ? info.code : `ID: ${log.id}`}</div>`;
+                if(log.auto_generated && info.name) nameHtml += ` <i class=\"fa-solid fa-bolt\" style=\"color:#f59e0b; font-size:0.7rem\"></i>`;
+                let statusBadge = isLate ? `<span class=\"badge badge-red\">Muộn</span>` : `<span class=\"badge badge-green\">OK</span>`;
+                let timeHtml = `<div class=\"compact-cell\"><div class=\"compact-time\">${timePart} <span style=\"font-weight:400; color:#999; font-size:0.7rem\">(${datePart.substr(0,5)})</span></div><div style=\"margin-top:2px\">${statusBadge}</div></div>`;
+                rows += `<tr><td><div class=\"compact-cell\">${nameHtml}${subHtml}</div></td><td>${timeHtml}</td><td style=\"text-align:center\"><button class=\"btn btn-danger\" style=\"padding:8px; width:32px; height:32px; border-radius:50%;\" onclick=\"triggerDeleteLog('${key}')\"><i class=\"fa-solid fa-trash\" style=\"font-size:0.8rem\"></i></button></td></tr>`;
             });
-        });
+            tbody.innerHTML = rows;
+        };
+        ref.on('value', liveListener);
     }
     
     function quickAdd(id) { 
@@ -1346,20 +1356,24 @@
     }
 
     function loadTrash() {
-        db.ref('trash').on('value', snap => {
-            const tbody = document.getElementById('trash-body'); 
-            tbody.innerHTML = ""; 
+        const ref = trashRef;
+        if (trashListener) ref.off('value', trashListener);
+        trashListener = snap => {
+            const tbody = document.getElementById('trash-body');
             const data = snap.val();
-            if (!data) { 
-                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Thùng rác trống</td></tr>"; 
-                return; 
+            if (!data) {
+                tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#999; padding:20px'>Thùng rác trống</td></tr>";
+                return;
             }
+            let rows = "";
             Object.entries(data).forEach(([key, log]) => {
                 const info = getUserInfo(log.id);
-                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class="badge badge-yellow">Chưa ĐK</span>`;
-                tbody.innerHTML += `<tr><td>${nameHtml} <div style="font-size:0.75rem;color:#666">${info.code}</div></td><td>${log.timestamp}</td><td style="text-align:center"><button class="btn btn-outline" style="padding:6px;margin-right:5px" onclick="restoreLog('${key}')" title="Khôi phục"><i class="fa-solid fa-rotate-left"></i></button><button class="btn btn-danger" style="padding:6px" onclick="permDeleteLog('${key}')" title="Xóa vĩnh viễn"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+                let nameHtml = info.name ? `<b>${info.name}</b>` : `<span class=\"badge badge-yellow\">Chưa ĐK</span>`;
+                rows += `<tr><td>${nameHtml} <div style=\"font-size:0.75rem;color:#666\">${info.code}</div></td><td>${log.timestamp}</td><td style=\"text-align:center\"><button class=\"btn btn-outline\" style=\"padding:6px;margin-right:5px\" onclick=\"restoreLog('${key}')\" title=\"Khôi phục\"><i class=\"fa-solid fa-rotate-left\"></i></button><button class=\"btn btn-danger\" style=\"padding:6px\" onclick=\"permDeleteLog('${key}')\" title=\"Xóa vĩnh viễn\"><i class=\"fa-solid fa-xmark\"></i></button></td></tr>`;
             });
-        });
+            tbody.innerHTML = rows;
+        };
+        ref.on('value', trashListener);
     }
     
     function restoreLog(key) {
@@ -1388,12 +1402,13 @@
     }
 
     function renderUserList() {
-        const tbody = document.querySelector('#users-list tbody'); 
-        tbody.innerHTML = "";
+        const tbody = document.querySelector('#users-list tbody');
+        let rows = "";
         Object.keys(usersCache).forEach(id => {
             const info = getUserInfo(id);
-            tbody.innerHTML += `<tr onclick="fillForm('${id}')" style="cursor:pointer"><td><span class="badge badge-id">${id}</span></td><td>${info.code}</td><td>${info.name}</td></tr>`;
+            rows += `<tr onclick=\"fillForm('${id}')\" style=\"cursor:pointer\"><td><span class=\"badge badge-id\">${id}</span></td><td>${info.code}</td><td>${info.name}</td></tr>`;
         });
+        tbody.innerHTML = rows;
     }
     
     function fillForm(id) {
@@ -1435,14 +1450,22 @@
     }
     
     function loadEmpHistory(id) {
-        db.ref('attendance').limitToLast(50).on('value', snap => {
-            const tb = document.querySelector('#emp-table tbody'); 
-            tb.innerHTML = ""; 
+        const ref = attendanceRecentRef;
+        if (empHistoryListener) ref.off('value', empHistoryListener);
+        empHistoryListener = snap => {
+            const tb = document.querySelector('#emp-table tbody');
             const data = snap.val();
-            if(data) Object.values(data).reverse().forEach(log => {
-                if(log.id == id) tb.innerHTML += `<tr><td>${log.timestamp}</td><td><span class="badge badge-green">Thành công</span></td></tr>`;
+            if(!data) {
+                tb.innerHTML = "";
+                return;
+            }
+            let rows = "";
+            Object.values(data).reverse().forEach(log => {
+                if(log.id == id) rows += `<tr><td>${log.timestamp}</td><td><span class=\"badge badge-green\">Thành công</span></td></tr>`;
             });
-        });
+            tb.innerHTML = rows;
+        };
+        ref.on('value', empHistoryListener);
     }
 
     // Set default dates
