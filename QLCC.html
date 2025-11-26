@@ -525,6 +525,32 @@
             border-radius: 20px; 
             margin-bottom: 24px; 
         }
+.user-toggle {
+    display: inline-flex;
+    background: var(--bg-body);
+    padding: 3px;
+    border-radius: 999px;
+    gap: 4px;
+}
+
+.user-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--text-sub);
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.user-toggle-btn.active {
+    background: var(--bg-card);
+    color: var(--primary);
+    box-shadow: 0 0 0 1px var(--border);
+}
+
         
         .role-btn { 
             flex: 1; 
@@ -867,51 +893,71 @@
             </div>
 
             <!-- USERS -->
-            <div id="tab-users" class="tab-content hidden">
-                <div class="flex-row">
-                    <div class="card flex-1">
-                        <h3>Thông Tin</h3>
-                        <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
-                        <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
-                        <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
-                        <div class="flex-row">
-                            <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
-                            <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="triggerDeleteUser()">Xóa</button>
-                        </div>
-                        <button class="btn btn-outline" style="width:100%; margin-top:12px" onclick="resetForm()">Làm mới</button>
-                    </div>
-                    <div class="card flex-1">
-                        <h3>Danh Sách</h3>
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table id="users-list">
-                                <thead>
-                                    <tr><th>ID</th><th>Mã</th><th>Tên</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+<!-- USERS -->
+<!-- USERS -->
+<div id="tab-users" class="tab-content hidden">
+    <div class="flex-row">
+        <!-- Cột bên trái: form thông tin -->
+        <div class="card flex-1">
+            <h3>Thông Tin</h3>
+            <input type="number" id="inp-id" class="form-control" placeholder="ID Vân Tay">
+            <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
+            <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
+            <div class="flex-row">
+                <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
+                <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="triggerDeleteUser()">Xóa</button>
+            </div>
+            <button class="btn btn-outline" style="width:100%; margin-top:12px" onclick="resetForm()">Làm mới</button>
+        </div>
 
-                <!-- NHÂN SỰ ĐÃ XOÁ -->
-                <div class="card" id="deleted-users-card">
-                    <h3>Nhân sự đã xoá</h3>
-                    <div class="table-responsive" style="max-height: 250px; overflow-y:auto;">
-                        <table id="users-trash-list">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Mã</th>
-                                    <th>Tên</th>
-                                    <th style="text-align:center">Khôi phục</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+        <!-- Cột bên phải: danh sách / đã xoá -->
+        <div class="card flex-1">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">Nhân Sự</h3>
+                <!-- lựa chọn nhỏ -->
+                <div class="user-toggle">
+                    <button id="btn-users-main"
+                            class="user-toggle-btn active"
+                            type="button"
+                            onclick="switchUserView('main')">
+                        Danh sách
+                    </button>
+                    <button id="btn-users-trash"
+                            class="user-toggle-btn"
+                            type="button"
+                            onclick="switchUserView('trash')">
+                        Đã xoá <span id="deleted-count" style="font-size:0.7rem; opacity:.8;">(0)</span>
+                    </button>
                 </div>
             </div>
 
+            <!-- bảng chính -->
+            <div id="users-main-wrapper" class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table id="users-list">
+                    <thead>
+                        <tr><th>ID</th><th>MÃ</th><th>TÊN</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- bảng nhân sự đã xoá (ẩn) -->
+            <div id="users-trash-wrapper" class="table-responsive hidden" style="max-height: 400px; overflow-y: auto;">
+                <table id="users-trash-list">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">ID</th>
+                            <th>MÃ</th>
+                            <th>TÊN</th>
+                            <th style="text-align:center; width:90px;">Khôi phục</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- SETTINGS -->
             <div id="tab-settings" class="tab-content hidden">
                 <div class="card">
@@ -1602,33 +1648,66 @@
             </tr>`;
         });
     }
+function switchUserView(type) {
+    const mainWrap  = document.getElementById('users-main-wrapper');
+    const trashWrap = document.getElementById('users-trash-wrapper');
+    const btnMain   = document.getElementById('btn-users-main');
+    const btnTrash  = document.getElementById('btn-users-trash');
 
-    function renderUserTrashList() {
-        const tbody = document.querySelector('#users-trash-list tbody');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+    if (!mainWrap || !trashWrap || !btnMain || !btnTrash) return;
 
-        if (!usersTrashCache || Object.keys(usersTrashCache).length === 0) {
-            tbody.innerHTML =
-                "<tr><td colspan='4' style='text-align:center; padding:16px; color:#999'>Không có nhân sự đã xoá</td></tr>";
-            return;
-        }
+    if (type === 'trash') {
+        mainWrap.classList.add('hidden');
+        trashWrap.classList.remove('hidden');
+        btnMain.classList.remove('active');
+        btnTrash.classList.add('active');
+    } else {
+        trashWrap.classList.add('hidden');
+        mainWrap.classList.remove('hidden');
+        btnTrash.classList.remove('active');
+        btnMain.classList.add('active');
+    }
+}
+function renderUserTrashList() {
+    const tbody = document.querySelector('#users-trash-list tbody');
+    const countSpan = document.getElementById('deleted-count');
+    if (!tbody) return;
 
-        Object.entries(usersTrashCache).forEach(([id, u]) => {
-            const name = typeof u === 'string' ? u : u.name || '';
-            const code = typeof u === 'string' ? '---' : u.code || '---';
-            tbody.innerHTML += `<tr>
+    tbody.innerHTML = "";
+
+    const list = usersTrashCache || {};
+    const count = Object.keys(list).length;
+
+    if (countSpan) {
+        countSpan.textContent = `(${count})`;
+    }
+
+    if (count === 0) {
+        tbody.innerHTML =
+            "<tr><td colspan='4' style='text-align:center; padding:12px; color:#999'>Không có nhân sự đã xoá</td></tr>";
+        return;
+    }
+
+    Object.entries(list).forEach(([id, u]) => {
+        const name = typeof u === 'string' ? u : (u.name || '');
+        const code = typeof u === 'string' ? '---' : (u.code || '---');
+
+        tbody.innerHTML += `
+            <tr>
                 <td><span class="badge badge-id">${id}</span></td>
                 <td>${code}</td>
                 <td>${name}</td>
                 <td style="text-align:center">
-                    <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem" onclick="restoreUser('${id}')">
+                    <button class="btn btn-outline"
+                            style="padding:4px 8px; font-size:0.7rem"
+                            onclick="restoreUser('${id}')">
                         Khôi phục
                     </button>
                 </td>
-            </tr>`;
-        });
-    }
+            </tr>
+        `;
+    });
+}
 
     function fillForm(id) {
         const info = getUserInfo(id);
