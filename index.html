@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chấm Công UTC</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position: absolute;">
+  <defs>
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025 0.025" numOctaves="2" seed="92" result="noise" />
+      <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+      <feDisplacementMap in="SourceGraphic" in2="blurred" scale="65" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+</svg>
+
+<div id="toast-container"></div>
+
+<div id="offline-modal" class="overlay" style="z-index: 20000;">
+    <div class="modal-box">
+        <div style="font-size: 3.5rem; margin-bottom: 16px;">📡</div>
+        <h2 style="margin: 0 0 8px 0; color: var(--danger);">Mất Kết Nối!</h2>
+        <p style="color: var(--text-sub); margin-bottom: 24px;">Không thể tải dữ liệu mới.</p>
+        <div class="flex-row">
+            <button class="btn btn-primary flex-1" onclick="openWifiSettings()">Cài Đặt</button>
+            <button class="btn btn-outline flex-1" onclick="switchToOfflineMode()">Xem Offline</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="overlay">
+    <div class="modal-box">
+        <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h2 style="margin: 0 0 8px 0; color: var(--text-main);">Xác Nhận</h2>
+        <p id="confirm-msg" style="color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem;">Hành động này không thể hoàn tác.</p>
+        <div class="flex-row">
+            <button id="btn-confirm-yes" class="btn btn-primary flex-1" style="background: var(--danger); color: white;">Đồng Ý</button>
+            <button class="btn btn-outline flex-1" onclick="closeConfirmModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<div id="new-id-modal" class="overlay">
+    <div class="modal-box">
+        <div style="font-size: 3.5rem; margin-bottom: 16px;">👋</div>
+        <h2 style="margin: 0 0 8px 0;">Phát hiện người lạ chấm công</h2>
+        <h1 id="modal-id" style="font-size: 2.5rem; color: var(--primary); margin: 0 0 16px 0; font-weight: 800;">--</h1>
+        <p style="color: var(--text-sub); margin-bottom: 24px;">Đã lưu giờ quét. Thêm tên ngay?</p>
+        <div class="flex-row">
+            <button class="btn btn-primary flex-1" onclick="acceptNewID()">Thêm Ngay</button>
+            <button class="btn btn-outline flex-1" onclick="closeNewID()">Để Sau</button>
+        </div>
+    </div>
+</div>
+
+<div id="password-modal" class="overlay">
+    <div class="modal-box">
+        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 10px;">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h2 style="margin: 0 0 20px 0;">Đổi Mật Khẩu</h2>
+        
+        <div style="text-align: left; margin-bottom: 15px; background: var(--bg-body); padding: 10px; border-radius: 12px;">
+            <label style="font-size: 0.8rem; color: var(--text-sub); display: block; margin-bottom: 5px;">
+                🔒 Câu hỏi bảo mật <b>?</b>
+            </label>
+            <input type="text" id="secret-input" class="form-control" placeholder="Nhập câu trả lời..." style="margin-bottom: 0;">
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 15px;">
+        <input type="password" id="old-pass-input" class="form-control" placeholder="Mật khẩu cũ">
+        <input type="password" id="new-pass-input" class="form-control" placeholder="Mật khẩu mới">
+        <input type="password" id="confirm-pass-input" class="form-control" placeholder="Nhập lại mật khẩu mới">
+        
+        <div class="flex-row">
+            <button class="btn btn-primary flex-1" onclick="saveNewPassword()">Lưu</button>
+            <button class="btn btn-outline flex-1" onclick="closeChangePassModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<div id="login-page">
+    <div class="login-card">
+        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-fingerprint"></i></div>
+        <h2 style="margin-bottom: 8px;">Hệ Thống Chấm Công</h2>
+        <p style="color: var(--text-sub); margin-bottom: 32px; font-size: 0.9rem;">Vui lòng đăng nhập</p>
+        <div class="role-group">
+            <button class="role-btn active" onclick="switchRole('emp', this)">Nhân Viên</button>
+            <button class="role-btn" onclick="switchRole('admin', this)">Quản Trị</button>
+        </div>
+        
+        <div id="form-emp">
+            <select id="login-select" class="form-control"><option>Đang tải...</option></select>
+            <label class="remember-check"><input type="checkbox" id="remember-emp"> Ghi nhớ tôi</label>
+            <button class="btn btn-primary" style="width:100%" onclick="loginEmp()">Xem Lịch Sử</button>
+        </div>
+
+        <div id="form-admin" class="hidden">
+            <input type="text" id="user" class="form-control" placeholder="Tên đăng nhập">
+            <input type="password" id="pass" class="form-control" placeholder="Mật khẩu">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <label class="remember-check" style="margin-bottom: 0;">
+                    <input type="checkbox" id="remember-admin"> Ghi nhớ
+                </label>
+                <button type="button" class="btn btn-outline" style="padding: 8px 12px; color: var(--primary); border-color: var(--primary);" onclick="biometricLogin()">
+                    <i class="fa-solid fa-fingerprint" style="font-size: 1.2rem;"></i>
+                </button>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()">Đăng Nhập</button>
+        </div>
+    </div>
+</div>
+
+<nav class="sidebar" id="main-sidebar">
+    <div class="logo"><i class="fa-solid fa-clock"></i> UTC Time</div>
+    <div class="nav-link active" id="pc-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Tổng Quan</div>
+    <div class="nav-link" id="pc-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i> Giám Sát</div>
+    <div class="nav-link" id="pc-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i> Tính Lương</div>
+    <div class="nav-link" id="pc-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i> Nhân Sự</div>
+    <div class="nav-link" id="pc-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i> Cài Đặt</div>
+</nav>
+
+<div class="main-content">
+    <div class="top-bar">
+        <button class="btn btn-outline" style="width: auto; padding: 8px 12px;" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <div style="display: flex; gap: 16px; align-items: center;">
+            <div style="text-align: right;">
+                <div id="display-name" style="font-weight: 600; font-size: 0.95rem;">Guest</div>
+                <div id="display-role" style="font-size: 0.75rem; color: var(--text-sub);">User</div>
+            </div>
+            <button class="btn btn-danger" style="width: auto; padding: 8px 12px;" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </div>
+
+    <div class="content-scroll">
+        <div id="view-emp" class="hidden">
+            <div class="card">
+                <h3>📅 Lịch Sử Của Bạn</h3>
+                <div class="table-responsive"><table id="emp-table"><thead><tr><th>Thời Gian</th><th>Trạng Thái</th></tr></thead><tbody></tbody></table></div>
+            </div>
+        </div>
+
+        <div id="view-admin" class="hidden">
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="flex-row">
+                    <div class="card flex-1"><h3>Tỷ Lệ Hôm Nay</h3><canvas id="chartPie" style="max-height: 220px;"></canvas></div>
+                    <div class="card flex-1"><h3>Thống Kê 7 Ngày</h3><canvas id="chartBar" style="max-height: 220px;"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3>Thống Kê Nhanh</h3>
+                    <div class="flex-row">
+                        <div class="card flex-1" style="text-align: center;"><div id="total-today" style="font-size: 2rem; font-weight: 700; color: var(--primary);">0</div><div style="color: var(--text-sub); font-size: 0.9rem;">Lượt Chấm</div></div>
+                        <div class="card flex-1" style="text-align: center;"><div id="on-time-today" style="font-size: 2rem; font-weight: 700; color: var(--success);">0</div><div style="color: var(--text-sub); font-size: 0.9rem;">Đúng Giờ</div></div>
+                        <div class="card flex-1" style="text-align: center;"><div id="late-today" style="font-size: 2rem; font-weight: 700; color: var(--danger);">0</div><div style="color: var(--text-sub); font-size: 0.9rem;">Đi Muộn</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-live" class="tab-content hidden">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+                        <h3>Giám Sát Realtime</h3>
+                        <div style="display:flex; align-items:center; gap:8px">
+                            <span style="font-size:0.8rem; color:var(--text-sub)">Giờ làm:</span>
+                            <input type="time" id="work-time" value="08:00" class="form-control" style="width: auto; margin:0; padding:6px">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="live-table">
+                            <thead>
+                            <tr>
+                                <th width="30%">Nhân Viên</th>
+                                <th width="30%">Chi Tiết</th>
+                                <th width="25%">Ảnh Check-in</th> <th width="15%" style="text-align:center">Xóa</th>
+                            </tr>
+                            </thead>
+                            <tbody id="live-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-salary" class="tab-content hidden">
+                <div class="card">
+                    <div class="flex-row">
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Từ ngày:</label><input type="date" id="date-start" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Đến ngày:</label><input type="date" id="date-end" class="form-control"></div>
+                        <div class="flex-1"><label style="font-size:0.8rem; font-weight:600">Lương/Giờ:</label><input type="number" id="salary-val" class="form-control" value="500000"></div>
+                    </div>
+                    <div class="flex-row" style="margin-top:10px">
+                        <button class="btn btn-primary flex-1" onclick="calcSalary()"><i class="fa-solid fa-calculator"></i> Tính Lương</button>
+                        <button class="btn btn-outline flex-1" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
+                        <button class="btn btn-danger flex-1" onclick="triggerDeleteData()"><i class="fa-solid fa-trash"></i> Xóa Dữ Liệu</button>
+                    </div>
+                </div>
+                <div class="card"><h3>Kết Quả: <span id="total-money" style="color:var(--success)">0 đ</span></h3><div class="table-responsive"><table id="salary-table"><thead><tr><th>Mã</th><th>Tên</th><th>Số Công</th><th>Thực Lĩnh</th></tr></thead><tbody></tbody></table></div></div>
+            </div>
+
+            <div id="tab-users" class="tab-content hidden">
+                <div class="flex-row">
+                    <div class="card flex-1">
+                        <h3>Thông Tin</h3>
+                        <input type="text" id="inp-id" class="form-control" placeholder="ID Nhân viên">
+                        <input type="text" id="inp-code" class="form-control" placeholder="Mã NV">
+                        <input type="text" id="inp-name" class="form-control" placeholder="Họ và Tên">
+                        <div class="flex-row">
+                            <button class="btn btn-primary flex-1" onclick="saveUser()">Lưu</button>
+                            <button class="btn btn-danger flex-1 hidden" id="btn-del-user" onclick="triggerDeleteUser()">Xóa</button>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%; margin-top:12px" onclick="resetForm()">Làm mới</button>
+                    </div>
+                    <div class="card flex-1">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h3 style="margin:0;">Nhân Sự</h3>
+                            <div class="user-toggle">
+                                <button id="btn-users-main" class="user-toggle-btn active" type="button" onclick="switchUserView('main')">Danh sách</button>
+                                <button id="btn-users-trash" class="user-toggle-btn" type="button" onclick="switchUserView('trash')">Đã xoá <span id="deleted-count" style="font-size:0.7rem; opacity:.8;">(0)</span></button>
+                            </div>
+                        </div>
+                        <div id="users-main-wrapper" class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table id="users-list">
+                                <thead><tr><th>ID</th><th>MÃ</th><th>TÊN</th></tr></thead>
+                                <tbody id="user-table-body"></tbody> </table>
+                        </div>                        <div id="users-trash-wrapper" class="table-responsive hidden" style="max-height: 400px; overflow-y: auto;"><table id="users-trash-list"><thead><tr><th style="width:60px;">ID</th><th>MÃ</th><th>TÊN</th><th style="text-align:center; width:90px;">Khôi phục</th></tr></thead><tbody></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="tab-content hidden">
+                <div class="card">
+                    <h3>Cài Đặt</h3>
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="openChangePassModal()">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-key"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Đổi Mật Khẩu</div><div style="font-size:0.8rem; color:var(--text-sub)">Thay đổi mật khẩu Admin</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                        </div>
+
+                        <div class="settings-item" onclick="openTrashView()">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-trash-can"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Thùng Rác</div><div style="font-size:0.8rem; color:var(--text-sub)">Khôi phục dữ liệu đã xóa</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                        </div>
+
+                        <div class="settings-item" onclick="showToast('Zalo: 0394590931', 'info')">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-headset"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Liên Hệ Kỹ Thuật</div><div style="font-size:0.8rem; color:var(--text-sub)">Hỗ trợ lỗi và bảo trì</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>
+                        </div>
+
+                        <div class="settings-item">
+                            <div style="display:flex; align-items:center; gap:15px">
+                                <div class="settings-icon"><i class="fa-solid fa-code-branch"></i></div>
+                                <div><div style="font-weight:600; color:var(--text-main)">Phiên Bản</div><div style="font-size:0.8rem; color:var(--text-sub)">v22.0 (Stable)</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-trash-detail" class="tab-content hidden">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+                        <div style="display:flex; align-items:center; gap:10px"><button class="btn btn-outline" style="padding:6px 10px" onclick="openTab('settings')"><i class="fa-solid fa-arrow-left"></i></button><h3 style="margin:0; color:var(--danger)">Thùng Rác</h3></div>
+                        <button class="btn btn-danger" style="font-size:0.8rem; padding:6px 12px" onclick="emptyTrash()">Dọn sạch</button>
+                    </div>
+                    <div class="table-responsive"><table id="trash-table"><thead><tr><th>Nhân Viên</th><th>Thời Gian</th><th style="text-align:center">Thao Tác</th></tr></thead><tbody id="trash-body"></tbody></table></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav" id="mobile-nav">
+    <div class="b-nav-item active" id="mob-dashboard" onclick="openTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Tổng Quan</span></div>
+    <div class="b-nav-item" id="mob-live" onclick="openTab('live')"><i class="fa-solid fa-video"></i><span>Giám Sát</span></div>
+    <div class="b-nav-item" id="mob-salary" onclick="openTab('salary')"><i class="fa-solid fa-money-bill-wave"></i><span>Lương</span></div>
+    <div class="b-nav-item" id="mob-users" onclick="openTab('users')"><i class="fa-solid fa-users"></i><span>Nhân Sự</span></div>
+    <div class="b-nav-item" id="mob-settings" onclick="openTab('settings')"><i class="fa-solid fa-gear"></i><span>Cài Đặt</span></div>
+</div>
+
+<script src="./js/script.js"></script>
+</body>
+</html>
