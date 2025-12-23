@@ -21,7 +21,7 @@
 // ================= 1) WIFI + FIREBASE =================
 #define WIFI_SSID "UTC"
 #define WIFI_PASS "00000000"
-
+#define SPLIT_HOUR 13  // Mốc 13 giờ (1 giờ chiều). Trước giờ này là Vào, sau là Ra.
 #define DATABASE_URL    "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com/"
 #define DATABASE_SECRET "Wu3ugJvvXLvIESnx4Po40PPLgACeYqeOmpEF1Bsl"
 
@@ -245,71 +245,112 @@ void enrollNewFinger() {
 }
 
 // ================= 9) RFID HANDLE (Logic Chấm Công) =================
+// ================= XỬ LÝ CHẤM CÔNG (LOGIC: LẦN 1 VÀO - LẦN 2 RA) =================
 void handleCard(const String &uid) {
   Serial.println("Card Detected: " + uid);
 
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(10, 50); tft.setTextColor(ST77XX_YELLOW); tft.setTextSize(1);
-  tft.print("Dang xu ly...");
-
-  // Tạo tên ảnh
+  // 1. Lấy thời gian để tạo Key theo ngày
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)) Serial.println("Loi lay gio!");
+  
+  // Tạo chuỗi ngày hôm nay (Ví dụ: "20231225")
+  char dayStr[10];
+  strftime(dayStr, 10, "%Y%m%d", &timeinfo);
+  
+  // Tạo chuỗi thời gian cho ảnh
   char uniqueCode[30];
   strftime(uniqueCode, 30, "%Y%m%d%H%M%S", &timeinfo);
   String imgFileName = uid + "_" + String(uniqueCode); 
 
-  // Gửi lệnh chụp
+  tft.fillScreen(ST77XX_BLACK);
+  tft.setCursor(10, 50); tft.setTextColor(ST77XX_YELLOW); tft.setTextSize(1);
+  tft.print("Dang kiem tra...");
+
+  // Gửi lệnh chụp ảnh ngay cho đỡ trễ
   Serial1.println("SNAP:" + imgFileName);
 
-  // Tìm tên
+  // 2. Tìm tên & Kiểm tra trạng thái hôm nay trên Firebase
   String name = "";
+  String currentStatus = ""; // Trạng thái hiện tại
+  String statusPath = "/daily_check/" + String(dayStr) + "/" + uid; // Đường dẫn lưu trạng thái ngày
+
   if (Firebase.ready()) {
+    // Lấy tên
     if (Firebase.RTDB.getString(&fbdo, "/users/" + uid + "/name")) name = fbdo.stringData();
+    
+    // Lấy trạng thái hôm nay (Xem lần cuối là IN hay OUT)
+    if (Firebase.RTDB.getString(&fbdo, statusPath)) {
+      currentStatus = fbdo.stringData();
+    }
   }
 
-  // Chuẩn bị JSON
+  // 3. Quyết định VÀO hay RA
+  // Nếu chưa có dữ liệu hoặc lần trước là OUT -> Giờ sẽ là IN
+  // Nếu lần trước là IN -> Giờ sẽ là OUT
+  String newStatus = "IN"; 
+  if (currentStatus == "IN") {
+    newStatus = "OUT";
+  }
+
+  // Chuẩn bị JSON log
   FirebaseJson json;
   json.set("id", uid);
   json.set("timestamp", nowTimestamp());
   json.set("type", "RFID");
   json.set("device", deviceId());
   json.set("image", imgFileName + ".jpg");
+  json.set("status", newStatus); // Gửi trạng thái mới lên
 
   if (name.length() > 0) {
-    // >> QUEN
+    // >> NGƯỜI QUEN
     tft.fillScreen(ST77XX_GREEN);
-    tft.setTextColor(ST77XX_BLACK); tft.setTextSize(2);
-    tft.setCursor(10, 30); tft.print(viToEn(name));
-    tft.setTextSize(1); tft.setCursor(10, 70); tft.print("CHAM CONG OK!");
+    tft.setTextColor(ST77XX_BLACK); 
     
-    speakThankYou(); // Nói
+    // Hiện tên
+    tft.setTextSize(2); tft.setCursor(10, 20); tft.print(viToEn(name));
     
+    // Hiện trạng thái VÀO / RA
+    tft.setTextSize(1); tft.setCursor(10, 60);
+    
+    if (newStatus == "IN") {
+      tft.print("XIN CHAO!");      
+      tft.setCursor(10, 80); 
+      tft.setTextSize(2); tft.print("VAO LAM");
+    } else {
+      tft.print("TAM BIET!");      
+      tft.setCursor(10, 80); 
+      tft.setTextSize(2); tft.print("RA VE");
+    }
+    
+    speakThankYou(); 
+    
+    // A. Gửi log chấm công
     json.set("name", name);
     if (Firebase.ready()) Firebase.RTDB.pushJSON(&fbdo, "/attendance", &json);
+    
+    // B. Cập nhật trạng thái mới vào ngày hôm nay để nhớ cho lần sau
+    if (Firebase.ready()) Firebase.RTDB.setString(&fbdo, statusPath, newStatus);
+    
     delay(2500);
   } 
   else {
-    // >> LẠ
+    // >> NGƯỜI LẠ
     tft.fillScreen(ST77XX_RED);
     tft.setTextColor(ST77XX_WHITE); tft.setTextSize(2);
     tft.setCursor(20, 40); tft.print("THE LA");
     tft.setTextSize(1); tft.setCursor(5, 80); tft.print("ID: " + uid);
     
-    beep(2);
+    beep(2); 
 
     json.set("name", "Nguoi La (" + uid + ")");
     if (Firebase.ready()) Firebase.RTDB.pushJSON(&fbdo, "/attendance", &json);
 
-    // Gửi vào hàng đợi đăng ký (dùng hàm cũ của bạn)
     static unsigned long lastCardEnrollMs = 0;
-    if (cooldown(lastCardEnrollMs, 1200)) {
-       enqueueNewEnroll("CARD", uid);
-    }
+    if (cooldown(lastCardEnrollMs, 1200)) enqueueNewEnroll("CARD", uid);
+    
     delay(2000);
   }
 }
-
 // ================= 10) FINGERPRINT CHECK (Logic Chấm Công) =================
 void checkFingerprint() {
   // throttle
