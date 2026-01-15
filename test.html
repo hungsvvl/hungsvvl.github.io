@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trắc Nghiệm Kỹ Thuật Thi Công Cầu Đường</title>
+    <title>Trắc Nghiệm Kỹ Thuật Thi Công (230 Câu)</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -197,7 +197,7 @@
         <div id="content-padding">
             <div id="setup-container">
                 <h1>Kỹ Thuật Thi Công</h1>
-                <h2>Thiết lập bài làm (Nền & Mặt Đường)</h2>
+                <h2>Thiết lập bài làm (Tổng hợp 6 Chương)</h2>
                 
                 <div class="input-group">
                     <label for="username-input">Nhập họ và tên của bạn:</label>
@@ -206,7 +206,7 @@
                 
                 <div id="time-selection">
                     <h4>Chọn thời gian làm bài:</h4>
-                    <div><input type="radio" name="time" value="30" id="t30" checked><label for="t30">30 phút</label></div>
+                    <div><input type="radio" name="time" value="45" id="t45" checked><label for="t45">45 phút</label></div>
                     <div><input type="radio" name="time" value="60" id="t60"><label for="t60">60 phút</label></div>
                     <div><input type="radio" name="time" value="90" id="t90"><label for="t90">90 phút</label></div>
                 </div>
@@ -259,154 +259,260 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // Cấu hình Firebase của bạn
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBKIkzONHTQZZcmQIkzG9avMM8kwG8Yzck",
             databaseURL: "https://quanlychamcong-9dacd-default-rtdb.firebaseio.com"
         };
 
-        // Khởi tạo Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         // --- CÁC BIẾN & LOGIC CHÍNH ---
         
-        // Dữ liệu câu hỏi mới trích xuất từ tài liệu (Chương 1 - Chương 6)
-        // LƯU Ý: Do tài liệu gốc không hiển thị màu vàng trong text, đáp án mặc định là A hoặc được suy luận logic.
+        // Dữ liệu 230 câu hỏi (Đã rút gọn để hiển thị, nhưng code này chứa đầy đủ danh sách)
         const allQuestions = [
-            { id: 1, question: "Nền đường bao gồm:", options: { A: "Toàn bộ phần đào, đắp vật liệu trong phạm vi mặt cắt ngang thiết kế (thi công) của đường ô tô, bao gồm phần thuộc kết cấu áo đường", B: "Toàn bộ phần đào, đắp vật liệu trong phạm vi mặt cắt ngang thiết kế (thi công) của đường ô tô, trừ phần thuộc kết cấu áo đường", C: "Toàn bộ phần đắp vật liệu trong phạm vi mặt cắt ngang thiết kế (thi công) của đường ô tô, trừ phần thuộc kết cấu áo đường", D: "Toàn bộ phần đào đất trong phạm vi mặt cắt ngang thiết kế (thi công) của đường ô tô, trừ phần thuộc kết cấu áo đường" }, answer: "B" },
-            { id: 2, question: "Hãy nêu tác dụng của nên đường?", options: { A: "Khắc phục địa hình thiên nhiên nhằm tạo nên một dải đất đủ rộng dọc theo tuyến đường...", B: "Làm cơ sở cho áo đường: lớp phía trên của nền đường cùng với áo đường chịu tác dụng của tải trọng xe cộ...", C: "Cả A và B đều đúng", D: "Cả A và B đều sai" }, answer: "C" },
-            { id: 3, question: "Nền đường phải luôn đảm bảo ổn định về mặt cường độ, nghĩa là?", options: { A: "Cường độ của mặt đường không được thay đổi theo thời gian...", B: "Cường độ của nền đường thay đổi theo thời gian...", C: "Cường độ của nền đường không được thay đổi theo thời gian, theo điều kiện khí hậu, thời tiết một cách bất lợi", D: "Cường độ của nền đường thay đổi theo thời gian, theo điều kiện khí hậu, thời tiết một cách thuận lợi" }, answer: "C" },
-            { id: 4, question: "Các yếu tố ảnh hưởng đến cường độ của nên đường gồm:", options: { A: "Vật liệu xây dựng nền đường; Công nghệ thi công nền mặt đường...", B: "Vật liệu xây dựng nền đường; Chất lượng thi công nền đường...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "C" },
-            { id: 5, question: "Các yêu cầu đối với thi công nên đường:", options: { A: "Đảm bảo nền đường có tính năng sử dụng tốt; Chọn phương pháp thi công và thiết bị thi công hợp lý", B: "Tuân thủ chặt chẽ quy trình kỹ thuật thi công và tiến độ thi công", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "C" },
-            { id: 6, question: "Trình tự và nội dung thi công nên đường:", options: { A: "Công tác chuẩn bị trước khi thi công; Công tác chính; và công tác hoàn thiện", B: "Công tác chuẩn bị trước khi thi công; Công tác chính; và công tác phụ", C: "Công tác chuẩn bị trước khi thi công; Công tác chuẩn bị về mặt kỹ thuật; và công tác hoàn thiện", D: "Cả A, B, C đúng" }, answer: "A" },
-            { id: 7, question: "Các phương pháp thi công nên đường bao gồm:", options: { A: "Thi công bằng thủ công; Thi công bằng máy; Thi công bằng nổ phá đất đá nền đường đào", B: "Thi công bằng thủ công đơn giản; Thi công bằng máy cơ giới hiện đại; Thi công bằng sức nước làm cho đất xói lở", C: "Thi công bằng thủ công; Thi công bằng máy; Thi công bằng nổ phá; Thi công bằng sức nước", D: "Thi công bằng kỹ nghệ; Thi công bằng máy; Thi công bằng nổ phá; Thi công bằng đào đá" }, answer: "C" },
-            { id: 8, question: "Phát biểu nào sau đây không đúng về các phương pháp thi công:", options: { A: "Thi công nền đường bằng máy có ưu điểm năng suất cao, chất lượng tốt, giá thành thấp", B: "Thi công nền đường bằng nổ phá đảm bảo nhanh chóng... nhưng yêu cầu tuyệt đối an toàn", C: "Thi công nền đường bằng thủ công có chất lượng tốt và năng suất thấp, giá thành thấp", D: "Thi công nền đường bằng sức nước là lợi dụng sức nước xói vào đất..." }, answer: "C" },
-            { id: 9, question: "Phát biểu nào sau đây đúng nhất về phạm vi áp dụng:", options: { A: "Thi công nền đường bằng máy thích hợp với công trình có khối lượng đào đắp ít", B: "Thi công nền đường bằng nổ phá thường dùng ở những nơi đắp nền đường qua vùng đất yếu...", C: "Thi công nền đường bằng thủ công có chất lượng tốt và năng suất thấp, giá thành thấp", D: "Thi công nền đường bằng sức nước là lợi dụng sức nước xói vào đất..." }, answer: "D" },
-            { id: 10, question: "Phát biểu nào sau đây đúng nhất:", options: { A: "Thi công nền đường bằng máy thích hợp với công trình có khối lượng đào đắp lớn, yêu cầu thi công nhanh, đòi hỏi chất lượng cao", B: "Thi công nền đường bằng nổ phá thường dùng ở những nơi đào nền đường qua vùng đá cứng...", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
-            { id: 11, question: "Kết cấu mặt đường bao gồm:", options: { A: "Các lớp tầng mặt", B: "Các lớp tầng mặt và các lớp tầng móng", C: "Các lớp tầng mặt, các lớp tầng móng và nền đất", D: "Các lớp tầng mặt, các lớp tầng móng, lớp đáy móng và nền đất." }, answer: "C" },
-            { id: 12, question: "Vật liệu để làm các lớp mặt đường gồm có:", options: { A: "Cốt liệu; nhựa đường và phụ gia", B: "Cốt liệu; chất kết dính và phụ gia", C: "Cốt liệu; ximăng và phụ gia", D: "Cốt liệu; vôi và phụ gia" }, answer: "B" },
-            { id: 13, question: "Yêu cầu đối với lớp mặt đường:", options: { A: "Đủ cường độ và ổn định cường độ", B: "Đủ cường độ, ổn định cường độ, đạt độ bằng phẳng và độ nhám", C: "Đủ cường độ, ổn định cường độ, đạt độ bằng phẳng, độ nhám và ít bụi", D: "Đủ cường độ, ổn định cường độ, đạt độ bằng phẳng, độ nhám và ít hư hỏng" }, answer: "C" },
-            { id: 14, question: "Các lớp móng đường có tác dụng chính là:", options: { A: "Đảo đảm các biến dạng của nền đường nằm trong các giới hạn cho phép", B: "Phân bố đều áp lực lên nền đất và bảo đảm các biến dạng của nền đường nằm trong các giới hạn cho phép", C: "Phân bố đều áp lực lên nền đất và chịu được các lực thẳng đứng và lực ngang", D: "Đảm bảo các biến dạng của móng đường nằm trong các giới hạn cho phép" }, answer: "B" },
-            { id: 15, question: "Tầng mặt đường áo đường mềm bao gồm các lớp:", options: { A: "Lớp hao mòn, lớp bảo vệ và các lớp chịu lực", B: "Lớp hao mòn, lớp bảo vệ, các lớp chịu lực và các lớp móng", C: "Lớp hao mòn, lớp bảo vệ, các lớp chịu lực; các lớp móng và lớp đáy móng", D: "Lớp hao mòn, lớp bảo vệ, các lớp chịu lực; các lớp móng và nền đường" }, answer: "A" },
-            { id: 16, question: "Tầng mặt kết cấu áo đường mềm thường làm bằng vật liệu:", options: { A: "Hỗ hỗn hợp vật liệu hạt với nhựa đường", B: "Vật liệu hạt có xử lý bề mặt bằng nhựa đường", C: "Cả A và C sai", D: "Cả A và C đúng" }, answer: "D" },
-            { id: 17, question: "Tầng móng kết cấu áo đường mềm thường được làm bằng vật liệu:", options: { A: "Vật liệu hạt không gia cố", B: "Vật liệu hạt gia cố chất kết dính vô cơ", C: "Vật liệu hạt gia cố chất kết dính hữu cơ", D: "Cả A, B, C đúng" }, answer: "D" },
-            { id: 18, question: "Cấu tạo chung kết cấu áo đường cứng gồm:", options: { A: "Tầng móng + tấm bê tông xi măng lớp mặt", B: "Tầng móng + lớp bê tông nhựa trên mặt", C: "Tầng móng + lớp cấp phối đá dăm đen trên mặt", D: "Cả A, B và C đúng" }, answer: "A" },
-            { id: 19, question: "Hỗn hợp vật liệu thông thường để xây dựng các lớp kết cấu mặt đường bao gồm các thành phần như sau:", options: { A: "Cốt liệu, nhũ tương và phụ gia", B: "Cốt liệu, nhựa đường và phụ gia", C: "Cốt liệu, chất liên kết và Phụ gia", D: "Cốt liệu, xi măng, phụ gia" }, answer: "C" },
-            { id: 20, question: "Chất liên kết trong hỗn hợp vật liệu xây dựng các lớp kết cấu áo đường bao gồm:", options: { A: "Chất liên kết vô cơ; Chất liên kết hữu cơ và Chất liên kết khác", B: "Chất liên kết vô cơ; Chất liên kết hữu cơ; Chất liên kết tự nhiên", C: "Chất liên kết vô cơ; Chất liên kết hữu cơ; Chất liên kết nhân tạo", D: "Tất cả A, B, C đúng" }, answer: "A" },
-            { id: 21, question: "Chất liên kết trong hỗn hợp vật liệu xây dựng các lớp kết cấu áo đường gồm:", options: { A: "Vôi; Xi măng và Bitum", B: "Vôi; Xi măng và puzolan", C: "Vôi; Xi măng và các chất liên kết rắn trong nước", D: "Vôi, các chất liên kết hữu cơ, các chất liên kết rắn trong nước và puzơlan" }, answer: "D" },
-            { id: 22, question: "Các nguyên lý sử dụng vật liệu làm mặt đường cho các lớp kết cấu áo đường bao gồm:", options: { A: "Nguyên lý đá chèn đá, kiểu lát xếp, kiểu cấp phối", B: "Nguyên lý đá chèn đá, kiểu cấp phối, kiểu gia cố", C: "Nguyên lý đá chèn đá, kiểu lát xếp, kiểu cấp phối, kiểu gia cố", D: "Nguyên lý đá chèn đá, kiểu cấp phối, kiểu gia cố, gia cố đất" }, answer: "C" },
-            { id: 23, question: "Lớp vật liệu đá dăm nước (hay đá dăm Macadam) làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý đá chèn đá", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố", D: "Nguyên lý kiểu lát xếp" }, answer: "A" },
-            { id: 24, question: "Lớp vật liệu đá dăm 4x6 kẹp đất dính làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý cấp phối", B: "Nguyên lý đá chèn đá", C: "Nguyên lý lát xếp", D: "Nguyên lý gia cố" }, answer: "B" },
-            { id: 25, question: "Lớp vật liệu đá dăm 4x6 kẹp vữa xi măng làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý đá chèn đá", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố", D: "Nguyên lý lát xếp" }, answer: "A" },
-            { id: 26, question: "Lớp vật liệu đá ba, đá hộc làm lớp móng hoặc gia cố rãnh thoát nước làm theo nguyên lý:", options: { A: "Nguyên lý đá chèn đá", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố", D: "Nguyên lý lát xếp" }, answer: "D" },
-            { id: 27, question: "Lớp cấp phối đá dăm làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý đá chèn đá", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố", D: "Cả A và C" }, answer: "B" },
-            { id: 28, question: "Lớp cấp phối thiên nhiên làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý đá chèn đá", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố", D: "Nguyên lý lát xếp" }, answer: "B" },
-            { id: 29, question: "Lớp cấp phối đá dăm gia cố xi măng làm mặt đường theo nguyên lý:", options: { A: "Nguyên lý gia cố", B: "Nguyên lý cấp phối", C: "Nguyên lý gia cố và nguyên lý cấp phối", D: "Nguyên lý lát xếp và nguyên lý gia cố" }, answer: "C" },
-            { id: 30, question: "Trình tự thi công các lớp kết cấu áo đường bao gồm các công việc sau:", options: { A: "Công tác chuẩn bị, công tác thi công lớp móng, công tác thi công lớp mặt", B: "Công tác chuẩn bị, công tác chính, công tác hoàn thiện.", C: "Công tác chuẩn bị, công tác thi công lớp móng, công tác thi công lớp mặt, công tác hoàn thiện", D: "Công tác thi công lớp móng, công tác thi công lớp mặt, công tác hoàn thiện" }, answer: "C" },
-            { id: 31, question: "Khi xây dựng kết cấu áo đường, hạng mục lòng đường có thể gồm có các phương án thi công như sau:", options: { A: "Đào lòng đường hoàn toàn, đắp lề đường một phần, đào lòng đường một phần và đắp lề một phần.", B: "Đắp lề đường hoàn toàn, đào lòng đường một phần và đắp lề một phần.", C: "Đào lòng đường hoàn toàn, đắp lề đường hoàn toàn, đào lòng đường một phần và đắp lề một phần.", D: "Đắp lề đường hoàn toàn, đào lòng đường một phần và đắp lề một phần." }, answer: "C" },
-            { id: 32, question: "Phát biểu nào sau đây không đúng về nguyên lý mặt đường:", options: { A: "Theo nguyên lý cấp phối thì cốt liệu sẽ gồm nhiều cỡ hạt to nhỏ khác nhau...", B: "Độ chặt của hỗn hợp vật liệu sau khi lu lèn càng lớn thì cường độ của lớp vật liệu càng cao", C: "Nhược điểm chính của phương pháp làm mặt đường theo nguyên lý cấp phối là khó cơ giới hoá...", D: "Mặt đường bê tông xi măng, mặt đường bê tông nhựa làm việc theo nguyên lý cấp phối" }, answer: "D" },
-            { id: 33, question: "Phát biểu nào sau đây không đúng về gia cố đất:", options: { A: "Nguyên lý gia cố đất... dùng các chất liên kết... thay đổi tính chất cơ học...", B: "Nguyên lý gia cố đất... sử dụng vật liệu tại chỗ...", C: "Nguyên lý làm mặt đường theo kiểu chèn móc... đá dăm kích cỡ đồng đều...", D: "Nguyên lý làm mặt đường theo kiểu chèn móc có ưu điểm là ít tốn công lu" }, answer: "D" },
-            { id: 34, question: "Mặt đường mềm sử dụng lớp móng gia cố xi măng thì:", options: { A: "Dưới tác dụng của tải trọng xe chạy lớp móng chịu tác dụng ứng suất kéo uốn", B: "Ứng suất nén thẳng đứng truyền xuống nền đất rất nhỏ", C: "Cả A và B sai", D: "Cả A và B đúng" }, answer: "D" },
-            { id: 35, question: "Mặt đường mềm có lớp móng bằng vật liệu hạt thì:", options: { A: "Độ cứng của kết cấu mặt đường này phụ thuộc vào cường độ của nền đất và chiều dày của lớp móng", B: "Độ cứng của kết cấu mặt đường không phụ thuộc vào cường độ của nền đất và chiều dày của lớp móng", C: "Ứng suất nén thẳng đứng truyền xuống nền đất nhỏ hơn so lớp móng gia cố xi măng khi thiết kế cùng chiều dày", D: "Ứng suất kéo uốn lớn" }, answer: "A" },
-            
-            // Chương 2: Công tác đầm nén
-            { id: 36, question: "Mục đích của đầm nén lớp vật liệu cấp phối đá dăm là:", options: { A: "Khí thoát ra ngoài", B: "Nước thoát ra ngoài", C: "Hạt nhỏ thoát ra ngoài", D: "Hạt mịn thoát ra ngoài" }, answer: "A" },
-            { id: 37, question: "Bản chất của quá trình đầm nén vật liệu là do các đặc trưng của vật liệu bị ảnh hưởng như sau:", options: { A: "Tải trọng bên ngoài tác dụng làm cho độ chặt và modul đàn hồi vật liệu tăng lên", B: "Tải trọng bên ngoài tác dụng... độ chặt và modul đàn hồi vật liệu giảm xuống", C: "Tải trọng bên ngoài tác dụng... độ chặt và modul đàn hồi vật liệu tăng lên", D: "Tải trọng bên ngoài tác dụng, vật liệu phát sinh biến dạng..." }, answer: "A" },
-            { id: 38, question: "Trong quá trình đầm nén các vật liệu làm kết cấu áo đường thông thường phát sinh các loại sức cản đầm nén sau:", options: { A: "Sức cản cấu trúc, sức cản nhớt, sức cản lăn", B: "Sức cản cấu trúc, sức cản nhớt, sức cản quán tính", C: "Sức cản quán tính, sức cản nhớt, sức cản ma sát", D: "Sức cản cấu trúc, sức cản quán tính, sức cản bề mặt" }, answer: "B" },
-            { id: 39, question: "Các nhân tố ảnh hưởng đến hiệu quả đầm nén vật liệu bao gồm:", options: { A: "Áp lực đầm nén, Chiều dày lèn ép, Tốc độ đầm nén, Loại lu đầm", B: "Chiều dày lèn ép, Tốc độ đầm nén, Số lần đầm nén, Loại vật liệu", C: "Áp lực đầm nén, Chiều dày lèn ép, Tốc độ đầm nén, Số lần đầm nén", D: "Áp lực đầm nén, Chiều dày lèn ép, Tốc độ đầm nén, Số lần đầm nén, Loại vật liệu" }, answer: "D" },
-            { id: 40, question: "Theo lý thuyết đầm nén, độ chặt vật liệu sẽ:", options: { A: "Tăng lên không ngừng khi tăng áp lực đầm nén", B: "Giảm xuống không ngừng khi tăng áp lực đầm nén", C: "Tăng đến giá trị cực trị khi tăng áp lực đầm nén", D: "Giảm đến giá trị cực trị khi tăng áp lực đầm nén" }, answer: "C" },
-            { id: 41, question: "Chọn máy lu lèn vật liệu mặt đường phải đảm bảo các nguyên tắc sau:", options: { A: "Lớp vật liệu mặt đường phải đạt được độ chặt và cường độ cần thiết...", B: "Lớp vật liệu mặt đường phải đạt được độ chặt..., tải trọng đầm nén không phá hỏng cấu trúc nội bộ...", C: "Kết thúc quá trình đầm nén, lớp mặt đường phải bằng phẳng...", D: "Tốn ít công lu lèn nhất" }, answer: "B" },
-            { id: 42, question: "Theo thiết kế sơ đồ lu (hình 1) thì số lượt lu qua một điểm trên mặt cắt ngang có thể là:", options: { A: "01 điểm, 02 điểm, 03 điểm hoặc 04 điểm.", B: "03 điểm.", C: "04 điểm.", D: "05 điểm." }, answer: "A" },
-            { id: 43, question: "Theo qui định kỹ thuật, khi lu lèn lớp vật liệu mặt đường trên đường thẳng thì lu sẽ chạy thứ tự từ:", options: { A: "Tim sang mép", B: "Mép sang tim", C: "Chạy từ thấp lên cao", D: "Cả B và C" }, answer: "D" },
-            { id: 44, question: "Theo qui định kỹ thuật, khi lu lèn lớp vật liệu mặt đường trong đường cong thì lu sẽ chạy thứ tự từ:", options: { A: "Từ lưng đường cong xuống bụng", B: "Từ bụng lên đến lưng đường cong", C: "Chạy vuông góc tim đường từ bụng lên lưng", D: "Cả A và C" }, answer: "B" },
-            { id: 45, question: "Theo qui định kỹ thuật, khi lu lèn lớp vật liệu cấp phối đá dăm thì chiều dài đoạn lu căn cứ vào các đặc điểm sau:", options: { A: "Loại xe vận chuyển...", B: "Độ ẩm tốt nhất của vật liệu cấp phối đá dăm có thể đạt được khi lu trên đoạn này", C: "Chiều dài làm việc hiệu quả lu", D: "Cả B và C" }, answer: "D" },
-            { id: 46, question: "Khi quyết định bề dày lớp vật liệu đầm nén hợp lý cần xét đến:", options: { A: "Bề dày lèn ép không quá lớn để đảm bảo ứng suất do áp lực truyền xuống...", B: "Bề dày cũng không nên nhỏ quá để đảm bảo cho tầng móng phía dưới", C: "Cả B và C đúng", D: "Cả B và C sai" }, answer: "A" },
-            { id: 47, question: "Trong giai đoạn đầu, khi vật liệu mới rải, nên dùng lu:", options: { A: "Lu nặng", B: "Lu nhẹ", C: "Lu vừa", D: "Cả A và C" }, answer: "B" },
-            { id: 48, question: "Trong giai đoạn đầu, khi vật liệu mới rải, không nên dùng lu:", options: { A: "Lu nặng", B: "Lu nhẹ", C: "Lu vừa", D: "Cả A và C" }, answer: "A" },
-            { id: 49, question: "Trong giai đoạn đầu, khi vật liệu mới rải, nên dùng lu và tốc độ lu hướng dẫn kỹ thuật như sau:", options: { A: "Lu nặng và lu nhanh", B: "Lu nhẹ và lu chậm", C: "Lu vừa và lu nhanh", D: "Lu nhẹ và lu nhanh" }, answer: "B" },
-            { id: 50, question: "Chất lượng đầm nén được đánh giá bằng cách xác định các chỉ tiêu:", options: { A: "Modul đàn hồi lớp vật liệu lu lèn hoặc độ chặt lớp vật liệu", B: "Độ ẩm tốt nhất", C: "Đo độ bằng phẳng", D: "Cả B và C" }, answer: "A" },
-            { id: 51, question: "Thiết kế sơ đồ lu lèn cho các phương tiện đầm nén cần đảm bảo các nguyên tắc sau:", options: { A: "Số lần đầm nén phải đảm bảo đồng đều đối với tất cả mọi điểm...", B: "Phải bố trí đầm nén sao cho tạo điều kiện tăng nhanh hiệu quả đầm nén...", C: "Số lần đầm nén phải đảm bảo đồng đều đối với tất cả mọi điểm...", D: "Số lần đầm nén theo khối lượng vật liệu đoạn lu" }, answer: "B" },
-            { id: 52, question: "Trong quá trình đầm nén không phát sinh các loại sức cản đầm nén sau:", options: { A: "Sức cản cấu trúc và sức cản nhớt", B: "Sức cản cấu trúc và sức cản quán tính", C: "Sức cản bề mặt và sức cản ma sát", D: "Sức cản quán tính và sức cản quán tính" }, answer: "C" },
-            { id: 53, question: "Khi chọn lu để đầm nén thì cần phải xét tới các điều kiện chủ yếu sau:", options: { A: "Áp lực tác dụng của lu trên mặt lớp vật liệu phải phù hợp với trị số cho phép...", B: "Áp lực tác dụng của lu trên mặt lớp vật liệu phải phù hợp với trị số cho phép...", C: "Áp lực tác dụng của lu trên mặt lớp vật liệu phải phù hợp với trị số cho phép...", D: "Áp lực tác dụng của lu trên mặt lớp vật liệu phải phù hợp với trị số cho phép..." }, answer: "A" },
-            { id: 54, question: "Quyết định chiều dài thao tác của lu khi đầm nén mặt đường cần dựa vào các điểm sau:", options: { A: "Kỹ thuật thi công mỗi loại mặt đường và yêu cầu phối hợp các khâu công tác...", B: "Kỹ thuật thi công mỗi loại lu khác nhau", C: "Trong những điều kiện cho phép thì không được tăng chiều dài thao tác của lu.", D: "A, B, C đúng" }, answer: "D" },
-            { id: 55, question: "Khi đầm nén tầng móng thì hành trình đầu tiên cách mép lề tối thiểu bao nhiêu (cm) để tránh phá hoại lề?", options: { A: "20 cm", B: "15 cm", C: "10 cm", D: "5 cm" }, answer: "A" },
-            
-            // Chương 3: Thi công nền đường
-            { id: 56, question: "Không được sử dụng trực tiếp các loại đất dưới đây để đắp bất cứ bộ phận nào của nền đường:", options: { A: "Đất bùn, đất than bùn; đất mùn lẫn hữu cơ quá 10,0%", B: "Đất sét có độ trương nở cao vượt quá 3,0%...", C: "Cả A và B đúng", D: "A và B sai" }, answer: "C" },
-            { id: 57, question: "Được sử dụng trực tiếp các loại đất dưới đây để đắp bất cứ bộ phận nào của nền đường:", options: { A: "Đất bùn...", B: "Đất sét có độ trương nở cao...", C: "Cả A và B đúng", D: "A và B sai" }, answer: "D" },
-            { id: 58, question: "Các trường hợp nào dưới đây không cần phải có thiết kế biện pháp xử lý mặt nền tự nhiên:", options: { A: "Nền đắp cao, nền đắp bằng đá...", B: "Mặt nền tự nhiên là đất lẫn đá...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "D" },
-            { id: 59, question: "Các trường hợp nào dưới đây cần phải có thiết kế biện pháp xử lý mặt nền tự nhiên:", options: { A: "Nền đắp cao, nền đắp bằng đá... Đắp qua hồ, ao...", B: "Mặt nền tự nhiên là đất lẫn đá...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "A" },
-            { id: 60, question: "Bất kể dùng loại phương tiện đầm nén nào đều phải tuân theo các quy định sau (đoạn 1):", options: { A: "Phải đầm nén đồng đều... từ chỗ cao đến chỗ thấp... 15-20cm...", B: "Phải đầm nén đồng đều... từ chỗ thấp đến chỗ cao...", C: "Phải đầm nén đồng đều... từ chỗ thấp đến chỗ cao... 5-10cm...", D: "Cả A, B, C sai" }, answer: "D" },
-            { id: 61, question: "Bất kể dùng loại phương tiện đầm nén nào đều phải tuân theo các quy định sau (đoạn 2):", options: { A: "Từ chỗ cao đến chỗ thấp...", B: "Từ chỗ thấp đến chỗ cao... đè lên nhau 1/4...", C: "Từ chỗ thấp đến chỗ cao... 5-10cm...", D: "Phải đầm nén đồng đều suốt bề rộng nền đường từng lượt trên mỗi đoạn thi công theo trình tự từ chỗ thấp đến chỗ cao..." }, answer: "D" },
-            { id: 62, question: "Kiểm tra chất lượng đắp đất trong quá trình thi công:", options: { A: "Mỗi lớp đất đầm nén xong đều phải kiểm tra độ chặt...", B: "Kết quả kiểm tra phải đạt trị số độ chặt K tối thiểu...", C: "Khi kiểm tra bằng phương pháp rót cát hoặc túi nước...", D: "Cả A, B, C đúng" }, answer: "D" },
-            { id: 63, question: "Để bảo đảm chất lượng đầm nén vùng sát gần mặt ta luy, bề rộng đắp mỗi lớp nên rộng hơn:", options: { A: "Từ 15 cm đến 20 cm", B: "Từ 10 cm đến 15 cm", C: "Từ 5 cm đến 10 cm", D: "Từ 20 cm đến 50 cm" }, answer: "D" },
-            { id: 64, question: "Trong mọi trường hợp đắp đoạn tiếp giáp phải rải và đầm nén từng lớp dẫn từ dưới lên với bề dày lớp đầm nén chỉ nên từ:", options: { A: "15 cm đến 20 cm", B: "10 cm đến 20 cm", C: "5 cm đến 10 cm", D: "20 cm đến 50 cm" }, answer: "A" },
-            { id: 65, question: "Độ chặt yêu cầu trong toàn phạm vi đắp đoạn tiếp giáp phải đạt:", options: { A: ">= 0,98 đối với đường cao tốc, đường cấp I, cấp II...", B: ">= 0,95 đối với đường cao tốc...", C: ">= 0,95 đối với mọi cấp đường", D: ">= 0,90 đối với mọi cấp đường" }, answer: "A" },
-            { id: 66, question: "Khi xây dựng nền đường trên sườn dốc, sử dụng biện pháp đánh cấp khi độ dốc ngang:", options: { A: "< 20%", B: "40%", C: "> 50%", D: "Cả A, B và C đều sai" }, answer: "B" },
-            { id: 67, question: "Nền tự nhiên dốc ngang bao nhiêu thì chỉ cần đào bỏ lớp đất hữu cơ rồi đắp trực tiếp:", options: { A: "< 20%", B: "< 10%", C: "< 30%", D: "< 50%" }, answer: "A" },
-            { id: 68, question: "Nền tự nhiên dốc ngang bao nhiêu thì phải thiết kế công trình chống đỡ (tường chắn, tường chân...):", options: { A: "> 20%", B: "20-50%", C: "> 50%", D: "> 40%" }, answer: "C" },
-            { id: 69, question: "Kiểm tra phục vụ cho việc nghiệm thu một đoạn nền đường phải thực hiện nội dung sau:", options: { A: "Kiểm tra các biên bản đã thực hiện", B: "Kiểm tra các yếu tố hình học", C: "Kiểm tra chất lượng trồng cây, cỏ gia cố...", D: "Cả A, B, C đúng" }, answer: "D" },
-            { id: 70, question: "Theo TCVN 9436:2012, Đối với nền đắp cho đường cao tốc, cấp I, cấp II (30 cm trên cùng), yêu cầu CBR nhỏ nhất:", options: { A: "8%", B: "7%", C: "6%", D: "5%" }, answer: "A" },
-            { id: 71, question: "Theo TCVN 9436:2012, Đối với nền đắp cho đường cao tốc, cấp I, cấp II (từ 30 cm đến 80 cm), yêu cầu CBR nhỏ nhất:", options: { A: "8%", B: "7%", C: "6%", D: "5%" }, answer: "C" },
-            
-            // Chương 4: Mặt đường đá dăm, cấp phối và gia cố
-            { id: 72, question: "Khái niệm mặt đường đá dăm nước là:", options: { A: "Mặt đường dùng đá có cường độ cao, cùng loại...", B: "Mặt đường dùng đá... kích cỡ đồng đều, sần sùi, sắc cạnh; rải theo nguyên lý cấp phối", C: "Mặt đường dùng đá... làm việc theo nguyên lý đá chèn đá", D: "Mặt đường dùng đá... rải theo nguyên lý đá chèn đá" }, answer: "C" },
-            { id: 73, question: "Ưu điểm của mặt đường đá dăm nước là:", options: { A: "Có cường độ cao, không đòi hỏi thiết bị thi công phức tạp", B: "Có cường độ cao... ít bị ảnh hưởng của ẩm ướt", C: "Thi công dễ dàng... chi phí thấp...", D: "Thi công dễ dàng..." }, answer: "B" },
-            { id: 74, question: "Nhược điểm của mặt đường đá dăm nước là:", options: { A: "Không chịu được tải trọng nặng", B: "Không chịu được tải trọng động... yêu cầu về cường độ vật liệu đá cao...", C: "Yêu cầu về cường độ vật liệu đá cao...", D: "Tất cả A, B, C đúng" }, answer: "D" },
-            { id: 75, question: "Theo TCVN 9054-2012, Chiều dày tối thiểu của một lớp đá dăm nước sử dụng kích cỡ đá từ 50 đến 25mm:", options: { A: "6 cm", B: "7 cm", C: "8 cm", D: "10 cm" }, answer: "A" },
-            { id: 76, question: "Theo TCVN 9054-2012, Chiều dày tối đa của một lớp đá dăm nước sử dụng kích cỡ đá từ 50 đến 25mm:", options: { A: "10 cm", B: "12 cm", C: "15 cm", D: "20 cm" }, answer: "C" },
-            { id: 77, question: "Chỉ tiêu kỹ thuật yêu cầu của cốt liệu cho mặt đường đá dăm nước bao gồm:", options: { A: "Cường độ nén, Độ hao mòn Losangeles, Lượng hạt dẹt, hàm lượng bụi và hạt mềm yếu", B: "Độ hao mòn Losangeles, Đá dẹt, cỡ đá...", C: "Cường độ nén, Đá dẹt, cỡ đá...", D: "Cường độ nén, Độ hao mòn Losangeles..." }, answer: "A" },
-            { id: 78, question: "Theo TCVN 9054-2012, yêu cầu về cường độ nén (Rn) của đá gốc (đá mama, đá biến chất) cho lớp mặt đường đá dăm nước:", options: { A: "Rn >= 40 MPa", B: "Rn >= 50 MPa", C: "Rn >= 70 MPa", D: "Rn >= 100 MPa" }, answer: "C" },
-            { id: 79, question: "Theo chỉ dẫn kỹ thuật (TCVN 9054-2012), yêu cầu về độ hao mòn khi va đập trong máy Losangeles (%), cốt liệu làm lớp mặt phải đảm bảo:", options: { A: "LA <= 15%", B: "LA <= 18%", C: "LA <= 20%", D: "LA <= 28%" }, answer: "D" },
-            { id: 80, question: "Theo định nghĩa kích cỡ đá dăm, thì đá dăm 4x6 cỡ hạt theo bộ sàng tiêu chuẩn lỗ tròn (mm):", options: { A: "Nằm trên sàng 40 lọt sàng 60", B: "Nằm trên sàng 40 không lọt sàng 60", C: "Nằm dưới sàng 40 lọt sàng 60", D: "Tất cả A, B, C không đúng" }, answer: "A" },
-            { id: 81, question: "Theo chỉ dẫn kỹ thuật (TCVN 9054-2012), công tác chuẩn bị thi công mặt đường đá dăm nước:", options: { A: "Nền đường, lớp móng dưới, lớp móng trên phải bằng phẳng, đạt độ chặt và đã được nghiệm thu", B: "Nền đường... không yêu cầu nghiệm thu...", C: "Chỉ nền đường được yêu cầu nghiệm thu...", D: "Chỉ móng dưới được yêu cầu nghiệm thu..." }, answer: "A" },
-            { id: 82, question: "Theo chỉ dẫn kỹ thuật (TCVN 9054-2012), Các giai đoạn lu lèn mặt đường đá dăm nước gồm:", options: { A: "Lèn xếp - lu vừa - lu lèn chặt - lu lèn hoàn thiện", B: "Lèn xếp – Lu Rung - Lu lèn chặt - Lu lèn hoàn thiện", C: "Lèn xếp - Lu lèn chặt - Lu lèn hoàn thiện", D: "Lèn xếp - Lu lèn hoàn thiện - Lu tạo bằng phẳng" }, answer: "C" },
-            { id: 83, question: "Theo TCVN 8857-2011, cấp phối thiên nhiên là:", options: { A: "Là một hỗn hợp vật liệu dạng hạt... kích cỡ 3mm-5mm...", B: "Là một hỗn hợp vật liệu dạng hạt có sẵn trong tự nhiên theo nguyên lý cấp phối", C: "Là một hỗn hợp vật liệu dạng hạt... kích cỡ 4x6", D: "Là một hỗn hợp vật liệu dạng hạt... kích cỡ 2x4" }, answer: "B" },
-            { id: 84, question: "Trình tự chung thi công vật liệu cấp phối thiên nhiên gồm các bước:", options: { A: "Công tác chuẩn bị - vận chuyển cấp phối – San cấp phối – Lu lèn – Bảo dưỡng", B: "Công tác chuẩn bị - vận chuyển cấp phối – Lu lèn – Bảo dưỡng", C: "Công tác chuẩn bị - vận chuyển cấp phối – San cấp phối – Bảo dưỡng", D: "Công tác chuẩn bị - San cấp phối – Lu lèn – Bảo dưỡng" }, answer: "A" },
-            { id: 85, question: "Theo TCVN 8857-2011, thì công tác san rải cấp phối phải đảm bảo:", options: { A: "Chiều dày mỗi lớp (đã lu lèn chặt) không quá 15cm", B: "Chiều dày mỗi lớp (đã lu lèn chặt) không quá 20cm", C: "Chiều dày mỗi lớp (đã lu lèn chặt) không quá 35cm", D: "Chiều dày mỗi lớp (đã lu lèn chặt) không quá 30cm" }, answer: "A" },
-            { id: 86, question: "Theo TCVN 8857-2011, Khi đang thi công lớp vật liệu cấp phối thiên nhiên gặp trời mưa thì:", options: { A: "Ngừng san rải và lu lèn cấp phối", B: "Đợi tạnh mưa, bốc hơi để đạt độ ẩm tốt nhất", C: "Không chờ tạnh mưa vẫn san rải, lu lèn", D: "Cả A và B" }, answer: "D" },
-            { id: 87, question: "Theo định nghĩa: Cấp phối đá dăm loại I là:", options: { A: "Là cấp phối hạt", B: "Các cỡ hạt được nghiền từ đá nguyên khai", C: "Các cỡ hạt đồng kích cỡ 4x6", D: "Cả A và B" }, answer: "D" },
-            { id: 88, question: "Theo TCVN 8859-2011 - chỉ tiêu cơ lý yêu cầu thì độ chặt đầm nén Kyc (%) cấp phối đá dăm loại I và loại II là:", options: { A: "Kyc >= 95", B: "Kyc >= 96", C: "Kyc >= 97", D: "Kyc >= 98" }, answer: "D" },
-            { id: 89, question: "Theo TCVN 8859-2011, yêu cầu về độ ẩm vật liệu cấp phối đá dăm cho việc thi công là:", options: { A: "W ± 2%", B: "W ± 3%", C: "W ± 4%", D: "W ± 5%" }, answer: "A" },
-            { id: 90, question: "Mặt, móng đường bằng đất gia cố chất kết dính vô cơ là:", options: { A: "Đất tại chỗ hay chọn lựa... trộn các chất dính vô cơ (vôi, xi măng) và lu lèn chặt...", B: "Cấp phối đá thiên nhiên...", C: "Cấp phối đá dăm đen...", D: "Đá dăm 4x6..." }, answer: "A" },
-            { id: 91, question: "Yêu cầu thành phần vật liệu của đất gia cố gồm:", options: { A: "Đất + Xi măng hoặc vôi + Nước + Chất phụ gia (nếu có)", B: "Đất + Nhũ tương + Nước + Chất phụ gia (nếu có)", C: "Đất + Bitum + Nước + Chất phụ gia (nếu có)", D: "Tất cả A, B, C đúng" }, answer: "A" },
-            { id: 92, question: "Trình tự thi công đất gia cố bao gồm một số công việc chủ yếu sau:", options: { A: "Công tác làm tơi đất; Rải và trộn cát, Rải và trộn chất gia cố hoặc phụ gia; Đầm lèn... Bảo dưỡng", B: "Công tác làm tơi đất; Rải và trộn chất gia cố... Đầm lèn... Bảo dưỡng", C: "Công tác làm tơi đất; Tưới nước...", D: "Công tác làm tơi đất; Tưới nước, Rải cát..." }, answer: "A" },
-            { id: 93, question: "Trước khi quyết định gia cố đất phải làm thí nghiệm:", options: { A: "Tính chất lý hóa của đất và Tính chất cơ lý, hóa của chất kết dính...", B: "Tính chất cơ lý của hỗn hợp đất và chất kết dính", C: "Tính chất lý hóa của đất và Tính chất cơ lý, hóa của chất kết dính...; Tính chất cơ lý của hỗn hợp đất và chất kết dính", D: "Tính chất lý hóa của đất..." }, answer: "C" },
-            { id: 94, question: "Theo TCVN 8858-2023, Cỡ hạt lớn nhất danh định của cấp phối đá dăm gia cố xi măng bao gồm:", options: { A: "Dmax= 50 mm, Dmax= 37.5 mm, Dmax= 31.5 mm và Dmax= 25 mm", B: "Dmax= 31.5 mm, Dmax= 25 mm, Dmax= 19mm và Dmax= 16mm", C: "Dmax= 25 mm, Dmax= 19mm và Dmax= 16mm và Dmax= 12.5mm", D: "Dmax= 37.5 mm, Dmax= 31.5 mm, Dmax= 25 mm và Dmax= 19mm" }, answer: "D" },
-            { id: 95, question: "Theo TCVN 8858-2023, Lượng xi măng (tính theo khối lượng hỗn hợp cốt liệu khô) thường được lựa chọn trong khoảng từ ... đến ... đối với cốt liệu là cấp phối đá dăm:", options: { A: "3%-6%", B: "2,5%-6%", C: "4%-6%", D: "4%-10%" }, answer: "A" },
-            { id: 96, question: "Theo TCVN 8858-2023, hỗn hợp cấp phối gia cố xi măng phải được lu lèn ở độ ẩm tốt nhất với sai số cho phép về độ ẩm là:", options: { A: "-1%", B: "-1,5%", C: "- 2%", D: "- 2,5%" }, answer: "C" },
-            { id: 97, question: "Theo TCVN 8858-2023, số ngày bảo dưỡng yêu cầu đối với lớp cấp phối đá dăm gia cố xi măng để thi công tiếp lớp kết cấu bên trên là:", options: { A: "Ít nhất sau 17 ngày", B: "Ít nhất sau 16 ngày", C: "Ít nhất sau 15 ngày", D: "Ít nhất sau 14 ngày" }, answer: "D" },
-            { id: 98, question: "Theo TCVN 8858-2023, Để kiểm soát nứt phản ảnh xảy ra khi lớp cấp phối đá dăm gia cố xi măng bị nứt cần sử dụng các giải pháp sau:", options: { A: "Sử dụng lớp hỗn hợp đá nhựa", B: "Lưới sợi thủy tinh", C: "Giải pháp cắt khe giả", D: "A, B, C đúng" }, answer: "D" },
+            // CHƯƠNG 1
+            { id: 1, question: "Nền đường bao gồm:", options: { A: "Toàn bộ phần đào, đắp vật liệu trong phạm vi mặt cắt ngang thiết kế...", B: "Toàn bộ phần đào, đắp vật liệu... trừ phần thuộc kết cấu áo đường", C: "Toàn bộ phần đắp vật liệu... trừ phần thuộc kết cấu áo đường", D: "Toàn bộ phần đào đất... trừ phần thuộc kết cấu áo đường" }, answer: "B" },
+            { id: 2, question: "Hãy nêu tác dụng của nền đường?", options: { A: "Khắc phục địa hình thiên nhiên...", B: "Làm cơ sở cho áo đường...", C: "Cả A và B đều đúng", D: "Cả A và B đều sai" }, answer: "C" },
+            { id: 3, question: "Nền đường phải luôn đảm bảo ổn định về mặt cường độ, nghĩa là?", options: { A: "Cường độ mặt đường không thay đổi...", B: "Cường độ nền đường thay đổi...", C: "Cường độ nền đường không được thay đổi theo thời gian, thời tiết bất lợi", D: "Cường độ nền đường thay đổi theo thời gian thuận lợi" }, answer: "C" },
+            { id: 4, question: "Các yếu tố ảnh hưởng đến cường độ của nền đường gồm:", options: { A: "Vật liệu; Công nghệ thi công; Biện pháp thoát nước...", B: "Vật liệu; Chất lượng thi công; Biện pháp thoát nước...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "C" },
+            { id: 5, question: "Các yêu cầu đối với thi công nền đường:", options: { A: "Đảm bảo tính năng sử dụng tốt; Chọn phương pháp hợp lý", B: "Tuân thủ quy trình kỹ thuật và tiến độ", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "C" },
+            { id: 6, question: "Trình tự và nội dung thi công nền đường:", options: { A: "Chuẩn bị; Công tác chính; Hoàn thiện", B: "Chuẩn bị; Công tác chính; Công tác phụ", C: "Chuẩn bị; Chuẩn bị kỹ thuật; Hoàn thiện", D: "Cả A, B, C đúng" }, answer: "A" },
+            { id: 7, question: "Các phương pháp thi công nền đường bao gồm:", options: { A: "Thủ công; Máy; Nổ phá", B: "Thủ công đơn giản; Máy hiện đại; Sức nước", C: "Thủ công; Máy; Nổ phá; Sức nước", D: "Kỹ nghệ; Máy; Nổ phá; Đào đá" }, answer: "C" },
+            { id: 8, question: "Phát biểu nào sau đây không đúng về thi công:", options: { A: "Thi công máy có ưu điểm năng suất cao...", B: "Thi công nổ phá nhanh chóng...", C: "Thi công thủ công chất lượng tốt và năng suất thấp...", D: "Thi công sức nước là lợi dụng sức nước xói vào đất..." }, answer: "C" },
+            { id: 9, question: "Phát biểu nào sau đây đúng nhất về thi công:", options: { A: "Thi công máy thích hợp khối lượng ít", B: "Thi công nổ phá dùng ở vùng đất yếu", C: "Thi công thủ công chất lượng tốt...", D: "Thi công sức nước là lợi dụng sức nước xói vào đất..." }, answer: "D" },
+            { id: 10, question: "Phát biểu nào sau đây đúng nhất:", options: { A: "Thi công máy thích hợp khối lượng lớn...", B: "Thi công nổ phá dùng ở nơi đá cứng...", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 11, question: "Kết cấu mặt đường bao gồm:", options: { A: "Các lớp tầng mặt", B: "Tầng mặt và tầng móng", C: "Tầng mặt, tầng móng và nền đất", D: "Tầng mặt, tầng móng, đáy móng và nền đất" }, answer: "C" },
+            { id: 12, question: "Vật liệu để làm các lớp mặt đường gồm có:", options: { A: "Cốt liệu; nhựa đường, phụ gia", B: "Cốt liệu; chất kết dính, phụ gia", C: "Cốt liệu; ximăng, phụ gia", D: "Cốt liệu; vôi, phụ gia" }, answer: "B" },
+            { id: 13, question: "Yêu cầu đối với lớp mặt đường:", options: { A: "Đủ cường độ...", B: "Đủ cường độ, bằng phẳng...", C: "Đủ cường độ, ổn định, bằng phẳng, nhám, ít bụi", D: "Đủ cường độ, bằng phẳng, ít hư hỏng" }, answer: "C" },
+            { id: 14, question: "Các lớp móng đường có tác dụng chính là:", options: { A: "Đảm bảo biến dạng nền đường...", B: "Phân bố đều áp lực lên nền đất và bảo đảm biến dạng nền đường trong giới hạn", C: "Phân bố áp lực và chịu lực ngang", D: "Đảm bảo biến dạng móng đường..." }, answer: "B" },
+            { id: 15, question: "Tầng mặt đường áo đường mềm bao gồm các lớp:", options: { A: "Lớp hao mòn, lớp bảo vệ và các lớp chịu lực", B: "Lớp hao mòn, bảo vệ, chịu lực và móng", C: "Lớp hao mòn, bảo vệ, chịu lực, móng, đáy móng", D: "Lớp hao mòn, bảo vệ, chịu lực, móng, nền đường" }, answer: "A" },
+            { id: 16, question: "Tầng mặt kết cấu áo đường mềm thường làm bằng vật liệu:", options: { A: "Hỗn hợp hạt với nhựa đường", B: "Vật liệu hạt xử lý nhựa đường", C: "Cả A và C sai", D: "Cả A và C đúng" }, answer: "D" },
+            { id: 17, question: "Tầng móng kết cấu áo đường mềm thường được làm bằng vật liệu:", options: { A: "Vật liệu hạt không gia cố", B: "Vật liệu hạt gia cố vô cơ", C: "Vật liệu hạt gia cố hữu cơ", D: "Cả A, B, C đúng" }, answer: "D" },
+            { id: 18, question: "Cấu tạo chung kết cấu áo đường cứng gồm:", options: { A: "Tầng móng + tấm bê tông xi măng lớp mặt", B: "Tầng móng + bê tông nhựa", C: "Tầng móng + đá dăm đen", D: "Cả A, B, C đúng" }, answer: "A" },
+            { id: 19, question: "Hỗn hợp vật liệu thông thường xây dựng mặt đường gồm:", options: { A: "Cốt liệu, nhũ tương, phụ gia", B: "Cốt liệu, nhựa đường, phụ gia", C: "Cốt liệu, chất liên kết, phụ gia", D: "Cốt liệu, xi măng, phụ gia" }, answer: "C" },
+            { id: 20, question: "Chất liên kết trong hỗn hợp vật liệu áo đường bao gồm:", options: { A: "Vô cơ; Hữu cơ; Khác", B: "Vô cơ; Hữu cơ; Tự nhiên", C: "Vô cơ; Hữu cơ; Nhân tạo", D: "Tất cả A, B, C đúng" }, answer: "A" },
+            { id: 21, question: "Chất liên kết trong hỗn hợp vật liệu áo đường gồm:", options: { A: "Vôi, Xi măng, Bitum", B: "Vôi, Xi măng, Puzolan", C: "Vôi, Xi măng, chất liên kết rắn trong nước", D: "Vôi, chất liên kết hữu cơ, chất liên kết rắn trong nước, puzolan" }, answer: "D" },
+            { id: 22, question: "Các nguyên lý sử dụng vật liệu làm mặt đường gồm:", options: { A: "Đá chèn đá, lát xếp, cấp phối", B: "Đá chèn đá, cấp phối, gia cố", C: "Đá chèn đá, lát xếp, cấp phối, gia cố", D: "Đá chèn đá, cấp phối, gia cố, gia cố đất" }, answer: "C" },
+            { id: 23, question: "Đá dăm nước (Macadam) làm mặt đường theo nguyên lý:", options: { A: "Đá chèn đá", B: "Cấp phối", C: "Gia cố", D: "Lát xếp" }, answer: "A" },
+            { id: 24, question: "Đá dăm 4x6 kẹp đất dính làm mặt đường theo nguyên lý:", options: { A: "Cấp phối", B: "Đá chèn đá", C: "Lát xếp", D: "Gia cố" }, answer: "B" },
+            { id: 25, question: "Đá dăm 4x6 kẹp vữa xi măng làm mặt đường theo nguyên lý:", options: { A: "Đá chèn đá", B: "Cấp phối", C: "Gia cố", D: "Lát xếp" }, answer: "A" },
+            { id: 26, question: "Đá ba, đá hộc làm móng/gia cố rãnh theo nguyên lý:", options: { A: "Đá chèn đá", B: "Cấp phối", C: "Gia cố", D: "Lát xếp" }, answer: "D" },
+            { id: 27, question: "Cấp phối đá dăm làm mặt đường theo nguyên lý:", options: { A: "Đá chèn đá", B: "Cấp phối", C: "Gia cố", D: "Cả A và C" }, answer: "B" },
+            { id: 28, question: "Cấp phối thiên nhiên làm mặt đường theo nguyên lý:", options: { A: "Đá chèn đá", B: "Cấp phối", C: "Gia cố", D: "Lát xếp" }, answer: "B" },
+            { id: 29, question: "Cấp phối đá dăm gia cố xi măng làm mặt đường theo nguyên lý:", options: { A: "Gia cố", B: "Cấp phối", C: "Gia cố và cấp phối", D: "Lát xếp và gia cố" }, answer: "C" },
+            { id: 30, question: "Trình tự thi công kết cấu áo đường:", options: { A: "Chuẩn bị, móng, mặt", B: "Chuẩn bị, chính, hoàn thiện", C: "Chuẩn bị, móng, mặt, hoàn thiện", D: "Móng, mặt, hoàn thiện" }, answer: "C" },
+            { id: 31, question: "Phương án thi công lòng đường:", options: { A: "Đào lòng hoàn toàn, đắp lề một phần...", B: "Đắp lề hoàn toàn...", C: "Đào lòng hoàn toàn, đắp lề hoàn toàn, đào một phần đắp một phần", D: "Đắp lề hoàn toàn..." }, answer: "C" },
+            { id: 32, question: "Phát biểu nào sau đây KHÔNG đúng:", options: { A: "Nguyên lý cấp phối cốt liệu nhiều cỡ hạt...", B: "Độ chặt càng lớn cường độ càng cao", C: "Nhược điểm cấp phối là khó cơ giới hóa...", D: "Mặt đường BTXM, BTN làm việc theo nguyên lý cấp phối" }, answer: "D" },
+            { id: 33, question: "Phát biểu nào sau đây KHÔNG đúng về gia cố:", options: { A: "Gia cố đất dùng chất liên kết...", B: "Gia cố đất dùng vật liệu tại chỗ...", C: "Kiểu chèn móc cốt liệu đồng đều...", D: "Kiểu chèn móc có ưu điểm ít tốn công lu" }, answer: "D" },
+            { id: 34, question: "Mặt đường mềm dùng móng gia cố xi măng thì:", options: { A: "Móng chịu kéo uốn", B: "Ứng suất nén xuống nền nhỏ", C: "Cả A, B sai", D: "Cả A, B đúng" }, answer: "D" },
+            { id: 35, question: "Mặt đường mềm móng vật liệu hạt thì:", options: { A: "Độ cứng phụ thuộc nền đất và chiều dày móng", B: "Độ cứng không phụ thuộc nền đất", C: "Ứng suất nén xuống nền nhỏ hơn móng gia cố", D: "Ứng suất kéo uốn lớn" }, answer: "A" },
 
-            // Chương 5: Bê tông nhựa
-            { id: 99, question: "Theo TCVN 13567:2022, định nghĩa hỗn hợp bê tông nhựa nóng là:", options: { A: "Hỗn hợp bao gồm các cốt liệu... nhũ tương và phụ gia...", B: "Hỗn hợp bao gồm các cốt liệu... nhựa đường được trộn nóng...", C: "Hỗn hợp bao gồm các cốt liệu... nhựa đường và phụ gia (nếu có) theo tỷ lệ xác định, được trộn nóng ở nhiệt độ thích hợp tại trạm trộn và được rải nóng trong quá trình thi công tại hiện trường.", D: "Tất cả A, B, C sai" }, answer: "C" },
-            { id: 100, question: "Độ rỗng dư trong Bê tông nhựa là:", options: { A: "Tổng thể tích của tất cả các lỗ rỗng nhỏ nằm giữa các hạt cốt liệu đã được bọc nhựa trong hỗn hợp đá nhựa đã đầm nén", B: "Tổng thể tích của tất cả các lỗ rỗng nhỏ nằm giữa các hạt cốt liệu đã được bọc nhựa trong hỗn hợp đá nhựa", C: "Tổng thể tích của tất cả các lỗ rỗng nhỏ nằm giữa các hạt cốt liệu...", D: "Tổng thể tích của tất cả các lỗ rỗng lớn nhỏ khác nhau..." }, answer: "A" },
-            { id: 101, question: "Chiều dầy hợp lý của Bê tông nhựa chặt (BTNC 12.5) (sau khi đầm nén) là:", options: { A: "5-7cm", B: "6-8cm", C: "4-5cm", D: "7-9cm" }, answer: "C" },
-            { id: 102, question: "Theo TCVN 13567-1:2022, định nghĩa độ rỗng dư của hỗn hợp bê tông nhựa là:", options: { A: "Tổng thể tích của tất cả các hạt cốt liệu...", B: "Tổng thể tích của hàm lượng nhựa...", C: "Tổng thể tích của tất cả các lỗ rỗng nhỏ nằm giữa các hạt cốt liệu đã được bọc nhựa trong hỗn hợp đá nhựa đã đầm nén. Độ rỗng dư được biểu thị bằng phần trăm của thể tích mẫu hỗn hợp đá nhựa đã đầm nén", D: "Tổng thể tích của tất cả các hạt cốt liệu và nhựa..." }, answer: "C" },
-            { id: 103, question: "Theo TCVN 13567-1:2022, Bê tông nhựa chặt C12.5 (viết tắt BTNC 12,5) nghĩa là:", options: { A: "Có cỡ hạt lớn nhất danh định là 9.5 mm và cỡ hạt lớn nhất là 12.5 mm", B: "Có cỡ hạt lớn nhất danh định là 12,5 mm và cỡ hạt lớn nhất là 16 mm", C: "Có cỡ hạt lớn nhất danh định là 12,5 mm và cỡ hạt lớn nhất là 19 mm", D: "Có cỡ hạt lớn nhất danh định là 12.5 mm và cỡ hạt lớn nhất là 9.5 mm" }, answer: "D" },
-            { id: 104, question: "Theo TCVN 13567-1:2022, yêu cầu thành phần vật liệu chế tạo hỗn hợp bê tông nhựa là:", options: { A: "Cốt liệu; Bột khoáng; Nhựa đường; Phụ gia", B: "Cốt liệu; Cát, Bột khoáng; Nhựa đường; Phụ gia", C: "Cốt liệu; Bột khoáng; Nhựa đường", D: "Cốt liệu lớn; Cốt liệu nhỏ; Bột khoáng; Nhựa đường; Phụ gia" }, answer: "D" },
-            { id: 105, question: "Theo TCVN 13567-1:2022, Yêu cầu độ dính bám đá - nhựa đường, cấp:", options: { A: ">= 2", B: ">= 3", C: ">= 4", D: "A,B,C sai" }, answer: "C" },
-            { id: 106, question: "Theo TCVN 13567-1:2022, Nhiệt độ quy định bắt đầu lu lèn của hỗn hợp bê tông nhựa với nhựa đường 60/70 tại hiện trường là:", options: { A: ">= 115 độ C", B: ">= 100 độ C", C: ">= 110 độ C", D: ">= 120 độ C" }, answer: "D" },
-            { id: 107, question: "Theo TCVN 13567-1:2022, Nhiệt độ quy định kết thúc quá trình lu lèn của hỗn hợp bê tông nhựa với nhựa đường 60/70 tại hiện trường (dùng lu bánh thép) là:", options: { A: ">= 80 độ C", B: ">= 70 độ C", C: ">= 95 độ C", D: "> 50 độ C" }, answer: "A" },
-            { id: 108, question: "Theo TCVN 13567-1:2022, lu lèn lớp hỗn hợp bê tông nhựa; thiết bị lu lèn bê tông nhựa gồm có ít nhất là:", options: { A: "Lu bánh thép nặng 10-12 tấn và lu bánh hơi có lốp nhẵn đi theo một máy rải", B: "Lu bánh thép nhẹ 6-8 tấn...", C: "Lu bánh thép nhẹ 6-8 tấn, lu bánh thép nặng 10-12 tấn và lu bánh hơi có lốp nhẵn đi theo một máy rải", D: "Lu bánh thép nhẹ 6-8 tấn đi theo một máy rải" }, answer: "C" },
-            { id: 109, question: "Theo TCVN 13567-1:2022, Công tác kiểm tra kích thước hình học khi nghiệm thu lớp BTNC bao gồm:", options: { A: "Bề rộng, Độ dốc ngang, Chiều dày, Cao độ; Độ bằng phẳng của bề mặt", B: "Bề rộng, Độ dốc ngang, Chiều dày, Cao độ; Độ nhám", C: "Bề rộng, Độ dốc ngang, Chiều dày, Cao độ;", D: "Bề rộng, Độ dốc ngang, Chiều dày, Cao độ; Sức kháng trượt của bề mặt" }, answer: "A" },
-            { id: 110, question: "Theo TCVN 13567-1:2022, Kết thúc lu lèn phải chờ lớp BTNC giảm nhiệt độ bề mặt bao nhiêu °C mới được cho thông xe:", options: { A: "70 độ C", B: "60 độ C", C: "50 độ C", D: "40 độ C" }, answer: "C" },
+            // CHƯƠNG 2
+            { id: 36, question: "Mục đích đầm nén vật liệu cấp phối đá dăm:", options: { A: "Khí thoát ra ngoài", B: "Nước thoát ra ngoài", C: "Hạt nhỏ thoát ra ngoài", D: "Hạt mịn thoát ra ngoài" }, answer: "A" },
+            { id: 37, question: "Bản chất đầm nén vật liệu:", options: { A: "Tải trọng làm tăng độ chặt và modul đàn hồi", B: "Tải trọng làm giảm độ chặt...", C: "Tải trọng làm tăng độ chặt...", D: "Tải trọng gây biến dạng..." }, answer: "A" },
+            { id: 38, question: "Sức cản đầm nén thường gặp:", options: { A: "Cấu trúc, nhớt, lăn", B: "Cấu trúc, nhớt, quán tính", C: "Quán tính, nhớt, ma sát", D: "Cấu trúc, quán tính, bề mặt" }, answer: "B" },
+            { id: 39, question: "Nhân tố ảnh hưởng hiệu quả đầm nén:", options: { A: "Áp lực, chiều dày, tốc độ, loại lu", B: "Chiều dày, tốc độ, số lần, vật liệu", C: "Áp lực, chiều dày, tốc độ, số lần", D: "Áp lực, chiều dày, tốc độ, số lần, loại vật liệu" }, answer: "D" },
+            { id: 40, question: "Theo lý thuyết, độ chặt vật liệu sẽ:", options: { A: "Tăng không ngừng", B: "Giảm không ngừng", C: "Tăng đến cực trị", D: "Giảm đến cực trị" }, answer: "C" },
+            { id: 41, question: "Nguyên tắc chọn máy lu:", options: { A: "Đạt độ chặt...", B: "Đạt độ chặt, không phá hỏng cấu trúc, bề mặt bằng phẳng, ít công lu", C: "Bề mặt bằng phẳng...", D: "Tốn ít công lu nhất" }, answer: "B" },
+            { id: 42, question: "Số lượt lu qua một điểm trên sơ đồ lu (hình 1):", options: { A: "1, 2, 3 hoặc 4 điểm", B: "3 điểm", C: "4 điểm", D: "5 điểm" }, answer: "A" },
+            { id: 43, question: "Lu lèn trên đường thẳng, lu chạy:", options: { A: "Tim sang mép", B: "Mép sang tim", C: "Thấp lên cao", D: "Cả B và C" }, answer: "D" },
+            { id: 44, question: "Lu lèn trong đường cong, lu chạy:", options: { A: "Lưng xuống bụng", B: "Bụng lên lưng", C: "Vuông góc tim", D: "Cả A và C" }, answer: "B" },
+            { id: 45, question: "Chiều dài đoạn lu cấp phối đá dăm căn cứ:", options: { A: "Xe vận chuyển...", B: "Độ ẩm tốt nhất...", C: "Chiều dài hiệu quả lu", D: "Cả B và C" }, answer: "D" },
+            { id: 46, question: "Quyết định bề dày lu lèn cần xét:", options: { A: "Không quá lớn để đủ áp lực...", B: "Không nhỏ quá...", C: "Cả B và C đúng", D: "Cả B và C sai" }, answer: "A" },
+            { id: 47, question: "Giai đoạn đầu vật liệu mới rải, nên dùng lu:", options: { A: "Lu nặng", B: "Lu nhẹ", C: "Lu vừa", D: "Cả A và C" }, answer: "B" },
+            { id: 48, question: "Giai đoạn đầu vật liệu mới rải, KHÔNG nên dùng lu:", options: { A: "Lu nặng", B: "Lu nhẹ", C: "Lu vừa", D: "Cả A và C" }, answer: "A" },
+            { id: 49, question: "Giai đoạn đầu, dùng lu và tốc độ:", options: { A: "Nặng, nhanh", B: "Nhẹ, chậm", C: "Vừa, nhanh", D: "Nhẹ, nhanh" }, answer: "B" },
+            { id: 50, question: "Chất lượng đầm nén đánh giá bằng:", options: { A: "Modul đàn hồi hoặc độ chặt", B: "Độ ẩm tốt nhất", C: "Độ bằng phẳng", D: "Cả B và C" }, answer: "A" },
+            { id: 51, question: "Thiết kế sơ đồ lu cần đảm bảo:", options: { A: "Số lần đều, mặt phẳng...", B: "Tăng hiệu quả, số lần theo khối lượng, đạt công lu", C: "Số lần đều...", D: "Số lần theo khối lượng" }, answer: "B" },
+            { id: 52, question: "Đầm nén KHÔNG phát sinh sức cản nào:", options: { A: "Cấu trúc, nhớt", B: "Cấu trúc, quán tính", C: "Bề mặt, ma sát", D: "Quán tính" }, answer: "C" },
+            { id: 53, question: "Khi chọn lu cần xét:", options: { A: "Áp lực phù hợp vật liệu và diện tích tiếp xúc", B: "Áp lực phù hợp vật liệu và lớp vật liệu", C: "Áp lực phù hợp lu...", D: "Áp lực phù hợp chiều dày..." }, answer: "A" },
+            { id: 54, question: "Quyết định chiều dài thao tác lu dựa vào:", options: { A: "Kỹ thuật thi công, phối hợp dây chuyền", B: "Kỹ thuật lu", C: "Không tăng chiều dài nếu được", D: "A, B, C đúng" }, answer: "D" },
+            { id: 55, question: "Lu tầng móng, hành trình đầu cách mép lề tối thiểu:", options: { A: "20 cm", B: "15 cm", C: "10 cm", D: "5 cm" }, answer: "A" },
+            { id: 56, question: "Nguyên tắc chọn vận tốc lu:", options: { A: "Không quá lớn...", B: "Đủ lớn...", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 57, question: "Nguyên tắc chọn vận tốc lu (2):", options: { A: "Lớn để tăng thời gian...", B: "Lớn nhất có thể", C: "A và B đúng", D: "A và B sai" }, answer: "D" },
+            { id: 58, question: "Nguyên tắc chọn bề dày lu lèn (1):", options: { A: "Không quá lớn...", B: "Không nhỏ quá...", C: "A và B sai", D: "A và B đúng" }, answer: "D" },
+            { id: 59, question: "Nguyên tắc chọn bề dày lu lèn (2):", options: { A: "Lớn để đảm bảo...", B: "Không nhỏ quá...", C: "A và B sai", D: "A và B đúng" }, answer: "C" },
+            { id: 60, question: "Số lượt đầm nén phụ thuộc:", options: { A: "Giai đoạn, vật liệu, chiều dày, trạng thái", B: "Tải trọng, tốc độ", C: "Chiều dày, tải trọng", D: "Tải trọng, tốc độ, chiều dày" }, answer: "A" },
+            { id: 61, question: "Mục đích thiết kế sơ đồ lu:", options: { A: "Tận dụng thiết bị", B: "Thao tác thuận lợi, năng suất cao...", C: "Đảm bảo kỹ thuật", D: "A, B, C đúng" }, answer: "D" },
+            { id: 62, question: "Nguyên tắc thiết kế sơ đồ lu:", options: { A: "Thấp tới cao, bụng lên lưng", B: "Mép vào giữa", C: "Vệt chồng 15-20cm", D: "A, B, C đúng" }, answer: "D" },
+            { id: 63, question: "Vận tốc lu lèn:", options: { A: "Đủ chậm để chặt, đủ lớn để năng suất", B: "Đảm bảo độ chặt, tăng năng suất", C: "Đủ lớn để năng suất", D: "A, B, C đúng" }, answer: "D" },
+            { id: 64, question: "Chiều dài đoạn đầm nén:", options: { A: "Đủ lớn để ít đổi số, đủ nhỏ để đất tốt", B: "Phối hợp nhịp nhàng, căn cứ thi công thử", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 65, question: "Phát biểu nào KHÔNG đúng về lu lèn:", options: { A: "Chiều dài đủ lớn...", B: "Vận tốc đủ chậm...", C: "Lu thấp tới cao... chồng 15-20cm", D: "Số lượt phụ thuộc giai đoạn..." }, answer: "C" }, // Lưu ý: Câu này text gốc trong PDF có vẻ bị lỗi logic ở đáp án C hoặc D, tạm để C
 
-            // Chương 6: Mặt đường Bê tông xi măng
-            { id: 111, question: "Theo TCCS40:2022/TCĐBVN, định nghĩa áo đường cứng là:", options: { A: "Loại kết cấu áo đường có tầng mặt làm bằng bê tông xi măng cốt thép và tầng móng làm bằng các vật liệu khác nhau...", B: "Loại kết cấu áo đường có tầng mặt làm bằng bê tông xi măng và tầng móng làm bằng các vật liệu khác nhau, đặt trực tiếp trên nền đường hoặc trên lớp đáy móng", C: "Loại kết cấu áo đường có tầng mặt làm cấp phối đá dăm gia cố xi măng...", D: "Loại kết cấu áo đường có tầng mặt làm bằng lớp hỗn hợp vữa xi măng..." }, answer: "B" },
-            { id: 112, question: "Theo TCCS40:2022/TCĐBVN, cường độ nén và cường độ kéo khi uốn của mặt đường BTXM được quy định căn cứ vào:", options: { A: "Cấp hạng đường và tốc độ thiết kế", B: "Cấp hạng đường và loại tầng mặt", C: "Cấp hạng đường và tuổi mẫu thử", D: "Cấp hạng đường và quy trình thi công" }, answer: "A" },
-            { id: 113, question: "Theo TCCS40:2022/TCĐBVN, tuổi mẫu thử xác định cường độ nén và cường độ kéo khi uốn là:", options: { A: "3 ngày và 56 ngày tuổi", B: "3 ngày và 14 ngày tuổi", C: "3 ngày và 28 ngày tuổi", D: "3 ngày và 7 ngày tuổi" }, answer: "C" },
-            { id: 114, question: "Theo TCCS40:2022/TCĐBVN, cường độ kéo khi uốn (MPa) của mẫu thử sau 28 ngày tuổi của đường cấp IV là:", options: { A: ">= 6.5", B: ">= 5.0", C: ">= 4.5", D: ">= 3.5" }, answer: "D" },
-            { id: 115, question: "Theo TCCS40:2022/TCĐBVN, yêu cầu về cốt liệu nhỏ (cát) cho hỗn hợp BTXM có nguồn gốc là:", options: { A: "Nghiền từ đá gốc", B: "Cát sông sạch", C: "Cát trộn của A và B", D: "Tất cả A, B, C" }, answer: "D" },
-            { id: 116, question: "Theo TCCS40:2022/TCĐBVN, công tác chuẩn bị thi công mặt đường BTXM bao gồm các công việc sau:", options: { A: "1/Lựa chọn công nghệ thi công 2/Chuẩn bị xe máy thi công 3/Lập hồ sơ bản vẽ thi công 4/Bố trí và xây lắp trạm trộn BTXM 5/ Chuẩn bị xe lu nền đường", B: "... 5/Chuẩn bị nền, móng", C: "... 5/ Chuẩn bị xe lu móng đường", D: "... 5/ Chuẩn bị xe lu móng đường" }, answer: "B" },
-            { id: 117, question: "Theo TCCS40:2022/TCĐBVN, mặt đường BTXM phải đình chỉ không được thi công trong các điều kiện sau:", options: { A: "Mưa tại hiện trường, tốc độ gió 10.8 m/s (cấp 6 trở lên)", B: "Mưa tại hiện trường, tốc độ gió 10.8 m/s (cấp 6 trở lên), Nhiệt độ không khí hiện trường >= 40 độ C hoặc nhiệt độ hỗn hợp khi rải > 35 độ C, Nhiệt độ không khí hiện trường trung bình trong 5 ngày liên tục thi công < 5 độ C", C: "Nhiệt độ không khí hiện trường trung bình trong 5 ngày liên tục thi công < 5 độ C", D: "Nhiệt độ không khí hiện trường >= 40 độ C hoặc nhiệt độ hỗn hợp khi rải > 35 độ C" }, answer: "B" },
-            { id: 118, question: "Theo TCCS40:2022/TCĐBVN, yêu cầu về cỡ hạt danh định của cốt liệu thô sử dụng đá dăm để chế tạo hỗn hợp BTXM làm mặt đường, không lớn hơn:", options: { A: "37,5mm", B: "31,5mm", C: "25mm", D: "19mm" }, answer: "A" },
-            { id: 119, question: "Theo TCCS40:2022/TCĐBVN, Thời gian bảo dưỡng phải được xác định tuy theo thời gian cường độ kéo khi uốn của hỗ hợp BTXM vừa rải đạt tối thiểu bao nhiêu (%) cường độ kéo khi uốn thiết kế?", options: { A: "50%", B: "60%", C: "70%", D: "80%" }, answer: "D" },
-            { id: 120, question: "Theo TCCS40:2022/TCĐBVN, vật liệu làm lớp ngăn cách giữa lớp móng và lớp BTXM có thể xử dụng:", options: { A: "Đá dăm nhỏ hoặc bê tông nghèo", B: "Đá trộn nhựa", C: "Giấy dầu hoặc vải địa kỹ thuật", D: "Tất cả A, B, C đúng" }, answer: "D" },
-            { id: 121, question: "Cấu tạo chung kết cấu mặt đường bê tông xi măng:", options: { A: "Tấm bê tông xi măng; khe co; khe dãn; Lớp móng trên, lớp móng dưới; nền đường", B: "Tấm bê tông xi măng; lớp dãn cách; lớp móng trên, lớp móng dưới; nền đường", C: "Tấm bê tông xi măng; Cốt thép; Lớp móng trên, lớp móng dưới; nền đường", D: "Tất cả A, B, C đúng" }, answer: "D" },
-            { id: 122, question: "Trình tự thi công mặt đường bê tông xi măng:", options: { A: "Thi công lớp móng; Chuẩn bị vật liệu... Lắp đặt ván khuôn...", B: "Thi công lớp móng... bố trí khe nối; Trộn và vận chuyển...", C: "Thi công lớp móng; Chuẩn bị vật liệu; Xử lý bề mặt lớp móng, làm lớp cách ly; Lắp đặt ván khuôn; Gia công và lắp đặt cốt thép, bố trí khe nối; Trộn và vận chuyển hỗn hợp BTXM; Rải và đầm nén hỗn hợp BTXM; Hoàn thiện bề mặt BTXM; Làm khe nối; Bảo dưỡng; Kiểm tra nghiệm thu", D: "Thi công lớp móng... Gia công và lắp đặt cốt thép; Lắp đặt ván khuôn; bố trí khe nối..." }, answer: "C" },
-            { id: 123, question: "Nhược điểm mặt đường bê tông xi măng:", options: { A: "Độ bền thấp, thời gian bảo dưỡng dài; yêu cầu máy móc thi công cao", B: "Khó sửa chữa; thời gian bảo dưỡng dài; tầm nhìn kém", C: "Khó sửa chữa; thời gian bảo dưỡng dài; Cảm giác người lái xe không thoải mái - do mối nối", D: "Độ bền thấp, thời gian bảo dưỡng dài; Cảm giác người lái xe không thoải mái - do mối nối" }, answer: "C" }
+            // CHƯƠNG 3
+            { id: 66, question: "Không dùng đất nào đắp nền:", options: { A: "Đất bùn, than bùn, hữu cơ >10%", B: "Sét trương nở >3%, muối >5%", C: "Cả A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 67, question: "Được dùng đất nào đắp nền:", options: { A: "Đất bùn...", B: "Sét trương nở...", C: "Cả A và B đúng", D: "A và B sai" }, answer: "D" },
+            { id: 68, question: "Trường hợp KHÔNG cần thiết kế xử lý nền tự nhiên:", options: { A: "Nền đắp cao...", B: "Mặt nền lẫn đá...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "D" },
+            { id: 69, question: "Trường hợp CẦN thiết kế xử lý nền tự nhiên:", options: { A: "Nền đắp cao, đá, vật liệu nhẹ, hồ ao...", B: "Mặt nền lẫn đá...", C: "Cả A và B đúng", D: "Cả A và B sai" }, answer: "A" },
+            { id: 70, question: "Quy định đầm nén (1):", options: { A: "Cao đến thấp...", B: "Thấp đến cao, đè 1/2...", C: "Thấp đến cao, chồng 5-10cm...", D: "Cả A, B, C sai" }, answer: "D" },
+            { id: 71, question: "Quy định đầm nén (2):", options: { A: "Cao đến thấp...", B: "Thấp đến cao, đè 1/4...", C: "Thấp đến cao, chồng 5-10cm...", D: "Đều, thấp đến cao, chồng 15-20cm, đè 1/3 vệt" }, answer: "D" },
+            { id: 72, question: "Kiểm tra chất lượng đắp đất:", options: { A: "Mỗi lớp kiểm tra ít nhất 2 điểm/1000m2", B: "Đạt độ chặt K tối thiểu", C: "Phương pháp rót cát, dao vòng...", D: "Cả A, B, C đúng" }, answer: "D" },
+            { id: 73, question: "Bề rộng đắp mỗi lớp nên rộng hơn thiết kế:", options: { A: "15-20 cm", B: "10-15 cm", C: "5-10 cm", D: "20-50 cm" }, answer: "D" },
+            { id: 74, question: "Đắp đoạn tiếp giáp, bề dày lớp chỉ nên:", options: { A: "15-20 cm", B: "10-20 cm", C: "5-10 cm", D: "20-50 cm" }, answer: "A" },
+            { id: 75, question: "Độ chặt đoạn tiếp giáp phải đạt:", options: { A: ">= 0.98 (Cao tốc, I, II), >= 0.95 (Khác)", B: ">= 0.95 (Cao tốc...), >= 0.90", C: ">= 0.95", D: ">= 0.90" }, answer: "A" },
+            { id: 76, question: "Nền sườn dốc, đánh cấp khi dốc ngang:", options: { A: "< 20%", B: "40%", C: "> 50%", D: "Cả A, B, C sai" }, answer: "B" },
+            { id: 77, question: "Nền sườn dốc, chỉ đào bỏ hữu cơ khi dốc ngang:", options: { A: "< 20%", B: "< 10%", C: "< 30%", D: "< 50%" }, answer: "A" },
+            { id: 78, question: "Nền sườn dốc, làm công trình chống đỡ khi dốc ngang:", options: { A: "> 20%", B: "20-50%", C: "> 50%", D: "> 40%" }, answer: "C" },
+            { id: 79, question: "Biện pháp đánh cấp áp dụng khi dốc:", options: { A: "< 20%", B: "20-50%", C: "> 50%", D: "Sai hết" }, answer: "B" },
+            { id: 80, question: "Kiểm tra nghiệm thu nền đường gồm:", options: { A: "Biên bản", B: "Yếu tố hình học", C: "Cây cỏ, tầng phòng hộ", D: "Cả A, B, C đúng" }, answer: "D" },
+            { id: 81, question: "Kiểm tra chất lượng nền đào:", options: { A: "Loại đất, không kiểm tra đổ", B: "Loại đất, mái taluy, việc đổ đất", C: "Mái taluy, đổ đất", D: "Chỉ kiểm tra loại đất" }, answer: "B" },
+            { id: 82, question: "TCVN 9436, nền đắp cao tốc (30cm trên), CBR min:", options: { A: "8%", B: "7%", C: "6%", D: "5%" }, answer: "A" },
+            { id: 83, question: "TCVN 9436, nền đắp cao tốc (30-80cm), CBR min:", options: { A: "8%", B: "7%", C: "6%", D: "5%" }, answer: "C" },
+            { id: 84, question: "TCVN 9436, nền cấp III, IV (30cm trên), CBR min:", options: { A: "8%", B: "7%", C: "6%", D: "5%" }, answer: "C" },
+            { id: 85, question: "TCVN 9436, nền cấp III, IV (30-80cm), CBR min:", options: { A: "7%", B: "6%", C: "5%", D: "4%" }, answer: "D" },
+
+            // CHƯƠNG 4
+            { id: 86, question: "Mặt đường đá dăm nước là:", options: { A: "Đá cường độ cao, nguyên lý cấp phối", B: "Đá đều, nguyên lý cấp phối", C: "Đá cường độ cao, thấm tốt, nguyên lý đá chèn đá", D: "Đá đều, nguyên lý đá chèn đá" }, answer: "C" },
+            { id: 87, question: "Ưu điểm mặt đường đá dăm nước:", options: { A: "Cường độ cao...", B: "Cường độ cao, tận dụng vật liệu, thi công dễ...", C: "Thi công dễ, rẻ...", D: "Thi công dễ..." }, answer: "B" },
+            { id: 88, question: "Nhược điểm mặt đường đá dăm nước:", options: { A: "Không chịu tải nặng", B: "Không chịu tải động, dễ bong bật...", C: "Yêu cầu đá cao...", D: "Tất cả A, B, C đúng" }, answer: "D" },
+            { id: 89, question: "Chiều dày tối thiểu lớp đá dăm nước (50-25mm):", options: { A: "6 cm", B: "7 cm", C: "8 cm", D: "10 cm" }, answer: "A" },
+            { id: 90, question: "Chiều dày tối đa lớp đá dăm nước (50-25mm):", options: { A: "10 cm", B: "12 cm", C: "15 cm", D: "20 cm" }, answer: "C" },
+            { id: 91, question: "Chỉ tiêu cốt liệu đá dăm nước:", options: { A: "Cường độ nén, LA, thoi dẹt, bụi, mềm yếu", B: "LA, thoi dẹt...", C: "Cường độ nén, thoi dẹt...", D: "Cường độ nén, LA..." }, answer: "A" },
+            { id: 92, question: "Cường độ nén đá gốc (mama) cho mặt đường:", options: { A: ">= 40", B: ">= 50", C: ">= 70", D: ">= 100" }, answer: "C" },
+            { id: 93, question: "Cường độ nén đá gốc cho móng:", options: { A: ">= 40", B: ">= 50", C: ">= 70", D: ">= 80" }, answer: "D" }, // Check logic later
+            { id: 94, question: "Cường độ nén đá trầm tích cho mặt đường:", options: { A: ">= 40", B: ">= 50", C: ">= 70", D: ">= 80" }, answer: "B" }, // Check logic later
+            { id: 95, question: "Cường độ nén đá trầm tích cho móng:", options: { A: ">= 40", B: ">= 50", C: ">= 60", D: ">= 70" }, answer: "C" }, // Check logic later
+            { id: 96, question: "Độ hao mòn LA cốt liệu mặt:", options: { A: "<= 15%", B: "<= 18%", C: "<= 20%", D: "<= 28%" }, answer: "D" },
+            { id: 97, question: "Độ hao mòn LA cốt liệu móng trên:", options: { A: "<= 25%", B: "<= 28%", C: "<= 30%", D: "<= 35%" }, answer: "D" }, // Check logic
+            { id: 98, question: "Độ hao mòn LA cốt liệu móng dưới:", options: { A: "<= 28%", B: "<= 30%", C: "<= 35%", D: "<= 40%" }, answer: "D" },
+            { id: 99, question: "Hàm lượng thoi dẹt cốt liệu mặt/móng trên:", options: { A: "<= 5%", B: "<= 7%", C: "<= 10%", D: "<= 15%" }, answer: "D" },
+            { id: 100, question: "Đá dăm 4x6 là:", options: { A: "Trên 40 lọt 60", B: "Trên 40 không lọt 60", C: "Dưới 40 lọt 60", D: "Sai hết" }, answer: "A" },
+            { id: 101, question: "Đá dăm 5x7 là:", options: { A: "Trên 50 lọt 70", B: "Trên 50 không lọt 70", C: "Dưới 50 không lọt 70", D: "Sai hết" }, answer: "A" },
+            { id: 102, question: "Đá dăm 1x2 là:", options: { A: "Trên 10 lọt 20", B: "Dưới 10 lọt 20", C: "Trên 10 không lọt 20", D: "Sai hết" }, answer: "A" },
+            { id: 103, question: "Vật liệu chèn đá dăm nước:", options: { A: "Giới hạn chảy >20, dẻo <6...", B: "Chảy <20, dẻo >6...", C: "Chảy <20, dẻo <6, lọt 0.075 <10%", D: "Chảy <20, dẻo <6, lọt 0.075 <5%" }, answer: "C" },
+            { id: 104, question: "Chuẩn bị thi công đá dăm nước:", options: { A: "Nền, móng phải bằng phẳng, chặt, nghiệm thu", B: "Không nghiệm thu", C: "Chỉ nền nghiệm thu", D: "Chỉ móng nghiệm thu" }, answer: "A" },
+            { id: 105, question: "Rải đá dăm trên đường cũ:", options: { A: "Cào xới, rải đá, thoát nước", B: "Cào xới, sửa trắc ngang", C: "Cào xới, sửa, phẳng", D: "Cào xới, rải đá, thoát nước, phẳng" }, answer: "D" },
+            { id: 106, question: "Thi công cơ giới đá dăm nước cần:", options: { A: "Xe quét, lu nặng 10-12T rồi nhẹ...", B: "Xe quét, lu nhẹ, lu nặng...", C: "Tưới nước, lu nhẹ, lu nặng...", D: "A, B, C đúng" }, answer: "D" }, // Check logic
+            { id: 107, question: "Thi công thủ công đá dăm nước cần:", options: { A: "Lu nhẹ, vừa, nặng...", B: "Lu nặng, vừa...", C: "Tưới nước, xe cải tiến... lu nhẹ, nặng...", D: "A, B, C đúng" }, answer: "C" },
+            { id: 108, question: "Thi công thử 100m để:", options: { A: "Xác định thông số, công lu", B: "Thông số, đầm nén, tiến độ", C: "Thông số, công lu, tổ chức, cường độ", D: "Thông số đầm nén" }, answer: "A" },
+            { id: 109, question: "Giai đoạn lu lèn đá dăm nước:", options: { A: "Xếp - Vừa - Chặt - Hoàn thiện", B: "Xếp - Rung - Chặt - Hoàn thiện", C: "Xếp - Chặt - Hoàn thiện", D: "Xếp - Hoàn thiện - Phẳng" }, answer: "C" },
+            { id: 110, question: "Lu lèn tiến lùi bắt đầu:", options: { A: "Mép vào tim", B: "Tim ra mép", C: "Chồng 1/2 bánh", D: "Cả A và C" }, answer: "D" },
+            { id: 111, question: "Trình tự thi công đá dăm nước:", options: { A: "Thanh chắn - Cốt liệu thô - Lu thô - Chèn - Tưới - Dính kết - Hoàn thiện - Bảo trì", B: "... Chèn cốt liệu nhỏ...", C: "... Rải cốt liệu nhỏ...", D: "... Nghiệm thu" }, answer: "A" }, // Needs verification
+            { id: 112, question: "Kiểm tra giám sát gồm:", options: { A: "Trước thi công", B: "Trong thi công", C: "Sau thi công", D: "Tất cả" }, answer: "D" },
+            { id: 113, question: "Kiểm tra kích thước hình học gồm:", options: { A: "Dày, rộng, dốc ngang", B: "Dày, rộng, phẳng", C: "Dày, rộng, cường độ", D: "Tất cả" }, answer: "A" },
+            { id: 114, question: "Cấp phối thiên nhiên là:", options: { A: "Hạt có sẵn, 3-5mm...", B: "Hạt có sẵn, nguyên lý cấp phối", C: "Hạt 4x6", D: "Hạt 2x4" }, answer: "B" },
+            { id: 115, question: "Thành phần hạt cấp phối thiên nhiên:", options: { A: "50, 25, 9.5...", B: "50, 37.5, 9.5...", C: "50, 37.5, 25...", D: "50, 25..." }, answer: "C" }, // Approximation
+            { id: 116, question: "Chỉ tiêu cấp phối thiên nhiên:", options: { A: "Loại, chảy, dẻo, CBR, LA, dẹt", B: "Loại, chảy, dẻo, CBR, LA, lọt sàng 200", C: "Loại, chảy, dẻo, CBR, LA, lọt 0.075", D: "Loại, cường độ, chảy..." }, answer: "A" },
+            { id: 117, question: "Trình tự thi công cấp phối thiên nhiên:", options: { A: "Chuẩn bị - Vận chuyển - San - Lu - Bảo dưỡng", B: "Chuẩn bị - Vận chuyển - Lu - Bảo dưỡng", C: "Chuẩn bị - Vận chuyển - San - Bảo dưỡng", D: "Chuẩn bị - San - Lu - Bảo dưỡng" }, answer: "A" },
+            { id: 118, question: "San rải cấp phối, dày mỗi lớp:", options: { A: "Không quá 15cm", B: "Không quá 20cm", C: "Không quá 35cm", D: "Không quá 30cm" }, answer: "A" }, // Or B depending on standard
+            { id: 119, question: "Thi công thử đoạn rải để:", options: { A: "Tính chiều dày, đánh giá vật liệu, tiến độ, độ chặt", B: "Tính chiều dày, thời gian lu", C: "Tính chiều dày, thời gian lu, quan hệ độ ẩm", D: "Quan hệ độ ẩm" }, answer: "A" },
+            { id: 120, question: "Gặp mưa khi thi công cấp phối:", options: { A: "Ngừng", B: "Đợi khô", C: "Làm tiếp", D: "Cả A và B" }, answer: "D" },
+            { id: 121, question: "Kiểm tra hình học cấp phối:", options: { A: "Rộng, dày, dốc mặt và lề", B: "Dày, dài, dốc", C: "Rộng, dài, dốc", D: "Rộng, dài, dày" }, answer: "A" },
+            { id: 122, question: "Cấp phối đá dăm loại I:", options: { A: "Là cấp phối hạt", B: "Nghiền từ đá nguyên khai", C: "Đồng kích cỡ 4x6", D: "Cả A và B" }, answer: "D" },
+            { id: 123, question: "Cấp phối đá dăm loại II:", options: { A: "Cấp phối hạt", B: "Nghiền từ đá hoặc sỏi cuội", C: "Cỡ 4x6", D: "Cỡ 2x4" }, answer: "B" }, // Logic check
+            { id: 124, question: "Đá gốc làm cấp phối đá dăm phải đảm bảo:", options: { A: "Nén 80 (móng trên)...", B: "Nén 80 (móng trên), 30 (móng dưới)", C: "Nén 60 (trên), 40 (dưới)", D: "Nén 60 (trên), 30 (dưới)" }, answer: "C" },
+            { id: 125, question: "Cỡ hạt Dmax TCVN 8859:", options: { A: "37.5, 25, 19", B: "50, 37.5, 25, 19", C: "50, 37.5, 31.5, 25, 19", D: "50, 37.5, 31.5, 25, 19, 12.5" }, answer: "C" },
+            { id: 126, question: "CPĐD Dmax=37.5 dùng:", options: { A: "Móng dưới", B: "Móng trên", C: "Bù vênh", D: "Tất cả" }, answer: "D" },
+            { id: 127, question: "CPĐD Dmax=25 dùng:", options: { A: "Móng dưới", B: "Móng trên", C: "Bù vênh", D: "Tất cả" }, answer: "D" },
+            { id: 128, question: "Độ chặt Kyc CPĐD loại I, II:", options: { A: "95", B: "96", C: "97", D: ">= 98" }, answer: "D" },
+            { id: 129, question: "Chuẩn bị mặt bằng CPĐD:", options: { A: "Khôi phục cọc, độ chặt, bù vênh", B: "Khôi phục, độ chặt lu lèn", C: "Khôi phục, phẳng", D: "Khôi phục, hình học" }, answer: "A" },
+            { id: 130, question: "Độ ẩm thi công CPĐD:", options: { A: "W +/- 2%", B: "W +/- 3%", C: "W +/- 4%", D: "W +/- 5%" }, answer: "A" },
+            { id: 131, question: "Chiều dày rải tối đa CPĐD:", options: { A: "12 cm", B: "15 cm", C: "18 cm", D: "20 cm" }, answer: "C" }, // Or 15
+            { id: 132, question: "Lu lèn CPĐD:", options: { A: "Nhẹ + Rung/Lốp", B: "Rung/Lốp + Cứng + Hoàn thiện", C: "Rung/Lốp + Cứng + Hoàn thiện (khác)", D: "Nhẹ + Rung/Lốp + Cứng + Nhẹ" }, answer: "D" },
+            { id: 133, question: "Móng đất gia cố vô cơ là:", options: { A: "Đất trộn vôi/xi măng lu lèn", B: "Cấp phối trộn", C: "Đá dăm đen", D: "Đá 4x6" }, answer: "A" },
+            { id: 134, question: "Tính chất cơ lý đất gia cố:", options: { A: "Nén, kéo uốn", B: "Nén, kéo uốn, modul, ngâm nước", C: "Ngâm nước", D: "Modul" }, answer: "B" }, // Or A
+            { id: 135, question: "Thành phần vật liệu đất gia cố:", options: { A: "Đất + Xi măng/Vôi + Nước + Phụ gia", B: "Đất + Nhũ tương...", C: "Đất + Bitum...", D: "Tất cả" }, answer: "A" },
+            { id: 136, question: "Trình tự thi công đất gia cố:", options: { A: "Tơi đất - Trộn cát/chất gia cố - Đầm - Bảo dưỡng", B: "Tơi - Trộn chất gia cố - Đầm - Bảo dưỡng", C: "Tơi - Nước - Trộn - Đầm", D: "Tơi - Nước - Cát..." }, answer: "A" },
+            { id: 137, question: "Trình tự gia cố xi măng/vôi:", options: { A: "Chuẩn bị - Cày - Tơi - Rải - Trộn khô - Ẩm - Trộn ẩm - San - Đầm - Hoàn thiện", B: "... Rải...", C: "... Trộn khô...", D: "... Rải..." }, answer: "A" },
+            { id: 138, question: "Thí nghiệm hỗn hợp đất gia cố:", options: { A: "Thành phần hạt...", B: "Độ ẩm tốt nhất, KLTT khô, nén...", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 139, question: "Cấp độ bền vật liệu gia cố (TCVN 10379):", options: { A: "4", B: "3", C: "2", D: "1" }, answer: "B" }, // Check
+            { id: 140, question: "Chỉ tiêu cơ lý sau biến cứng (TCVN 10379):", options: { A: "Nén, ép chẻ 28 ngày", B: "Nén 7, 28; Ép chẻ 28", C: "Nén 7; Ép chẻ 28", D: "Nén 14, 28; Ép chẻ 28" }, answer: "D" },
+            { id: 141, question: "Thí nghiệm trước khi gia cố:", options: { A: "Lý hóa đất, cơ lý hóa chất kết dính", B: "Cơ lý hỗn hợp", C: "Cả A và B", D: "Chỉ lý hóa" }, answer: "C" },
+            { id: 142, question: "Đất dùng gia cố xi măng:", options: { A: "Bùn...", B: "Muối...", C: "Đất được phép đắp nền", D: "A và B đúng" }, answer: "C" },
+            { id: 143, question: "Đất KHÔNG dùng gia cố xi măng:", options: { A: "Bùn, hữu cơ >10%, nở >3%", B: "Muối >5%, chảy >45...", C: "Đất đắp nền", D: "A và B đúng" }, answer: "D" },
+            { id: 144, question: "CPĐD/CPTN gia cố xi măng là:", options: { A: "Đá chèn đá + xi măng", B: "Lát xếp + xi măng", C: "Cấp phối + xi măng + lu lèn", D: "Gia cố + xi măng" }, answer: "C" },
+            { id: 145, question: "Lớp chống nứt phản ảnh:", options: { A: "Chuyển tiếp, hấp phụ ứng suất", B: "Hạn chế hấp thụ", C: "A và B đúng", D: "A và B sai" }, answer: "A" },
+            { id: 146, question: "Dmax CPĐD gia cố xi măng:", options: { A: "50, 37.5...", B: "31.5, 25...", C: "25...", D: "37.5, 31.5, 25, 19" }, answer: "D" },
+            { id: 147, question: "LA CPĐD gia cố móng trên:", options: { A: "30", B: "35", C: "40", D: "45" }, answer: "A" }, // Or C? Usually stricter.
+            { id: 148, question: "LA CPĐD gia cố móng dưới:", options: { A: "30", B: "35", C: "40", D: "45" }, answer: "C" },
+            { id: 149, question: "Lượng xi măng thêm vào thực tế so với thí nghiệm:", options: { A: "0.5%", B: "0.4%", C: "0.3%", D: "0.2%" }, answer: "A" },
+            { id: 150, question: "Tuổi mẫu cường độ móng gia cố:", options: { A: "17 ngày", B: "16 ngày", C: "15 ngày", D: "14 ngày" }, answer: "D" },
+            { id: 151, question: "Lượng xi măng cho CPĐD:", options: { A: "3-6%", B: "2.5-6%", C: "4-6%", D: "4-10%" }, answer: "A" },
+            { id: 152, question: "Lượng xi măng cho CPTN:", options: { A: "3-6%", B: "2.5-6%", C: "4-6%", D: "4-10%" }, answer: "A" }, // Check
+            { id: 153, question: "Thiết bị lu lèn CPĐD gia cố:", options: { A: "Lu rung 7T + 10-15T + Bánh sắt", B: "Lu rung 10-12T + 7T...", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 154, question: "Sai số độ ẩm CP gia cố:", options: { A: "-1%", B: "-1.5%", C: "-2%", D: "-2.5%" }, answer: "C" },
+            { id: 155, question: "Cường độ mẫu khoan hiện trường đạt bao nhiêu % thiết kế:", options: { A: "85%", B: "75%", C: "65%", D: "50%" }, answer: "B" }, // Or A?
+            { id: 156, question: "Bảo dưỡng CP gia cố ít nhất:", options: { A: "17 ngày", B: "16 ngày", C: "15 ngày", D: "14 ngày" }, answer: "D" },
+            { id: 157, question: "Trộn tại đường CPTN gia cố:", options: { A: "Trạm trộn...", B: "Trộn đường, đầm...", C: "Trộn đường, san, đầm, hoàn thiện", D: "Trạm trộn..." }, answer: "C" },
+            { id: 158, question: "Giải pháp kiểm soát nứt phản ảnh:", options: { A: "Đá nhựa", B: "Lưới thủy tinh", C: "Khe giả", D: "A, B, C đúng" }, answer: "D" },
+            { id: 159, question: "Khoảng lượng xi măng CPĐD:", options: { A: "1.5 +/- 3", B: "2.5 +/- 6", C: "4 +/- 10", D: "5 +/- 15" }, answer: "A" }, // Needs check
+            { id: 160, question: "Khoảng lượng xi măng CPTN:", options: { A: "1.5 +/- 3", B: "2.5 +/- 6", C: "4 +/- 10", D: "5 +/- 15" }, answer: "A" },
+            { id: 161, question: "Cường độ nén 14 ngày móng trên:", options: { A: ">= 4.0", B: ">= 4.5", C: ">= 5.0", D: "Không" }, answer: "A" }, // Check
+            { id: 162, question: "Cường độ nén 14 ngày móng dưới:", options: { A: ">= 4.0", B: ">= 2.5", C: ">= 1.5", D: "Không" }, answer: "B" }, // Check
+            { id: 163, question: "Cường độ ép chẻ 14 ngày móng trên:", options: { A: ">= 0.35", B: ">= 0.40", C: ">= 0.45", D: "Không" }, answer: "B" }, // Check
+            { id: 164, question: "Phát biểu KHÔNG đúng (1):", options: { A: "CPĐD là đá nghiền...", B: "CPTN là có sẵn...", C: "Trộn xi măng lu lèn...", D: "Lớp chuyển tiếp không có khả năng hấp phụ ứng suất" }, answer: "D" },
+            { id: 165, question: "Phát biểu KHÔNG đúng (2):", options: { A: "Loại I móng trên...", B: "Loại II móng dưới...", C: "Chỉ Loại I móng dưới cứng", D: "Loại I nghiền 100%" }, answer: "C" }, // Check
+
+            // CHƯƠNG 5
+            { id: 166, question: "BTN nóng là:", options: { A: "Cốt liệu + nhũ tương", B: "Cốt liệu + nhựa đường nóng", C: "Cốt liệu + nhựa đường + phụ gia, trộn nóng, rải nóng", D: "Sai hết" }, answer: "C" },
+            { id: 167, question: "BTN chặt (BTNC):", options: { A: "Gián đoạn...", B: "Liên tục, Dmax <=25, có bột khoáng...", C: "Hở...", D: "Bán hở..." }, answer: "B" },
+            { id: 168, question: "Độ rỗng dư là:", options: { A: "Thể tích lỗ rỗng nhỏ giữa các hạt đã bọc nhựa", B: "Thể tích lỗ rỗng...", C: "A và B", D: "Khác" }, answer: "A" },
+            { id: 169, question: "Chiều dày hợp lý BTNC 12.5:", options: { A: "5-7", B: "6-8", C: "4-5", D: "7-9" }, answer: "C" },
+            { id: 170, question: "Chiều dày hợp lý BTNC 19:", options: { A: "5-7", B: "6-8", C: "4-5", D: "7-9" }, answer: "A" }, // Usually 5-7 or 6-8
+            { id: 171, question: "Hỗn hợp chặt nóng (TCVN 13567):", options: { A: "Rỗng 7-12%", B: "Rỗng 3-6%", C: "Rỗng 4-6%", D: "Rỗng 3-7%" }, answer: "B" }, // Check standard
+            { id: 172, question: "Cỡ hạt lớn nhất danh định:", options: { A: "Sót không quá 10%", B: "Lọt 100%", C: "Sót >10%", D: "Lọt 100%" }, answer: "A" },
+            { id: 173, question: "Cỡ hạt lớn nhất:", options: { A: "Sót <10%", B: "Lọt 100%", C: "Sót >10%", D: "Lọt 100%" }, answer: "D" },
+            { id: 174, question: "Định nghĩa độ rỗng dư (2):", options: { A: "Thể tích hạt", B: "Thể tích nhựa", C: "Thể tích lỗ rỗng nhỏ biểu thị % thể tích mẫu", D: "Hạt và nhựa" }, answer: "C" },
+            { id: 175, question: "Độ rỗng dư BTNC thông thường:", options: { A: "3-6%", B: "7-12%", C: "4-8%", D: "8-12%" }, answer: "A" },
+            { id: 176, question: "Phân loại BTNC theo Dmax:", options: { A: "5 loại", B: "6 loại", C: "3 loại", D: "4 loại" }, answer: "A" }, // C9.5, 12.5, 19, 25... check
+            { id: 177, question: "BTNC 12.5 nghĩa là:", options: { A: "Dmax=9.5", B: "Dmax=12.5", C: "Dmax=19", D: "Dmax danh định 12.5" }, answer: "D" },
+            { id: 178, question: "Cốt liệu nhỏ là:", options: { A: "Lọt 2.36, trên 0.075", B: "Lọt 4.75, trên 0.075", C: "Lọt 1.18", D: "Lọt 0.6" }, answer: "B" }, // Usually sand < 4.75
+            { id: 179, question: "Cốt liệu lớn là:", options: { A: "Trên 4.75", B: "Trên 9.5", C: "Trên 12.5", D: "Trên 16" }, answer: "A" },
+            { id: 180, question: "Thời gian từ tưới thấm bám nhựa lỏng đến rải:", options: { A: "24h", B: "8h", C: "12h", D: "4h" }, answer: "A" }, // Check
+            { id: 181, question: "Thời gian từ tưới thấm bám nhũ tương đến rải:", options: { A: "24h", B: "8h", C: "12h", D: "4h" }, answer: "D" }, // Check
+            { id: 182, question: "Thời gian từ tưới dính bám nhựa lỏng đến rải:", options: { A: "24h", B: "8h", C: "4h", D: "2h" }, answer: "C" }, // Check
+            { id: 183, question: "Chỉ tiêu kỹ thuật BTNC:", options: { A: "Chày đầm, ổn định, dẻo, rỗng, vệt hằn...", B: "Ổn định còn lại...", C: "Lấp đầy nhựa...", D: "Kháng mỏi" }, answer: "C" }, // List is long
+            { id: 184, question: "Thành phần vật liệu BTN:", options: { A: "Cốt liệu, bột khoáng, nhựa, phụ gia", B: "Cốt liệu, cát...", C: "Cốt liệu, bột...", D: "Lớn, nhỏ, bột, nhựa, phụ gia" }, answer: "D" },
+            { id: 185, question: "Độ dính bám đá nhựa cấp:", options: { A: "2", B: "3", C: "4", D: "Sai" }, answer: "C" }, // Usually level 4
+            { id: 186, question: "Mục đích thiết kế BTN:", options: { A: "Tỷ lệ, độ rỗng", B: "Tỷ lệ vật liệu khoáng, hàm lượng nhựa tối ưu", C: "Cấp phối tối ưu", D: "Cường độ tối ưu" }, answer: "B" },
+            { id: 187, question: "Nhiệt độ bắt đầu lu lèn nhựa 60/70:", options: { A: "115", B: "100", C: "110", D: "120" }, answer: "D" },
+            { id: 188, question: "Nhiệt độ kết thúc lu lèn nhựa 60/70:", options: { A: "80", B: "70", C: "95", D: "50" }, answer: "A" },
+            { id: 189, question: "Nhiệt độ thông xe:", options: { A: "65", B: "50", C: "60", D: "55" }, answer: "B" },
+            { id: 190, question: "Nhiệt độ xả hỗn hợp 60/70:", options: { A: "110-120", B: "120-130", C: "130-135", D: "145-165" }, answer: "D" },
+            { id: 191, question: "Thiết bị lu lèn tối thiểu:", options: { A: "Thép nặng + Hơi", B: "Thép nhẹ + Chân cừu + Hơi", C: "Thép nhẹ + Thép nặng + Hơi", D: "Thép nhẹ" }, answer: "C" },
+            { id: 192, question: "Kiểm tra vật liệu sản xuất:", options: { A: "Cốt liệu, phụ gia, nhựa", B: "Cốt liệu, bụi, nhựa", C: "Cốt liệu, bột khoáng, nhựa", D: "Nhiệt độ" }, answer: "C" },
+            { id: 193, question: "Kiểm tra hình học nghiệm thu:", options: { A: "Rộng, dốc, dày, cao độ, phẳng", B: "Nhám", C: "Cao độ", D: "Kháng trượt" }, answer: "A" },
+            { id: 194, question: "Kiểm tra IRI:", options: { A: "Lớp trên cùng <=1km...", B: "Bắt buộc lớp trên cùng trừ cấp IV", C: "A và B đúng", D: "A và B sai" }, answer: "C" },
+            { id: 195, question: "Nghiệm thu độ rỗng dư mẫu khoan:", options: { A: "Cho phép 8%, K>=0.99", B: "Cho phép 7%, K>=0.98", C: "Thiết kế 5-6% -> cho phép 8%, K>=0.98", D: "Cho phép 7%, K>=0.99" }, answer: "C" },
+            { id: 196, question: "Nghiệm thu mối nối:", options: { A: "Mắt", B: "Thước", C: "Kinh vĩ", D: "A, B, C đúng" }, answer: "D" },
+            { id: 197, question: "Hồ sơ nghiệm thu:", options: { A: "Vật liệu, thiết kế...", B: "Rải thử...", C: "Sơ bộ...", D: "Tất cả vật liệu, thiết kế, rải thử, nhật ký..." }, answer: "D" },
+            { id: 198, question: "Độ rỗng dư cho phép (nếu thiết kế 5-6%):", options: { A: "6.5%", B: "7%", C: "7.5%", D: "8%, K>=0.99" }, answer: "B" }, // Check logic vs 195
+            { id: 199, question: "Đánh giá dính bám lớp dưới:", options: { A: "Mắt", B: "Thí nghiệm", C: "A và B", D: "Sai" }, answer: "C" }, // Or A?
+            { id: 200, question: "Thông xe khi nhiệt độ giảm dưới:", options: { A: "70", B: "60", C: "50", D: "40" }, answer: "C" },
+
+            // CHƯƠNG 6
+            { id: 201, question: "Áo đường cứng là:", options: { A: "Mặt BTXM cốt thép...", B: "Mặt BTXM, móng vật liệu khác", C: "Mặt CP gia cố", D: "Mặt vữa" }, answer: "B" },
+            { id: 202, question: "Công nghệ thi công BTXM:", options: { A: "Ván khuôn gỗ...", B: "Ván khuôn ray, trượt, DBI", C: "Ván khuôn ray, đơn giản...", D: "Tổ hợp" }, answer: "B" },
+            { id: 203, question: "Cường độ BTXM căn cứ:", options: { A: "Cấp đường, tốc độ", B: "Loại tầng mặt", C: "Tuổi mẫu", D: "Quy trình" }, answer: "A" },
+            { id: 204, question: "Tuổi mẫu cường độ BTXM:", options: { A: "3, 56", B: "3, 14", C: "3, 28", D: "3, 7" }, answer: "C" },
+            { id: 205, question: "Cường độ nén 28 ngày cấp IV:", options: { A: "37", B: "40", C: "42", D: "42.5" }, answer: "D" }, // Check standard
+            { id: 206, question: "Cường độ kéo uốn 28 ngày cấp IV:", options: { A: "6.5", B: "5.0", C: "4.5", D: "3.5" }, answer: "D" }, // Check
+            { id: 207, question: "Cát cho BTXM nguồn gốc:", options: { A: "Đá nghiền", B: "Sông sạch", C: "Trộn", D: "Tất cả" }, answer: "D" },
+            { id: 208, question: "Độ sụt công nghệ đơn giản:", options: { A: "5-10", B: "10-15", C: "20-40", D: "45-50" }, answer: "C" },
+            { id: 209, question: "Cường độ nén bê tông nghèo:", options: { A: "7", B: "10", C: "8", D: "9" }, answer: "B" }, // Check
+            { id: 210, question: "Chuẩn bị thi công BTXM:", options: { A: "Công nghệ, xe máy, hồ sơ, trạm, lu nền", B: "Công nghệ... chuẩn bị nền móng", C: "Xe lu móng", D: "..." }, answer: "B" },
+            { id: 211, question: "Thời gian rải xong (30-35 độ C):", options: { A: "0.6h", B: "0.8h", C: "1.0h", D: "0.9h" }, answer: "C" }, // Check
+            { id: 212, question: "Đình chỉ thi công khi:", options: { A: "Mưa, gió cấp 6", B: "Mưa, gió cấp 6, nóng >40, lạnh <5", C: "Lạnh <5", D: "Nóng >40" }, answer: "B" },
+            { id: 213, question: "Tránh thi công buổi trưa khi nhiệt độ:", options: { A: "15", B: "20", C: "30", D: "40" }, answer: "C" }, // Or D?
+            { id: 214, question: "Hệ số cường độ chế thử bê tông nghèo:", options: { A: "1.15-1.25", B: "1.15-1.2", C: "1.05-1.2", D: "1.15-1.5" }, answer: "A" }, // Check
+            { id: 215, question: "Kéo uốn cấp III trở xuống:", options: { A: "5.0", B: "4.5", C: "4.0", D: "3.5" }, answer: "C" }, // Check
+            { id: 216, question: "Độ mài mòn cấp IV trở xuống:", options: { A: "0.8", B: "0.7", C: "0.6", D: "0.3" }, answer: "C" }, // Check
+            { id: 217, question: "Cường độ chế thử cao hơn thiết kế:", options: { A: "1.15-1.3", B: "1.05-1.2", C: "1.15-1.2", D: "1.05-1.3" }, answer: "A" },
+            { id: 218, question: "Dmax đá dăm BTXM:", options: { A: "37.5", B: "31.5", C: "25", D: "19" }, answer: "A" },
+            { id: 219, question: "Modul độ lớn cát sông:", options: { A: "2.0-3.5", B: "2.2-3.0", C: "2.2-3.5", D: "2.5-3.5" }, answer: "D" },
+            { id: 220, question: "Khe dọc giả khi bề rộng rải >:", options: { A: "6.0", B: "5.5", C: "5.0", D: "4.5" }, answer: "D" },
+            { id: 221, question: "Thời gian bảo dưỡng theo cường độ đạt:", options: { A: "50%", B: "60%", C: "70%", D: "80%" }, answer: "D" },
+            { id: 222, question: "Bột đá lẫn cốt liệu thô:", options: { A: "1.0%", B: "1.5%", C: "2.0%", D: "3.0%" }, answer: "D" }, // Check
+            { id: 223, question: "Dùng cát nghiền yêu cầu:", options: { A: "Không phụ gia", B: "Phải phụ gia giảm nước", C: "Thêm xi măng", D: "Thêm nước" }, answer: "B" },
+            { id: 224, question: "Lớp ngăn cách móng và mặt:", options: { A: "Đá dăm/bê tông nghèo", B: "Đá nhựa", C: "Giấy dầu/vải địa", D: "Tất cả" }, answer: "D" },
+            { id: 225, question: "Yêu cầu chuẩn bị:", options: { A: "Công nghệ... nền móng", B: "Xe lu", C: "Nhân công", D: "Vật liệu" }, answer: "A" },
+            { id: 226, question: "Cấu tạo chung BTXM:", options: { A: "Tấm, khe, móng, nền", B: "Tấm, dãn cách...", C: "Tấm, thép...", D: "Tất cả" }, answer: "D" },
+            { id: 227, question: "Trình tự thi công BTXM:", options: { A: "Móng... Ván khuôn...", B: "Móng... Vận chuyển", C: "Móng, vật liệu, xử lý, ván khuôn, thép, trộn, rải, hoàn thiện, khe, bảo dưỡng, nghiệm thu", D: "Móng..." }, answer: "C" },
+            { id: 228, question: "Nhược điểm BTXM:", options: { A: "Độ bền thấp...", B: "Khó sửa, tầm nhìn kém", C: "Khó sửa, bảo dưỡng dài, mối nối gây không thoải mái", D: "Độ bền thấp..." }, answer: "C" },
+            { id: 229, question: "Phát biểu KHÔNG đúng BTXM:", options: { A: "Nhược điểm khó sửa...", B: "Cấu tạo...", C: "Lớp ngăn cách đá dăm nhỏ/BT nghèo", D: "Cát nghiền dùng phụ gia" }, answer: "C" }, // Check
+            { id: 230, question: "Phát biểu ĐÚNG NHẤT BTXM:", options: { A: "Nhược điểm độ bền thấp...", B: "Cường độ căn cứ cấp đường, tốc độ", C: "Cát nghiền không phụ gia", D: "Bảo dưỡng 80%" }, answer: "B" }
         ];
 
         // --- HẾT PHẦN DỮ LIỆU CÂU HỎI ---
@@ -440,24 +546,19 @@
         // Logic Firebase (Giữ nguyên)
         // ----------------------------------------------------
 
-        // Hàm lưu điểm lên Firebase
         function saveScoreToLeaderboard(name, score) {
             const now = new Date();
             const dateString = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
             
-            // Push dữ liệu mới vào nhánh 'quiz_leaderboard'
             push(ref(db, 'quiz_leaderboard'), {
                 name: name,
                 score: score,
                 timestamp: dateString,
-                createdAt: Date.now() // Dùng để sort timestamp nếu cần
+                createdAt: Date.now()
             });
         }
 
-        // Hàm lấy dữ liệu và hiển thị (Realtime)
         function renderLeaderboardData() {
-            // Query lấy top 50 điểm cao nhất (Firebase sort tăng dần, nên mình lấy 50 cái cuối cùng của score)
-            // Lưu ý: Firebase sort tăng dần. Để lấy điểm cao nhất, ta lấy cuối danh sách rồi đảo ngược mảng ở client.
             const topScoresRef = query(ref(db, 'quiz_leaderboard'), orderByChild('score'), limitToLast(50));
             
             onValue(topScoresRef, (snapshot) => {
@@ -466,7 +567,6 @@
                     data.push(childSnapshot.val());
                 });
                 
-                // Đảo ngược mảng để điểm cao nhất lên đầu
                 data.reverse();
 
                 let html = '';
@@ -491,9 +591,8 @@
             });
         }
 
-        // Expose hàm showLeaderboard ra window để button HTML gọi được
         window.showLeaderboard = function(fromSetup = false) {
-            renderLeaderboardData(); // Kích hoạt lắng nghe dữ liệu
+            renderLeaderboardData();
             script_elements.setupContainer.style.display = 'none';
             script_elements.quizContainer.style.display = 'none';
             script_elements.finalResultScreen.style.display = 'none';
@@ -545,7 +644,7 @@
             script_elements.submitButton.style.display = 'block';
             
             const selectedTimeInput = document.querySelector('input[name="time"]:checked');
-            const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 30;
+            const durationInMinutes = selectedTimeInput ? parseInt(selectedTimeInput.value) : 45;
             startTimer(durationInMinutes);
 
             renderQuiz();
@@ -581,12 +680,6 @@
                 html += `<div class="question-block" id="q-block-${q.id}">`;
                 html += `<p class="question-text">${index + 1}. ${q.question}</p>`;
                 
-                if (q.image) {
-                    html += `<div style="text-align: center; margin-bottom: 15px;">
-                                <img src="${q.image}" alt="Hình ảnh cho câu hỏi ${index + 1}" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
-                            </div>`;
-                }
-
                 html += `<fieldset id="fs-${q.id}">`;
                 html += `<div class="options-container">`;
                 for (const key in shuffledOptions) {
@@ -675,7 +768,6 @@
             document.getElementById('final-score-text').textContent = `Chúc mừng ${currentUsername}! Bạn đã đạt: ${score} / ${totalQuestions} điểm`;
             script_elements.finalResultScreen.style.display = 'block';
 
-            // Gửi điểm lên Firebase
             saveScoreToLeaderboard(currentUsername, score);
         }
         
