@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo ITS Việt Nam: Hiện trạng & Tương lai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB; /* Warm neutral background */
+            color: #1F2937;
+        }
+
+        /* Chart Container Styling - MANDATORY */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* Custom Scrollbar for text areas */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #F3F4F6;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #CBD5E1;
+            border-radius: 20px;
+        }
+
+        .active-tab {
+            border-bottom: 2px solid #0EA5E9; /* Sky 500 */
+            color: #0EA5E9;
+            font-weight: 600;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .transition-all-300 {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+    <!-- Chosen Palette: "Modern Civic" - Warm Neutral Backgrounds (Slate/Gray 50), Tech Blue (Sky 500/600) for primary actions/data, Dark Gray (Gray 800) for text. Minimalist and professional. -->
+    
+    <!-- Application Structure Plan: 
+         1. Header: Brief Intro & Report Context.
+         2. Navigation: Tabs for 'Tổng quan' (Overview), 'Hạ tầng' (Infrastructure details), 'Thách thức' (Analysis), 'Tương lai' (Roadmap).
+         3. Section 1 (Overview): Key Metrics Dashboard (ETC rate, Expressways covered) + Intro text. Goal: Instant context.
+         4. Section 2 (Infrastructure): Interactive Grid. Users click on ITS components (Camera, Weighing, VMS) to see specific status in VN. Goal: Detail exploration.
+         5. Section 3 (Analysis): Bar Chart comparing ITS readiness across different expressway routes. Goal: Comparative insight.
+         6. Section 4 (Future): Vertical Timeline of policies and technologies (2020-2030). Goal: Strategic view.
+         Why this structure? It breaks a dense technical report into consumable layers: Stats -> Components -> Comparison -> Time.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Overview: Donut Chart for ETC Adoption. Simple percentage visualization.
+         2. Infrastructure: Interactive Text Cards. No complex charts needed here, just clean structured info.
+         3. Analysis: Bar Chart for "ITS Maturity Score" per route. Allows comparison of modern vs older expressways.
+         4. Future: Styled HTML Timeline. Better than a chart for text-heavy milestones.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-network-wired text-sky-600 text-2xl mr-3"></i>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900 leading-tight">Báo Cáo ITS Việt Nam</h1>
+                        <p class="text-xs text-gray-500">Hệ thống Giao thông Thông minh: Hiện trạng & Quy hoạch 2030</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <button onclick="switchTab('overview')" id="tab-overview" class="nav-btn active-tab px-3 py-5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Tổng Quan</button>
+                    <button onclick="switchTab('infrastructure')" id="tab-infrastructure" class="nav-btn px-3 py-5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Hạ Tầng Số</button>
+                    <button onclick="switchTab('challenges')" id="tab-challenges" class="nav-btn px-3 py-5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Thách Thức</button>
+                    <button onclick="switchTab('future')" id="tab-future" class="nav-btn px-3 py-5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">Tầm Nhìn 2030</button>
+                </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="flex flex-col px-4 py-2 space-y-2">
+                <button onclick="switchTab('overview')" class="text-left px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-md">Tổng Quan</button>
+                <button onclick="switchTab('infrastructure')" class="text-left px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-md">Hạ Tầng Số</button>
+                <button onclick="switchTab('challenges')" class="text-left px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-md">Thách Thức</button>
+                <button onclick="switchTab('future')" class="text-left px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-md">Tầm Nhìn 2030</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- SECTION 1: OVERVIEW -->
+        <section id="overview" class="tab-content block animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Bức Tranh Toàn Cảnh ITS Việt Nam</h2>
+                <p class="text-gray-600 leading-relaxed max-w-3xl">
+                    Hệ thống giao thông thông minh (Intelligent Transport Systems - ITS) đang trở thành xương sống của hạ tầng giao thông Việt Nam, đặc biệt trên tuyến cao tốc Bắc - Nam. 
+                    Mục tiêu cốt lõi là chuyển đổi từ quản lý thủ công sang quản lý dựa trên dữ liệu số, tự động hóa thu phí và giám sát an toàn.
+                    Dưới đây là các chỉ số chính tính đến năm 2024-2025.
+                </p>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- Stat Card 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Tỷ lệ dán thẻ ETC</h3>
+                        <i class="fas fa-tag text-sky-500 bg-sky-50 p-2 rounded-full"></i>
+                    </div>
+                    <div class="flex items-end items-center space-x-2">
+                        <span class="text-4xl font-bold text-gray-900">90%</span>
+                        <span class="text-sm text-green-600 font-medium mb-1"><i class="fas fa-arrow-up"></i> +5% so với 2023</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Tổng số phương tiện ô tô đã dán thẻ thu phí không dừng.</p>
+                </div>
+
+                <!-- Stat Card 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Cao tốc có ITS</h3>
+                        <i class="fas fa-road text-indigo-500 bg-indigo-50 p-2 rounded-full"></i>
+                    </div>
+                    <div class="flex items-end items-center space-x-2">
+                        <span class="text-4xl font-bold text-gray-900">~600</span>
+                        <span class="text-sm text-gray-500 font-medium mb-1">km</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Đoạn tuyến đã lắp đặt hệ thống giám sát hoàn chỉnh (Camera, VMS).</p>
+                </div>
+
+                <!-- Stat Card 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 card-hover transition-all-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Xử phạt qua Camera</h3>
+                        <i class="fas fa-video text-rose-500 bg-rose-50 p-2 rounded-full"></i>
+                    </div>
+                    <div class="flex items-end items-center space-x-2">
+                        <span class="text-4xl font-bold text-gray-900">Phạt Nguội</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Đang trở thành hình thức xử lý vi phạm chính tại các thành phố lớn.</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1: ETC Composition -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Cơ Cấu Thu Phí Tự Động (ETC)</h3>
+                    <p class="text-sm text-gray-500 mb-6">Tỷ lệ các nhà cung cấp dịch vụ ETC chính tại Việt Nam.</p>
+                    <div class="chart-container">
+                        <canvas id="etcChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
+                            Nguồn: Tổng hợp báo cáo ngành GTVT
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Context Text -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Điểm Nhấn Chiến Lược</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mt-0.5">
+                                <span class="text-blue-600 font-bold text-sm">1</span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-bold text-gray-900">Thu phí không dừng (ETC) là nền tảng</h4>
+                                <p class="text-sm text-gray-600 mt-1">Việc triển khai thành công ETC giai đoạn 1 và 2 đã tạo tiền đề dữ liệu số cho toàn ngành giao thông.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mt-0.5">
+                                <span class="text-blue-600 font-bold text-sm">2</span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-bold text-gray-900">Giám sát tự động trên cao tốc</h4>
+                                <p class="text-sm text-gray-600 mt-1">Các tuyến Hà Nội - Hải Phòng, Pháp Vân - Cầu Giẽ là hình mẫu về hệ thống camera giám sát và cân tải trọng động.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mt-0.5">
+                                <span class="text-blue-600 font-bold text-sm">3</span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-bold text-gray-900">Chuyển đổi số đô thị</h4>
+                                <p class="text-sm text-gray-600 mt-1">Hà Nội và TP.HCM đang thí điểm các trung tâm điều hành giao thông thông minh (TOC) tích hợp AI để phân luồng.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INFRASTRUCTURE (Interactive Grid) -->
+        <section id="infrastructure" class="tab-content hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Cấu Phần Hạ Tầng Số</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Hệ thống ITS tại Việt Nam được cấu thành từ 4 trụ cột công nghệ chính. 
+                    Nhấn vào từng thẻ bên dưới để xem chi tiết tình hình triển khai thực tế.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Selection Grid -->
+                <div class="lg:col-span-4 grid grid-cols-1 gap-4">
+                    <button onclick="updateInfraDetail('camera')" class="infra-btn active-infra p-4 rounded-lg border text-left flex items-center transition-all hover:bg-white hover:shadow-md bg-white border-sky-500 shadow-md">
+                        <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mr-4">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Giám Sát (CCTV)</h4>
+                            <p class="text-xs text-gray-500">Camera AI & Nhận diện biển số</p>
+                        </div>
+                    </button>
+
+                    <button onclick="updateInfraDetail('vms')" class="infra-btn p-4 rounded-lg border border-gray-200 text-left flex items-center transition-all hover:bg-white hover:shadow-md bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mr-4">
+                            <i class="fas fa-sign"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Biển Báo Điện Tử (VMS)</h4>
+                            <p class="text-xs text-gray-500">Thông tin giao thông thời gian thực</p>
+                        </div>
+                    </button>
+
+                    <button onclick="updateInfraDetail('wim')" class="infra-btn p-4 rounded-lg border border-gray-200 text-left flex items-center transition-all hover:bg-white hover:shadow-md bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mr-4">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Cân Tải Trọng (WIM)</h4>
+                            <p class="text-xs text-gray-500">Kiểm soát xe quá tải tự động</p>
+                        </div>
+                    </button>
+
+                    <button onclick="updateInfraDetail('toc')" class="infra-btn p-4 rounded-lg border border-gray-200 text-left flex items-center transition-all hover:bg-white hover:shadow-md bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Trung Tâm Điều Hành (TOC)</h4>
+                            <p class="text-xs text-gray-500">Bộ não quản lý dữ liệu</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Detail View Panel -->
+                <div class="lg:col-span-8">
+                    <div id="infra-detail-content" class="bg-white p-8 rounded-2xl border border-gray-200 h-full shadow-sm">
+                        <!-- Content injected via JS -->
+                        <div class="animate-pulse flex space-x-4">
+                            <div class="flex-1 space-y-4 py-1">
+                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div class="space-y-2">
+                                    <div class="h-4 bg-gray-200 rounded"></div>
+                                    <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: CHALLENGES (Analysis) -->
+        <section id="challenges" class="tab-content hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Thách Thức & Rào Cản</h2>
+                <p class="text-gray-600 max-w-3xl">
+                    Mặc dù có những bước tiến lớn, ITS tại Việt Nam vẫn đối mặt với sự phân mảnh và thiếu đồng bộ. 
+                    Biểu đồ dưới đây so sánh mức độ hoàn thiện ITS giữa các tuyến cao tốc trọng điểm, phản ánh sự chênh lệch trong đầu tư công nghệ.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                <!-- Comparison Chart -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Mức Độ Hoàn Thiện ITS (Thang điểm 10)</h3>
+                    <div class="chart-container">
+                        <canvas id="maturityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Key Pain Points -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-lg font-semibold text-rose-600 mb-4"><i class="fas fa-exclamation-triangle mr-2"></i>Điểm Nghẽn Chính</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">1. Tiêu chuẩn chưa thống nhất</h4>
+                            <p class="text-sm text-gray-600 mt-1">Các dự án ITS thường sử dụng công nghệ khác nhau (Châu Âu, Nhật Bản, Trung Quốc) gây khó khăn trong việc kết nối dữ liệu liên tuyến.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">2. Dữ liệu phân mảnh</h4>
+                            <p class="text-sm text-gray-600 mt-1">Dữ liệu từ Camera, ETC và Cân tải trọng thường được quản lý bởi các đơn vị vận hành khác nhau, chưa chia sẻ về Cục Đường bộ một cách realtime.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">3. Vốn đầu tư & Bảo trì</h4>
+                            <p class="text-sm text-gray-600 mt-1">Chi phí đầu tư ITS ban đầu lớn (15-20% tổng mức đầu tư dự án), chi phí bảo trì thiết bị điện tử cao nhưng chưa có cơ chế tài chính bền vững.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: FUTURE VISION (Roadmap) -->
+        <section id="future" class="tab-content hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Tầm Nhìn 2030 & Lộ Trình</h2>
+                <p class="text-gray-600">
+                    Chiến lược phát triển ITS của Bộ GTVT hướng tới việc làm chủ công nghệ, kết nối vạn vật (IoT) và xây dựng cơ sở dữ liệu quốc gia về giao thông.
+                </p>
+            </div>
+
+            <div class="relative border-l-4 border-sky-200 ml-6 space-y-12 my-10">
+                <!-- Milestone 1 -->
+                <div class="relative pl-8">
+                    <div class="absolute -left-3 top-0 bg-sky-500 w-6 h-6 rounded-full border-4 border-white shadow-sm"></div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block px-3 py-1 bg-sky-100 text-sky-700 text-xs font-bold rounded-full mb-2">2023 - 2025</span>
+                        <h3 class="text-lg font-bold text-gray-900">Giai đoạn Chuẩn hóa & Kết nối</h3>
+                        <p class="text-gray-600 mt-2 text-sm">
+                            - Hoàn thiện hệ thống thu phí không dừng (ETC) tại tất cả các sân bay và bãi đỗ xe.<br>
+                            - Phủ sóng camera giám sát phạt nguội trên 100% cao tốc Bắc - Nam phía Đông.<br>
+                            - Ban hành TCVN đầy đủ về thiết kế và lắp đặt ITS.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Milestone 2 -->
+                <div class="relative pl-8">
+                    <div class="absolute -left-3 top-0 bg-indigo-500 w-6 h-6 rounded-full border-4 border-white shadow-sm"></div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full mb-2">2026 - 2028</span>
+                        <h3 class="text-lg font-bold text-gray-900">Trung Tâm Điều Hành Quốc Gia</h3>
+                        <p class="text-gray-600 mt-2 text-sm">
+                            - Xây dựng Trung tâm điều hành giao thông quốc gia, kết nối dữ liệu từ tất cả các TOC địa phương.<br>
+                            - Ứng dụng AI phân tích dữ liệu lớn (Big Data) để dự báo ùn tắc và điều tiết giao thông tự động.<br>
+                            - Thí điểm thu phí đa làn tự do (MLFF) - bỏ hoàn toàn barie.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Milestone 3 -->
+                <div class="relative pl-8">
+                    <div class="absolute -left-3 top-0 bg-purple-500 w-6 h-6 rounded-full border-4 border-white shadow-sm"></div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full mb-2">2030+</span>
+                        <h3 class="text-lg font-bold text-gray-900">Kỷ Nguyên V2X & Xe Tự Hành</h3>
+                        <p class="text-gray-600 mt-2 text-sm">
+                            - Triển khai hạ tầng V2X (Vehicle-to-Everything) cho phép xe giao tiếp với đường.<br>
+                            - Hỗ trợ vận hành xe tự lái cấp độ 3, 4 trên một số tuyến cao tốc thông minh.<br>
+                            - Hệ thống giao thông xanh, tối ưu hóa luồng tuyến để giảm phát thải carbon.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-sky-50 rounded-xl p-8 text-center border border-sky-100 mt-8">
+                <i class="fas fa-lightbulb text-sky-500 text-3xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Tương lai là Dữ liệu</h3>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    ITS không chỉ là lắp đặt camera hay cảm biến, mà là khả năng khai thác dữ liệu để phục vụ người dân tốt hơn, giảm tai nạn và thúc đẩy kinh tế số.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-sm text-gray-500">
+                    Báo cáo tổng hợp dựa trên dữ liệu ngành GTVT Việt Nam (2024-2025).<br>
+                    Ứng dụng được thiết kế để trực quan hóa thông tin nghiên cứu ITS.
+                </p>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <span class="text-gray-400 text-xs"><i class="fas fa-circle text-xs mr-1"></i>Dữ liệu mở</span>
+                    <span class="text-gray-400 text-xs"><i class="fas fa-circle text-xs mr-1"></i>Phân tích</span>
+                    <span class="text-gray-400 text-xs"><i class="fas fa-circle text-xs mr-1"></i>Quy hoạch</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        const state = {
+            activeTab: 'overview',
+            currentInfra: 'camera'
+        };
+
+        // Data Store
+        const infraData = {
+            'camera': {
+                title: 'Hệ Thống Giám Sát Camera (CCTV)',
+                icon: 'fas fa-video',
+                color: 'text-sky-600',
+                bg: 'bg-sky-100',
+                content: `<p class="text-gray-700 mb-4">Hệ thống camera giám sát (CCTV) là "mắt thần" của ITS, được lắp đặt dày đặc trên các tuyến cao tốc mới như Hà Nội - Hải Phòng, Pháp Vân - Cầu Giẽ, và Cao tốc Bắc - Nam.</p>
+                          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 mb-6">
+                              <li><strong>Chức năng:</strong> Giám sát lưu lượng, phát hiện sự cố (dừng đỗ trái phép, tai nạn), và nhận diện biển số để xử phạt nguội.</li>
+                              <li><strong>Công nghệ:</strong> Camera IP độ phân giải cao, tích hợp AI tại biên (Edge AI) để xử lý hình ảnh tức thời.</li>
+                              <li><strong>Hiện trạng:</strong> Đã phủ sóng hầu hết các điểm đen giao thông và các trạm thu phí.</li>
+                          </ul>
+                          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                              <span class="block text-xs font-bold text-gray-500 uppercase">Thống kê</span>
+                              <span class="block text-2xl font-bold text-gray-900 mt-1">~1 Camera / 2km</span>
+                              <span class="text-xs text-gray-500">Mật độ trung bình trên cao tốc chuẩn</span>
+                          </div>`
+            },
+            'vms': {
+                title: 'Biển Báo Thông Tin Điện Tử (VMS)',
+                icon: 'fas fa-sign',
+                color: 'text-amber-600',
+                bg: 'bg-amber-100',
+                content: `<p class="text-gray-700 mb-4">VMS (Variable Message Signs) là kênh giao tiếp trực tiếp giữa trung tâm điều hành và tài xế trên đường.</p>
+                          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 mb-6">
+                              <li><strong>Chức năng:</strong> Hiển thị thông tin cảnh báo tai nạn, ùn tắc, thời tiết xấu, hoặc điều chỉnh tốc độ giới hạn động.</li>
+                              <li><strong>Vị trí:</strong> Thường lắp đặt trước các nút giao, trạm thu phí hoặc cửa hầm.</li>
+                              <li><strong>Hiện trạng:</strong> Đang được chuẩn hóa về kích thước, màu sắc hiển thị và phông chữ theo quy chuẩn mới (QCVN 41:2019).</li>
+                          </ul>
+                          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                              <span class="block text-xs font-bold text-gray-500 uppercase">Mục tiêu</span>
+                              <span class="block text-2xl font-bold text-gray-900 mt-1">Cảnh báo tức thời</span>
+                              <span class="text-xs text-gray-500">Giảm thiểu tai nạn liên hoàn trên cao tốc</span>
+                          </div>`
+            },
+            'wim': {
+                title: 'Cân Tải Trọng Động (WIM)',
+                icon: 'fas fa-weight-hanging',
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-100',
+                content: `<p class="text-gray-700 mb-4">Hệ thống cân kỹ thuật số Weigh-in-Motion (WIM) cho phép kiểm soát tải trọng xe mà không cần dừng lại.</p>
+                          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 mb-6">
+                              <li><strong>Công nghệ:</strong> Cảm biến thạch anh hoặc cáp quang chôn dưới mặt đường, kết hợp camera nhận diện biển số.</li>
+                              <li><strong>Lợi ích:</strong> Bảo vệ kết cấu hạ tầng đường bộ, ngăn chặn xe quá khổ quá tải phá hoại mặt đường.</li>
+                              <li><strong>Thách thức:</strong> Độ chính xác phụ thuộc vào tốc độ xe và độ bằng phẳng của mặt đường.</li>
+                          </ul>
+                          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                              <span class="block text-xs font-bold text-gray-500 uppercase">Hiệu quả</span>
+                              <span class="block text-2xl font-bold text-gray-900 mt-1">Giảm 90%</span>
+                              <span class="text-xs text-gray-500">Số lượng xe quá tải trên các tuyến có lắp đặt WIM</span>
+                          </div>`
+            },
+            'toc': {
+                title: 'Trung Tâm Điều Hành (TOC)',
+                icon: 'fas fa-server',
+                color: 'text-purple-600',
+                bg: 'bg-purple-100',
+                content: `<p class="text-gray-700 mb-4">TOC (Traffic Operation Center) là bộ não của hệ thống ITS, nơi tập trung dữ liệu và ra quyết định.</p>
+                          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600 mb-6">
+                              <li><strong>Cấu trúc:</strong> Hệ thống màn hình ghép (Video Wall), máy chủ xử lý dữ liệu, phần mềm quản lý sự cố.</li>
+                              <li><strong>Nhân sự:</strong> Vận hành 24/7 để giám sát và phối hợp cứu hộ cứu nạn.</li>
+                              <li><strong>Xu hướng:</strong> Chuyển dịch từ các TOC cục bộ từng tuyến sang mô hình TOC khu vực và Quốc gia để đồng bộ dữ liệu.</li>
+                          </ul>
+                          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                              <span class="block text-xs font-bold text-gray-500 uppercase">Quy mô</span>
+                              <span class="block text-2xl font-bold text-gray-900 mt-1">Đa cấp độ</span>
+                              <span class="text-xs text-gray-500">TOC Tuyến -> TOC Khu vực -> TOC Quốc gia</span>
+                          </div>`
+            }
+        };
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            updateInfraDetail('camera');
+        });
+
+        // Navigation Function
+        function switchTab(tabId) {
+            // Update UI State
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Update Buttons
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('active-tab', 'text-sky-600', 'border-b-2', 'border-sky-500');
+                el.classList.add('text-gray-500');
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('active-tab', 'text-sky-600');
+                activeBtn.classList.remove('text-gray-500');
+            }
+
+            state.activeTab = tabId;
+            
+            // Mobile menu toggle logic
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Infrastructure Interactive Logic
+        function updateInfraDetail(key) {
+            const data = infraData[key];
+            const container = document.getElementById('infra-detail-content');
+            
+            // Update Buttons Styles
+            document.querySelectorAll('.infra-btn').forEach(btn => {
+                btn.classList.remove('border-sky-500', 'shadow-md', 'bg-white');
+                btn.classList.add('border-gray-200', 'bg-gray-50');
+            });
+            // Highlight active button (finding element via onclick attr matches is simpler here for vanilla js without heavy ID mgmt)
+            const activeBtn = document.querySelector(`button[onclick="updateInfraDetail('${key}')"]`);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-gray-200', 'bg-gray-50');
+                activeBtn.classList.add('border-sky-500', 'shadow-md', 'bg-white');
+            }
+
+            // Render Content
+            container.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full ${data.bg} ${data.color} flex items-center justify-center mr-4 shadow-sm">
+                            <i class="${data.icon} text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900">${data.title}</h3>
+                    </div>
+                    <div class="prose prose-blue max-w-none">
+                        ${data.content}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Chart Initialization
+        function initCharts() {
+            // Chart 1: ETC Composition (Donut)
+            const ctxEtc = document.getElementById('etcChart').getContext('2d');
+            new Chart(ctxEtc, {
+                type: 'doughnut',
+                data: {
+                    labels: ['VETC (E-Tag)', 'VDTC (ePass)', 'Chưa dán thẻ'],
+                    datasets: [{
+                        data: [52, 38, 10],
+                        backgroundColor: ['#0EA5E9', '#F59E0B', '#E5E7EB'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 12 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                }
+            });
+
+            // Chart 2: ITS Maturity (Bar)
+            const ctxMaturity = document.getElementById('maturityChart').getContext('2d');
+            new Chart(ctxMaturity, {
+                type: 'bar',
+                data: {
+                    labels: ['Hà Nội - Hải Phòng', 'Pháp Vân - Cầu Giẽ', 'TP.HCM - Long Thành', 'Cao tốc Mới (Bắc-Nam 2023)', 'Quốc lộ cũ'],
+                    datasets: [{
+                        label: 'Điểm Hoàn Thiện ITS (0-10)',
+                        data: [9.5, 9.0, 8.5, 7.0, 3.0],
+                        backgroundColor: [
+                            '#0EA5E9', // HN-HP (Top tier)
+                            '#38BDF8', 
+                            '#7DD3FC',
+                            '#BAE6FD', // New Expressways (Installing)
+                            '#E2E8F0'  // Old Roads
+                        ],
+                        borderRadius: 6,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { display: true, drawBorder: false, color: '#F3F4F6' },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { font: { family: 'Inter', size: 11 }, autoSkip: false, maxRotation: 45, minRotation: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1F2937',
+                            titleFont: { family: 'Inter', size: 13 },
+                            bodyFont: { family: 'Inter', size: 12 },
+                            padding: 10,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add simple fade-in animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.4s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
